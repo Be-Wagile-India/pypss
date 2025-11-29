@@ -28,8 +28,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # Using the Makefile logic but directly with pip for cross-platform compatibility
-        pip install -e .[dev]
+        # Install all optional dependencies for full test coverage
+        pip install -e .[dev,otel,llm,dashboard]
 
     - name: Run Linting & Static Analysis
       if: runner.os == 'Linux' && matrix.python-version == '3.12'
