@@ -1,15 +1,15 @@
 Advanced Configuration
 ======================
 
-The Python Program Stability Score (PSS) calculation is highly configurable to adapt to different application characteristics and performance goals. You can tune the PSS algorithm by adjusting parameters defined in the ``PSSConfig`` class, located in ``pypss/utils/config.py``.
+The Python Program Stability Score (PSS) is highly configurable via a centralized ``pypss.toml`` file in your project root. This allows you to tune everything from scoring algorithms to UI colors without touching the code.
 
-Configuration can be done via:
+Configuration File Structure
+----------------------------
 
-1.  **Environment Variables**: Variables prefixed with ``PYPSS_`` (e.g., ``PYPSS_SAMPLE_RATE``).
-2.  **TOML Files**: A ``pypss.toml`` file in the project root, or a ``[tool.pypss]`` section in ``pyproject.toml``.
+The ``pypss.toml`` file uses sections to organize settings.
 
-Key Configuration Parameters:
------------------------------
+Core Settings ``[pypss]``
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. list-table::
    :header-rows: 1
@@ -17,97 +17,123 @@ Key Configuration Parameters:
 
    * - Parameter
      - Description
-     - Default Value
+     - Default
 
    * - ``sample_rate``
-     - The fraction of traces to collect (0.01 to 1.0). A value of 1.0 collects all traces, while lower values sample traces to reduce overhead in high-traffic applications.
+     - Fraction of calls to sample (0.0 to 1.0).
      - ``1.0``
 
    * - ``max_traces``
-     - The maximum number of traces to keep in the internal ring buffer. This limits memory usage.
+     - Ring buffer size for storing trace data.
      - ``10000``
 
-   * - ``w_ts``
-     - Weight for Timing Stability. Higher value means timing consistency is more critical.
-     - ``0.30``
+   * - ``w_ts``, ``w_ms``, ``w_ev``, ``w_be``, ``w_cc``
+     - Weights for the 5 stability pillars. Must sum to approx 1.0.
+     - (Various)
 
-   * - ``w_ms``
-     - Weight for Memory Stability. Higher value means predictable memory usage is more critical.
-     - ``0.20``
+   * - ``alpha``, ``beta``, ``gamma``, ``delta``
+     - Sensitivity coefficients for scoring algorithms.
+     - (Various)
 
-   * - ``w_ev``
-     - Weight for Error Volatility. Higher value means fewer/less bursty errors are more important.
-     - ``0.20``
+UI Configuration ``[pypss.ui]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   * - ``w_be``
-     - Weight for Branching Entropy. Higher value means predictable execution paths are more important.
-     - ``0.15``
-
-   * - ``w_cc``
-     - Weight for Concurrency Chaos. Higher value means low contention and efficient parallel execution is more important.
-     - ``0.15``
-
-   * - ``alpha``
-     - Sensitivity for Timing Stability variance. Higher values penalize timing variance more strictly.
-     - ``2.0``
-
-   * - ``beta``
-     - Sensitivity for Timing Stability tail (latency spikes). Higher values penalize latency spikes more strictly.
-     - ``1.0``
-
-   * - ``gamma``
-     - Sensitivity for Memory Stability. Higher values penalize memory usage fluctuations more strictly.
-     - ``2.0``
-
-   * - ``mem_spike_threshold_ratio``
-     - Ratio of peak memory usage to median memory usage to detect a significant spike (e.g., 1.5 means peak can be 50% higher than median).
-     - ``1.5``
-
-   * - ``delta``
-     - Sensitivity for Error Volatility. Higher values penalize bursts of errors more strictly.
-     - ``1.0``
-
-   * - ``error_spike_threshold``
-     - The error rate threshold (as a decimal, e.g., 0.1 for 10%) that triggers a penalty for Error Volatility.
-     - ``0.1``
-
-   * - ``consecutive_error_threshold``
-     - The number of consecutive errors that triggers an additional penalty for Error Volatility.
-     - ``3``
-
-   * - ``concurrency_wait_threshold``
-     - The minimum average wait time (in seconds) considered significant for calculating Concurrency Chaos.
-     - ``0.001``
-
-Example ``pypss.toml`` Configuration:
+Customize the dashboard appearance and behavior.
 
 .. code-block:: toml
 
-   # Adjust memory spike sensitivity: penalize peak memory usage if it's
-   # more than 20% higher than the median.
-   mem_spike_threshold_ratio = 1.2
+   [pypss.ui]
+   port = 8080
+   title = "My Stability Dashboard"
 
-   # Make error detection more aggressive: penalize if error rate exceeds 5%,
-   # and penalize consecutive errors more heavily (threshold of 2).
-   error_spike_threshold = 0.05
-   consecutive_error_threshold = 2
+   [pypss.ui.theme]
+   primary = "#4285F4"
+   secondary = "#607D8B"
+   # ... other colors
 
-   # Increase sensitivity to timing variance and latency spikes.
-   alpha = 3.0
-   beta = 1.5
+Dashboard Logic ``[pypss.dashboard]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   # Make Concurrency Chaos score more sensitive to wait times.
-   concurrency_wait_threshold = 0.005
+Thresholds for visual indicators on the dashboard.
 
-   # Set a lower sample rate to reduce overhead for high-traffic apps
-   sample_rate = 0.1
+.. code-block:: toml
 
-   # Limit the trace buffer size
-   max_traces = 5000
+   [pypss.dashboard]
+   critical_pss_threshold = 60.0
+   warning_error_rate = 0.05
 
-   # Adjust weights: Make timing stability more important
-   w_ts = 0.4
-   w_ms = 0.15
-   w_ev = 0.15
-   w_be = 0.15
-   w_cc = 0.15
+Background Dumpers ``[pypss.background]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Control how trace data is persisted to disk.
+
+.. code-block:: toml
+
+   [pypss.background]
+   dump_interval = 60
+   archive_dir = "archive"
+
+Scoring Tuning ``[pypss.score]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fine-tune the mathematical models.
+
+.. code-block:: toml
+
+   [pypss.score]
+   latency_tail_percentile = 94
+   memory_epsilon = 1e-9
+   error_vmr_multiplier = 0.5
+   error_spike_impact_multiplier = 0.5
+   consecutive_error_decay_multiplier = 2.0
+
+Collector Performance ``[pypss.collector]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optimize the in-memory collector for high-concurrency workloads.
+
+.. code-block:: toml
+
+   [pypss.collector]
+   max_traces_sharding_threshold = 1000
+   shard_count = 16
+
+Advisor Thresholds ``[pypss.advisor]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Configure when the AI Advisor triggers specific warnings.
+
+.. code-block:: toml
+
+   [pypss.advisor]
+   threshold_excellent = 90
+   metric_score_critical = 0.6
+   # ...
+
+Integrations ``[pypss.integration.*]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Configure prefixes and headers for various integrations.
+
+.. code-block:: toml
+
+   [pypss.integration.celery]
+   trace_prefix = "celery:"
+
+   [pypss.integration.flask]
+   trace_prefix = "flask:"
+   header_latency = "X-PSS-Latency"
+
+   [pypss.integration.otel]
+   metric_prefix = "pypss."
+
+LLM Advisor ``[pypss.llm]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Configure the AI backend for the ``diagnose`` command.
+
+.. code-block:: toml
+
+   [pypss.llm]
+   openai_model = "gpt-4o"
+   ollama_url = "http://localhost:11434/api/generate"

@@ -12,6 +12,20 @@ else:
 
 @dataclass
 class PSSConfig:
+    """
+    Configuration holder for PyPSS.
+
+    This dataclass defines all tunable parameters for the library, including:
+    - Sampling rates and buffer sizes.
+    - Weights for the 5 stability pillars (Timing, Memory, Error, Entropy, Concurrency).
+    - Sensitivity thresholds for scoring algorithms.
+    - Integration settings (Celery, Flask, OTel, etc.).
+    - UI customization for the dashboard.
+
+    It is automatically populated from `pypss.toml` or `pyproject.toml` (under `[tool.pypss]`)
+    via the `load()` method.
+    """
+
     # Sampling
     sample_rate: float = 1.0  # 0.0 to 1.0
     max_traces: int = 10_000  # Ring buffer size
