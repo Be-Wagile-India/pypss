@@ -1,0 +1,132 @@
+[pypss]
+# ==========================================
+# PyPSS Configuration File
+# ==========================================
+
+# --- Sampling Settings ---
+sample_rate = 1.0       # 0.0 to 1.0
+max_traces = 10000      # Ring buffer size
+
+# --- PSS Weights (Must sum to ~1.0) ---
+w_ts = 0.30             # Timing Stability
+w_ms = 0.20             # Memory Stability
+w_ev = 0.20             # Error Volatility
+w_be = 0.15             # Branching Entropy
+w_cc = 0.15             # Concurrency Chaos
+
+# --- Sensitivity / Thresholds ---
+alpha = 2.0             # Timing CV sensitivity
+beta = 1.0              # Timing Tail sensitivity
+gamma = 2.0             # Memory sensitivity
+mem_spike_threshold_ratio = 1.5
+delta = 1.0             # Error sensitivity
+error_spike_threshold = 0.1
+consecutive_error_threshold = 3
+concurrency_wait_threshold = 0.001
+
+# --- Defaults ---
+[pypss.default]
+trace_file = "traces.json"
+html_report_title = "PyPSS Stability Report"
+
+# --- UI Configuration ---
+[pypss.ui]
+port = 8080
+title = "PyPSS | Reliability Platform"
+
+[pypss.ui.theme]
+primary = "#4285F4"
+secondary = "#607D8B"
+accent = "#34A853"
+positive = "#34A853"
+negative = "#EA4335"
+info = "#FBBC04"
+warning = "#FBBC04"
+
+# --- Dashboard Logic ---
+[pypss.dashboard]
+critical_pss_threshold = 60.0
+warning_error_rate = 0.05
+
+# --- Background Instrumentation ---
+[pypss.background]
+dump_interval = 60
+archive_dir = "archive"
+
+# --- Core Logic Tuning ---
+[pypss.score]
+latency_tail_percentile = 94
+memory_epsilon = 1e-9
+error_vmr_multiplier = 0.5
+error_spike_impact_multiplier = 0.5
+consecutive_error_decay_multiplier = 2.0
+
+# --- Collector Performance ---
+[pypss.collector]
+max_traces_sharding_threshold = 1000
+shard_count = 16
+
+# --- Advisor Thresholds ---
+[pypss.advisor]
+threshold_excellent = 90
+threshold_good = 75
+threshold_warning = 50
+metric_score_critical = 0.6
+metric_score_warning = 0.85
+error_critical = 0.7
+error_warning = 0.9
+entropy_threshold = 0.8
+
+# --- Integrations ---
+[pypss.header.pss]
+latency = "X-PSS-Latency"
+wait = "X-PSS-Wait"
+
+[pypss.integration.celery]
+trace_prefix = "celery:"
+
+[pypss.integration.flask]
+trace_prefix = "flask:"
+header_latency = "X-PSS-Latency"
+header_wait = "X-PSS-Wait"
+
+[pypss.integration.rq]
+trace_prefix = "rq:"
+
+[pypss.integration.pytest]
+trace_prefix = "test::"
+
+[pypss.integration.otel]
+metric_prefix = "pypss."
+meter_name = "pypss"
+meter_version = "0.1.0"
+
+# --- Discovery (Scanning) ---
+[pypss.discovery]
+file_extension = ".py"
+ignore_funcs_prefix = "_"
+unknown_module_name = "unknown"
+ignore_modules = ["pypss"]
+ignore_dirs = [
+    ".venv",
+    "venv",
+    "tests",
+    "test",
+    "__pycache__",
+    ".git",
+    "build",
+    "dist",
+    "docs",
+    "examples",
+    "scripts",
+    "notebooks",
+    ".vscode",
+    ".idea"
+]
+
+# --- LLM Advisor ---
+[pypss.llm]
+openai_model = "gpt-4o"
+ollama_url = "http://localhost:11434/api/generate"
+ollama_model = "llama3"
+max_tokens = 1000

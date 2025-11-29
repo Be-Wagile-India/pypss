@@ -1,0 +1,28 @@
+-r requirements.txt
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+pytest-xdist>=3.3.0
+hypothesis>=6.80.0
+
+# Type Checking & Linting
+mypy>=1.7.0
+ruff>=0.1.0
+types-PyYAML>=6.0.0
+types-toml>=0.10.0
+
+# Tools
+bump2version>=1.0.1
+
+# Documentation
+sphinx>=7.2.0
+sphinx-rtd-theme>=2.0.0
+sphinx-autodoc-typehints>=1.25.0
+myst-parser>=2.0.0
+
+# Dashboard Dependencies (for running examples and dashboard)
+nicegui>=1.4.0
+plotly>=5.0.0
+pandas>=2.0.0

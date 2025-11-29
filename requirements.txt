@@ -1,0 +1,4 @@
+click
+tomli>=2.0.0; python_version < '3.11'
+toml
+ijson>=3.2.0
