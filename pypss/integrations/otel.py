@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable
+from typing import Iterable, Any
 from ..utils.config import GLOBAL_CONFIG
 
 try:
@@ -9,6 +9,9 @@ try:
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
+    # Dummy types for type hinting when OTel is missing
+    Observation = Any  # type: ignore
+    CallbackOptions = Any  # type: ignore
 
 from ..instrumentation import global_collector
 from ..core import compute_pss_from_traces
