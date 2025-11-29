@@ -7,11 +7,11 @@ Welcome to pypss's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-* :doc:`installation`
-   * :doc:`usage`
-   * :doc:`api`
-   * :doc:`integrations`
-   * :doc:`advanced_config`
+   installation
+   usage
+   integrations
+   advanced_config
+   api
 
 Indices and tables
 ==================

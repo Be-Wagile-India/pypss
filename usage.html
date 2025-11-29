@@ -18,7 +18,9 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Integrations" href="integrations.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,21 +42,25 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Usage</a><ul>
-<li><a class="reference internal" href="#core-concepts">Core Concepts</a></li>
-<li><a class="reference internal" href="#instrumenting-code">Instrumenting Code</a><ul>
-<li><a class="reference internal" href="#asyncio-support">AsyncIO Support</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core-concepts">Core Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instrumenting-code">Instrumenting Code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#asyncio-support">AsyncIO Support</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#cli-usage">CLI Usage</a></li>
-<li><a class="reference internal" href="#interactive-dashboard">Interactive Dashboard</a></li>
-<li><a class="reference internal" href="#pss-configuration">PSS Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cli-usage">CLI Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interactive-dashboard">Interactive Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pss-configuration">PSS Configuration</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_config.html">Advanced Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -89,6 +95,7 @@
 <li><p><strong>Memory Stability (MS)</strong></p></li>
 <li><p><strong>Error Volatility (EV)</strong></p></li>
 <li><p><strong>Branching Entropy (BE)</strong></p></li>
+<li><p><strong>Concurrency Chaos (CC)</strong></p></li>
 </ul>
 </section>
 <section id="instrumenting-code">
@@ -110,7 +117,6 @@
     <span class="k">return</span> <span class="s2">&quot;data&quot;</span>
 </pre></div>
 </div>
-<p><strong>Note:</strong> For async functions, the <strong>Concurrency Chaos</strong> metric is calculated based on the variance of the total wall-clock time (latency), rather than CPU vs Wait time, to accurately reflect event loop contention and I/O delays.</p>
 <p>Or the context manager:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_block</span>
 
@@ -123,7 +129,7 @@
 <section id="cli-usage">
 <h2>CLI Usage<a class="headerlink" href="#cli-usage" title="Link to this heading"></a></h2>
 <p>Analyze a trace file:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pypss<span class="w"> </span>analyze<span class="w"> </span>traces.json
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pypss<span class="w"> </span>analyze<span class="w"> </span>--trace-file<span class="w"> </span>traces.json
 </pre></div>
 </div>
 <p><strong>Scalability:</strong> The <code class="docutils literal notranslate"><span class="pre">analyze</span></code> command uses streaming JSON parsing (via <code class="docutils literal notranslate"><span class="pre">ijson</span></code>) and O(1) memory algorithms. It can process multi-gigabyte trace files with minimal RAM usage.</p>
@@ -139,40 +145,25 @@
 <li><p><strong>Overall PSS Gauge</strong>: Instant view of system health.</p></li>
 <li><p><strong>Metric Breakdown</strong>: Scores for Timing, Memory, Errors, etc.</p></li>
 <li><p><strong>Latency Trends</strong>: P50/P95/Max latency over time.</p></li>
-<li><p><strong>Error Analysis</strong>: Click the <strong>Error Rate</strong> box to view a detailed table of all failed traces, including error messages and timestamps.</p></li>
-<li><p><strong>Module Details</strong>: Click on any module in the table to see module-specific metrics and trends.</p></li>
-<li><p><strong>AI Advisor</strong>: Auto-generated insights and recommendations based on your data.</p></li>
+<li><p><strong>Error Analysis</strong>: Click the <strong>Error Rate</strong> box to view a detailed table of all failed traces.</p></li>
+<li><p><strong>Module Details</strong>: Click on any module in the table to see module-specific metrics.</p></li>
+<li><p><strong>AI Advisor</strong>: Auto-generated insights and recommendations.</p></li>
 </ul>
 </section>
 <section id="pss-configuration">
 <h2>PSS Configuration<a class="headerlink" href="#pss-configuration" title="Link to this heading"></a></h2>
-<p>The Python Program Stability Score (PSS) calculation can be fine-tuned using various parameters defined in the <code class="docutils literal notranslate"><span class="pre">PSSConfig</span></code> class within <code class="docutils literal notranslate"><span class="pre">pypss/utils/config.py</span></code>. These parameters can be overridden by creating a <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code> file in your project root or by adding a <code class="docutils literal notranslate"><span class="pre">[tool.pypss]</span></code> section to your <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p>
-<p>Here are the key configuration parameters and their impact on the PSS:</p>
-<ul class="simple">
-<li><p><strong>`mem_spike_threshold_ratio`</strong>:
-*   <strong>Description</strong>: This parameter (default: 1.5) defines the ratio by which peak memory usage can exceed the median memory usage before an additional penalty is applied to the Memory Stability (MS) score. For example, a value of 1.5 means that if peak memory is more than 50% higher than median memory, the MS score will be negatively affected.
-*   <strong>Impact</strong>: A lower <cite>mem_spike_threshold_ratio</cite> makes the MS score more sensitive to sudden memory consumption spikes, helping to detect potential memory leaks or inefficient memory usage patterns more aggressively.</p></li>
-<li><p><strong>`error_spike_threshold`</strong>:
-*   <strong>Description</strong>: This parameter (default: 0.1) sets a threshold for the mean error rate (e.g., 0.1 means 10% error rate). If the observed mean error rate exceeds this threshold, an additional penalty is applied to the Error Volatility (EV) score.
-*   <strong>Impact</strong>: A lower <cite>error_spike_threshold</cite> makes the EV score more sensitive to sudden increases in error rates, allowing for earlier detection of system instability or outages.</p></li>
-<li><p><strong>`consecutive_error_threshold`</strong>:
-*   <strong>Description</strong>: This integer parameter (default: 3) specifies the number of consecutive errors that must occur to trigger an additional, more aggressive penalty to the Error Volatility (EV) score.
-*   <strong>Impact</strong>: This parameter helps in identifying sustained failure conditions, which are often stronger indicators of a severe outage than isolated errors. A lower threshold will penalize shorter sequences of consecutive errors more heavily.</p></li>
-<li><p><strong>`concurrency_wait_threshold`</strong>:
-*   <strong>Description</strong>: This parameter (default: 0.001 seconds) sets the minimum mean wait time for concurrency chaos calculation. Wait times below this threshold are considered negligible and do not contribute to concurrency chaos.
-*   <strong>Impact</strong>: Adjusting this threshold allows you to focus the Concurrency Chaos (CC) score on more significant contention issues, ignoring very short, potentially insignificant wait times.</p></li>
-</ul>
-<p>Example <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code> configuration:</p>
+<p>PyPSS is configured via <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code>. See <a class="reference internal" href="advanced_config.html"><span class="doc">Advanced Configuration</span></a> for full details.</p>
+<p>Quick example:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[pypss]</span>
-<span class="c1"># Adjust memory spike sensitivity</span>
-<span class="n">mem_spike_threshold_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.2</span>
+<span class="n">sample_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span>
 
+<span class="k">[pypss.score]</span>
 <span class="c1"># Make error detection more aggressive</span>
 <span class="n">error_spike_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span>
 <span class="n">consecutive_error_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
 
-<span class="c1"># Adjust concurrency sensitivity</span>
-<span class="n">concurrency_wait_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.005</span>
+<span class="k">[pypss.ui]</span>
+<span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;My Production Stability&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -181,7 +172,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="integrations.html" class="btn btn-neutral float-right" title="Integrations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

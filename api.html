@@ -18,7 +18,8 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Advanced Configuration" href="advanced_config.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,146 +41,150 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">API Reference</a><ul>
-<li><a class="reference internal" href="#module-pypss.core">Core</a><ul>
-<li><a class="reference internal" href="#pypss.core.StabilityAdvisor"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor</span></code></a><ul>
-<li><a class="reference internal" href="#pypss.core.StabilityAdvisor.analyze"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor.analyze()</span></code></a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_config.html">Advanced Configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-pypss.core">Core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.StabilityAdvisor"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.core.StabilityAdvisor.analyze"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor.analyze()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pypss.core.compute_pss_from_traces"><code class="docutils literal notranslate"><span class="pre">compute_pss_from_traces()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.core.generate_advisor_report"><code class="docutils literal notranslate"><span class="pre">generate_advisor_report()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.core.core._calculate_branching_entropy_score"><code class="docutils literal notranslate"><span class="pre">_calculate_branching_entropy_score()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.core.core._calculate_concurrency_chaos_score"><code class="docutils literal notranslate"><span class="pre">_calculate_concurrency_chaos_score()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.core.core._calculate_error_volatility_score"><code class="docutils literal notranslate"><span class="pre">_calculate_error_volatility_score()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.core.core._calculate_memory_stability_score"><code class="docutils literal notranslate"><span class="pre">_calculate_memory_stability_score()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.core.core._calculate_timing_stability_score"><code class="docutils literal notranslate"><span class="pre">_calculate_timing_stability_score()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.core.core.compute_pss_from_traces"><code class="docutils literal notranslate"><span class="pre">compute_pss_from_traces()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.core.advisor.StabilityAdvisor"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor</span></code></a><ul>
-<li><a class="reference internal" href="#pypss.core.advisor.StabilityAdvisor.analyze"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor.analyze()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.compute_pss_from_traces"><code class="docutils literal notranslate"><span class="pre">compute_pss_from_traces()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.generate_advisor_report"><code class="docutils literal notranslate"><span class="pre">generate_advisor_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.core._calculate_branching_entropy_score"><code class="docutils literal notranslate"><span class="pre">_calculate_branching_entropy_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.core._calculate_concurrency_chaos_score"><code class="docutils literal notranslate"><span class="pre">_calculate_concurrency_chaos_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.core._calculate_error_volatility_score"><code class="docutils literal notranslate"><span class="pre">_calculate_error_volatility_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.core._calculate_memory_stability_score"><code class="docutils literal notranslate"><span class="pre">_calculate_memory_stability_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.core._calculate_timing_stability_score"><code class="docutils literal notranslate"><span class="pre">_calculate_timing_stability_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.core.compute_pss_from_traces"><code class="docutils literal notranslate"><span class="pre">compute_pss_from_traces()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.advisor.StabilityAdvisor"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.core.advisor.StabilityAdvisor.analyze"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor.analyze()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pypss.core.advisor.generate_advisor_report"><code class="docutils literal notranslate"><span class="pre">generate_advisor_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.core.advisor.generate_advisor_report"><code class="docutils literal notranslate"><span class="pre">generate_advisor_report()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-pypss.instrumentation">Instrumentation</a><ul>
-<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper"><code class="docutils literal notranslate"><span class="pre">AutoDumper</span></code></a><ul>
-<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper.dump"><code class="docutils literal notranslate"><span class="pre">AutoDumper.dump()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper.rotate"><code class="docutils literal notranslate"><span class="pre">AutoDumper.rotate()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper.start"><code class="docutils literal notranslate"><span class="pre">AutoDumper.start()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper.stop"><code class="docutils literal notranslate"><span class="pre">AutoDumper.stop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pypss.instrumentation">Instrumentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.instrumentation.AutoDumper"><code class="docutils literal notranslate"><span class="pre">AutoDumper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.AutoDumper.dump"><code class="docutils literal notranslate"><span class="pre">AutoDumper.dump()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.AutoDumper.rotate"><code class="docutils literal notranslate"><span class="pre">AutoDumper.rotate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.AutoDumper.start"><code class="docutils literal notranslate"><span class="pre">AutoDumper.start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.AutoDumper.stop"><code class="docutils literal notranslate"><span class="pre">AutoDumper.stop()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pypss.instrumentation.Collector"><code class="docutils literal notranslate"><span class="pre">Collector</span></code></a><ul>
-<li><a class="reference internal" href="#pypss.instrumentation.Collector.add_trace"><code class="docutils literal notranslate"><span class="pre">Collector.add_trace()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.Collector.clear"><code class="docutils literal notranslate"><span class="pre">Collector.clear()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.Collector.get_traces"><code class="docutils literal notranslate"><span class="pre">Collector.get_traces()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.instrumentation.Collector"><code class="docutils literal notranslate"><span class="pre">Collector</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.Collector.add_trace"><code class="docutils literal notranslate"><span class="pre">Collector.add_trace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.Collector.clear"><code class="docutils literal notranslate"><span class="pre">Collector.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.Collector.get_traces"><code class="docutils literal notranslate"><span class="pre">Collector.get_traces()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pypss.instrumentation.get_memory_usage"><code class="docutils literal notranslate"><span class="pre">get_memory_usage()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.monitor_block"><code class="docutils literal notranslate"><span class="pre">monitor_block</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.monitor_function"><code class="docutils literal notranslate"><span class="pre">monitor_function()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.collectors.Collector"><code class="docutils literal notranslate"><span class="pre">Collector</span></code></a><ul>
-<li><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.add_trace"><code class="docutils literal notranslate"><span class="pre">Collector.add_trace()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.clear"><code class="docutils literal notranslate"><span class="pre">Collector.clear()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.get_traces"><code class="docutils literal notranslate"><span class="pre">Collector.get_traces()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pypss.cli.reporting">CLI &amp; Reporting</a><ul>
-<li><a class="reference internal" href="#pypss.cli.reporting.render_report_json"><code class="docutils literal notranslate"><span class="pre">render_report_json()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.cli.reporting.render_report_text"><code class="docutils literal notranslate"><span class="pre">render_report_text()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.cli.runner.AutoInstrumentor"><code class="docutils literal notranslate"><span class="pre">AutoInstrumentor</span></code></a><ul>
-<li><a class="reference internal" href="#pypss.cli.runner.AutoInstrumentor.apply"><code class="docutils literal notranslate"><span class="pre">AutoInstrumentor.apply()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pypss.cli.runner.run_with_instrumentation"><code class="docutils literal notranslate"><span class="pre">run_with_instrumentation()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pypss.utils.utils">Utils &amp; Config</a><ul>
-<li><a class="reference internal" href="#pypss.utils.utils.calculate_cv"><code class="docutils literal notranslate"><span class="pre">calculate_cv()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.utils.calculate_entropy"><code class="docutils literal notranslate"><span class="pre">calculate_entropy()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.utils.exponential_decay_score"><code class="docutils literal notranslate"><span class="pre">exponential_decay_score()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.utils.normalize_score"><code class="docutils literal notranslate"><span class="pre">normalize_score()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.utils.parse_time_string"><code class="docutils literal notranslate"><span class="pre">parse_time_string()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig"><code class="docutils literal notranslate"><span class="pre">PSSConfig</span></code></a><ul>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_entropy_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_entropy_threshold</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_error_critical"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_error_critical</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_error_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_error_warning</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_metric_score_critical"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_metric_score_critical</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_metric_score_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_metric_score_warning</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_excellent"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_excellent</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_good"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_good</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_warning</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.alpha"><code class="docutils literal notranslate"><span class="pre">PSSConfig.alpha</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.background_archive_dir"><code class="docutils literal notranslate"><span class="pre">PSSConfig.background_archive_dir</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.background_dump_interval"><code class="docutils literal notranslate"><span class="pre">PSSConfig.background_dump_interval</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.beta"><code class="docutils literal notranslate"><span class="pre">PSSConfig.beta</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.collector_max_traces_sharding_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.collector_max_traces_sharding_threshold</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.collector_shard_count"><code class="docutils literal notranslate"><span class="pre">PSSConfig.collector_shard_count</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.concurrency_wait_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.concurrency_wait_threshold</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.consecutive_error_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.consecutive_error_threshold</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.dashboard_critical_pss_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.dashboard_critical_pss_threshold</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.dashboard_warning_error_rate"><code class="docutils literal notranslate"><span class="pre">PSSConfig.dashboard_warning_error_rate</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.default_html_report_title"><code class="docutils literal notranslate"><span class="pre">PSSConfig.default_html_report_title</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.default_trace_file"><code class="docutils literal notranslate"><span class="pre">PSSConfig.default_trace_file</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.delta"><code class="docutils literal notranslate"><span class="pre">PSSConfig.delta</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_file_extension"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_file_extension</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_dirs"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_dirs</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_funcs_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_funcs_prefix</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_modules"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_modules</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_unknown_module_name"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_unknown_module_name</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.error_spike_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.error_spike_threshold</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.gamma"><code class="docutils literal notranslate"><span class="pre">PSSConfig.gamma</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.header_pss_latency"><code class="docutils literal notranslate"><span class="pre">PSSConfig.header_pss_latency</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.header_pss_wait"><code class="docutils literal notranslate"><span class="pre">PSSConfig.header_pss_wait</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_celery_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_celery_trace_prefix</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_header_latency"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_header_latency</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_header_wait"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_header_wait</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_trace_prefix</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_meter_name"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_meter_name</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_meter_version"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_meter_version</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_metric_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_metric_prefix</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_pytest_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_pytest_trace_prefix</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_rq_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_rq_trace_prefix</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_max_tokens"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_max_tokens</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_ollama_model"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_ollama_model</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_ollama_url"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_ollama_url</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_openai_model"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_openai_model</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.load"><code class="docutils literal notranslate"><span class="pre">PSSConfig.load()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.max_traces"><code class="docutils literal notranslate"><span class="pre">PSSConfig.max_traces</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.mem_spike_threshold_ratio"><code class="docutils literal notranslate"><span class="pre">PSSConfig.mem_spike_threshold_ratio</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.sample_rate"><code class="docutils literal notranslate"><span class="pre">PSSConfig.sample_rate</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.save"><code class="docutils literal notranslate"><span class="pre">PSSConfig.save()</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_consecutive_error_decay_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_consecutive_error_decay_multiplier</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_error_spike_impact_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_error_spike_impact_multiplier</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_error_vmr_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_error_vmr_multiplier</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_latency_tail_percentile"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_latency_tail_percentile</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_memory_epsilon"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_memory_epsilon</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_port"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_port</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_accent"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_accent</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_info"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_info</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_negative"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_negative</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_positive"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_positive</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_primary"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_primary</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_secondary"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_secondary</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_warning</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_title"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_title</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_be"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_be</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_cc"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_cc</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ev"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ev</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ms"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ms</span></code></a></li>
-<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ts"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.instrumentation.get_memory_usage"><code class="docutils literal notranslate"><span class="pre">get_memory_usage()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.instrumentation.monitor_block"><code class="docutils literal notranslate"><span class="pre">monitor_block</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.instrumentation.monitor_function"><code class="docutils literal notranslate"><span class="pre">monitor_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.instrumentation.collectors.Collector"><code class="docutils literal notranslate"><span class="pre">Collector</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.add_trace"><code class="docutils literal notranslate"><span class="pre">Collector.add_trace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.clear"><code class="docutils literal notranslate"><span class="pre">Collector.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.get_traces"><code class="docutils literal notranslate"><span class="pre">Collector.get_traces()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pypss.cli.reporting">CLI &amp; Reporting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.cli.reporting.render_report_json"><code class="docutils literal notranslate"><span class="pre">render_report_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.cli.reporting.render_report_text"><code class="docutils literal notranslate"><span class="pre">render_report_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.cli.runner.AutoInstrumentor"><code class="docutils literal notranslate"><span class="pre">AutoInstrumentor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.cli.runner.AutoInstrumentor.apply"><code class="docutils literal notranslate"><span class="pre">AutoInstrumentor.apply()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.cli.runner.run_with_instrumentation"><code class="docutils literal notranslate"><span class="pre">run_with_instrumentation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pypss.utils.utils">Utils &amp; Config</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.utils.utils.calculate_cv"><code class="docutils literal notranslate"><span class="pre">calculate_cv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.utils.utils.calculate_entropy"><code class="docutils literal notranslate"><span class="pre">calculate_entropy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.utils.utils.exponential_decay_score"><code class="docutils literal notranslate"><span class="pre">exponential_decay_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.utils.utils.normalize_score"><code class="docutils literal notranslate"><span class="pre">normalize_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.utils.utils.parse_time_string"><code class="docutils literal notranslate"><span class="pre">parse_time_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pypss.utils.config.PSSConfig"><code class="docutils literal notranslate"><span class="pre">PSSConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_entropy_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_entropy_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_error_critical"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_error_critical</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_error_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_error_warning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_metric_score_critical"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_metric_score_critical</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_metric_score_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_metric_score_warning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_excellent"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_excellent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_good"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_good</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_warning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.alpha"><code class="docutils literal notranslate"><span class="pre">PSSConfig.alpha</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.background_archive_dir"><code class="docutils literal notranslate"><span class="pre">PSSConfig.background_archive_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.background_dump_interval"><code class="docutils literal notranslate"><span class="pre">PSSConfig.background_dump_interval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.beta"><code class="docutils literal notranslate"><span class="pre">PSSConfig.beta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.collector_max_traces_sharding_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.collector_max_traces_sharding_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.collector_shard_count"><code class="docutils literal notranslate"><span class="pre">PSSConfig.collector_shard_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.concurrency_wait_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.concurrency_wait_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.consecutive_error_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.consecutive_error_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.dashboard_critical_pss_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.dashboard_critical_pss_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.dashboard_warning_error_rate"><code class="docutils literal notranslate"><span class="pre">PSSConfig.dashboard_warning_error_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.default_html_report_title"><code class="docutils literal notranslate"><span class="pre">PSSConfig.default_html_report_title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.default_trace_file"><code class="docutils literal notranslate"><span class="pre">PSSConfig.default_trace_file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.delta"><code class="docutils literal notranslate"><span class="pre">PSSConfig.delta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_file_extension"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_file_extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_dirs"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_dirs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_funcs_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_funcs_prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_modules"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_unknown_module_name"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_unknown_module_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.error_spike_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.error_spike_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.gamma"><code class="docutils literal notranslate"><span class="pre">PSSConfig.gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.header_pss_latency"><code class="docutils literal notranslate"><span class="pre">PSSConfig.header_pss_latency</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.header_pss_wait"><code class="docutils literal notranslate"><span class="pre">PSSConfig.header_pss_wait</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_celery_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_celery_trace_prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_header_latency"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_header_latency</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_header_wait"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_header_wait</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_trace_prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_meter_name"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_meter_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_meter_version"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_meter_version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_metric_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_metric_prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_pytest_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_pytest_trace_prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_rq_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_rq_trace_prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_max_tokens"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_max_tokens</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_ollama_model"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_ollama_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_ollama_url"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_ollama_url</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_openai_model"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_openai_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.load"><code class="docutils literal notranslate"><span class="pre">PSSConfig.load()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.max_traces"><code class="docutils literal notranslate"><span class="pre">PSSConfig.max_traces</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.mem_spike_threshold_ratio"><code class="docutils literal notranslate"><span class="pre">PSSConfig.mem_spike_threshold_ratio</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.sample_rate"><code class="docutils literal notranslate"><span class="pre">PSSConfig.sample_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.save"><code class="docutils literal notranslate"><span class="pre">PSSConfig.save()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_consecutive_error_decay_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_consecutive_error_decay_multiplier</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_error_spike_impact_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_error_spike_impact_multiplier</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_error_vmr_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_error_vmr_multiplier</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_latency_tail_percentile"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_latency_tail_percentile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_memory_epsilon"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_memory_epsilon</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_port"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_port</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_accent"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_accent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_info"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_info</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_negative"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_negative</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_positive"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_positive</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_primary"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_primary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_secondary"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_secondary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_warning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_title"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_be"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_be</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_cc"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_cc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ev"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ev</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ms"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ts"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ts</span></code></a></li>
 </ul>
 </li>
 </ul>
-</div>
+</li>
+</ul>
+</li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -526,6 +531,15 @@ Raises ValueError for invalid formats.</p>
 <dt class="sig sig-object py" id="pypss.utils.config.PSSConfig">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.utils.config.</span></span><span class="sig-name descname"><span class="pre">PSSConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_traces=10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_ts=0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_ms=0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_ev=0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_be=0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_cc=0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha=2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma=2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_spike_threshold_ratio=1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_spike_threshold=0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consecutive_error_threshold=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concurrency_wait_threshold=0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_ignore_dirs=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_primary='#4285F4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_secondary='#607D8B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_accent='#34A853'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_positive='#34A853'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_negative='#EA4335'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_info='#FBBC04'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_warning='#FBBC04'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_port=8080</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_title='PyPSS</span> <span class="pre">|</span> <span class="pre">Reliability</span> <span class="pre">Platform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dashboard_critical_pss_threshold=60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dashboard_warning_error_rate=0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_dump_interval=60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_archive_dir='archive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_trace_file='traces.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_html_report_title='PyPSS</span> <span class="pre">Stability</span> <span class="pre">Report'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_latency_tail_percentile=94</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_memory_epsilon=1e-09</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_error_vmr_multiplier=0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_error_spike_impact_multiplier=0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_consecutive_error_decay_multiplier=2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collector_max_traces_sharding_threshold=1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collector_shard_count=16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_threshold_excellent=90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_threshold_good=75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_threshold_warning=50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_metric_score_critical=0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_metric_score_warning=0.85</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_error_critical=0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_error_warning=0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_entropy_threshold=0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_pss_latency='X-PSS-Latency'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_pss_wait='X-PSS-Wait'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_celery_trace_prefix='celery:'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_flask_trace_prefix='flask:'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_flask_header_latency='X-PSS-Latency'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_flask_header_wait='X-PSS-Wait'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_rq_trace_prefix='rq:'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_pytest_trace_prefix='test::'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_otel_metric_prefix='pypss.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_otel_meter_name='pypss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_otel_meter_version='0.1.0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_file_extension='.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_ignore_modules=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_ignore_funcs_prefix='_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_unknown_module_name='unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_openai_model='gpt-4o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_ollama_url='http://localhost:11434/api/generate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_ollama_model='llama3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_max_tokens=1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/config.html#PSSConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.config.PSSConfig" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configuration holder for PyPSS.</p>
+<p>This dataclass defines all tunable parameters for the library, including:
+- Sampling rates and buffer sizes.
+- Weights for the 5 stability pillars (Timing, Memory, Error, Entropy, Concurrency).
+- Sensitivity thresholds for scoring algorithms.
+- Integration settings (Celery, Flask, OTel, etc.).
+- UI customization for the dashboard.</p>
+<p>It is automatically populated from <cite>pypss.toml</cite> or <cite>pyproject.toml</cite> (under <cite>[tool.pypss]</cite>)
+via the <cite>load()</cite> method.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_entropy_threshold">
 <span class="sig-name descname"><span class="pre">advisor_entropy_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.8</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_entropy_threshold" title="Link to this definition"></a></dt>
@@ -876,7 +890,9 @@ Raises ValueError for invalid formats.</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="advanced_config.html" class="btn btn-neutral float-left" title="Advanced Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 

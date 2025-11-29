@@ -8,121 +8,105 @@ This section outlines how to set up PyPSS with different integrations.
 Celery
 ------
 
-To instrument Celery tasks with PyPSS:
+To instrument Celery tasks with PyPSS, use the ``enable_celery_integration`` function.
 
 .. code-block:: python
 
-   from pypss.instrumentation import monitor_function
-   from pypss.integrations.celery import PyPssCeleryIntegration
+   from celery import Celery
+   from pypss.integrations.celery import enable_celery_integration
 
-   # Initialize PyPSS integration (e.g., in your Celery app setup)
-   PyPssCeleryIntegration.init()
+   app = Celery("my_app")
 
-   @monitor_function("my_celery_task", module_name="celery_worker")
-   def my_celery_task(arg1, arg2):
+   # Initialize PyPSS integration
+   enable_celery_integration()
+
+   @app.task
+   def my_celery_task(arg1):
        # Your task logic here
        pass
 
 FastAPI
 -------
 
-Integrate PyPSS with FastAPI by adding it as middleware:
+Integrate PyPSS with FastAPI by adding ``PSSMiddleware``:
 
 .. code-block:: python
 
    from fastapi import FastAPI
-   from pypss.integrations.fastapi import PyPssFastAPIMiddleware
-   from pypss.instrumentation import monitor_function
+   from pypss.integrations.fastapi import PSSMiddleware
 
    app = FastAPI()
 
    # Add PyPSS middleware
-   app.add_middleware(PyPssFastAPIMiddleware)
+   app.add_middleware(PSSMiddleware)
 
    @app.get("/")
-   @monitor_function("root_endpoint", module_name="api_gateway")
    async def read_root():
        return {"Hello": "World"}
 
 Flask
 -----
 
-Use PyPSS with Flask by adding it as a Flask extension or using decorators:
+Use PyPSS with Flask by initializing it with your app instance:
 
 .. code-block:: python
 
    from flask import Flask
-   from pypss.integrations.flask import PyPssFlaskIntegration
-   from pypss.instrumentation import monitor_function
+   from pypss.integrations.flask import init_pypss_flask_app
 
    app = Flask(__name__)
 
-   # Initialize PyPSS integration with Flask app
-   PyPssFlaskIntegration.init(app)
+   # Initialize PyPSS integration
+   init_pypss_flask_app(app)
 
    @app.route("/")
-   @monitor_function("root_route", module_name="web_framework")
    def hello_world():
        return "Hello, World!"
 
 OpenTelemetry (OTel)
 --------------------
 
-PyPSS can leverage OpenTelemetry for trace collection. Ensure you have installed the `otel` optional dependencies (`pip install "pypss[otel]"`).
+PyPSS can export its metrics to OpenTelemetry. Ensure you have installed the `otel` optional dependencies (`pip install "pypss[otel]"`).
 
 .. code-block:: python
 
-   from pypss.integrations.otel import PyPssOtelIntegration
-   from pypss.instrumentation import monitor_function
+   from pypss.integrations.otel import enable_otel_integration
 
-   # Initialize OpenTelemetry and then PyPSS OTel integration
-   PyPssOtelIntegration.init()
-
-   @monitor_function("otel_instrumented_function", module_name="otel_integration")
-   def my_otel_function():
-       pass
+   # Initialize PyPSS OTel integration
+   # You can pass a specific MeterProvider if needed, otherwise uses global default.
+   enable_otel_integration()
 
 RQ (Redis Queue)
 ----------------
 
-Instrument RQ workers and jobs:
+Instrument RQ jobs by using the ``PSSJob`` class:
 
 .. code-block:: python
 
-   from pypss.instrumentation import monitor_function
-   from pypss.integrations.rq import PyPssRQIntegration
+   from redis import Redis
+   from rq import Queue
+   from pypss.integrations.rq import PSSJob
 
-   # Initialize PyPSS integration for RQ
-   PyPssRQIntegration.init()
+   q = Queue(connection=Redis(), job_class=PSSJob)
 
-   @monitor_function("my_rq_job", module_name="rq_worker")
-   def my_rq_job(data):
-       # Your job logic
-       pass
+   # Enqueue jobs as normal
+   # q.enqueue(my_func, args)
 
 Pytest Plugin
 -------------
 
 PyPSS includes a pytest plugin to automatically capture stability metrics during your test runs.
 
-Ensure `pypss` is installed with its dev dependencies, including pytest (`pip install -e .[dev]`).
+Ensure `pypss` is installed with its dev dependencies (`pip install -e .[dev]`).
 
-Your ``pytest.ini`` or ``pyproject.toml`` might need to be configured to load the plugin, although it is often discovered automatically.
-
-Example test function:
-
-.. code-block:: python
-
-   from pypss.instrumentation import monitor_function
-
-   @monitor_function("test_stability", module_name="tests")
-   def test_that_code_is_stable():
-       assert True
-
-To run tests and generate stability reports:
+To run tests and generate stability reports, simply use the `--pss` flag:
 
 .. code-block:: bash
 
-   pytest --pypss-report=stability_report.json
+   pytest --pss
 
-PyPSS will collect stability data during the test execution and save it to the specified file.
+You can also fail the test run if the stability score drops below a certain threshold:
+
+.. code-block:: bash
+
+   pytest --pss --pss-fail-below 80
