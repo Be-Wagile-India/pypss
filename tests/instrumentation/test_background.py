@@ -70,6 +70,10 @@ class TestAutoDumper:
             assert len(data["traces"]) == 0
 
     def test_rotation_trigger_in_thread(self, collector, temp_file):
+        # Create a dummy file first so rotation has something to rotate
+        with open(temp_file, "w") as f:
+            json.dump({"traces": []}, f)
+
         collector.add_trace({"id": 1})
         # Small rotate interval
         dumper = AutoDumper(collector, temp_file, interval=0.1, rotate_interval=0.2)

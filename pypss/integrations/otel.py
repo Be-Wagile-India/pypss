@@ -10,7 +10,7 @@ try:
 except ImportError:
     OTEL_AVAILABLE = False
     metrics = None  # type: ignore
-    
+
     # Dummy types for type hinting/usage when OTel is missing
     class Observation:  # type: ignore
         def __init__(self, value):
@@ -18,6 +18,7 @@ except ImportError:
 
     class CallbackOptions:  # type: ignore
         pass
+
 
 from ..instrumentation import global_collector
 from ..core import compute_pss_from_traces
