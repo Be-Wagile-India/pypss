@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.8.0] - 2025-11-29
+## [1.0.0] - 2025-11-29
 
-### 🚀 Major Improvements
-- **Configuration Refactor:** Moved all hardcoded settings (UI colors, thresholds, integration prefixes) to a centralized `pypss.toml` file.
-- **Enhanced Configuration:** Added support for nested TOML sections for better organization (`[pypss.ui]`, `[pypss.integration.celery]`, etc.).
-- **Async Support:** Improved discovery logic to correctly identify and instrument `async def` functions.
-- **Trace & Verify:** Added `scripts/verify_and_regenerate.py` for robust data verification.
+### 🚀 Major Release: Production Ready
+- **Stability:** Reclassified as Production/Stable.
+- **Configuration Refactor:** Moved all hardcoded settings to centralized `pypss.toml`.
+- **Enhanced Configuration:** Support for nested TOML sections (`[pypss.ui]`, `[pypss.integration]`).
+- **Async Support:** Improved discovery and instrumentation for `async def`.
+- **Integrations:** OpenTelemetry export, plus Celery, Flask, and FastAPI support.
+- **Verification:** Robust data verification scripts.
 
 ## [0.1.0] - 2025-11-26
 
