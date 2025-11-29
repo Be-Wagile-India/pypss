@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Configuration &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Advanced Configuration</a><ul>
+<li><a class="reference internal" href="#key-configuration-parameters">Key Configuration Parameters:</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Advanced Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/advanced_config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="advanced-configuration">
+<h1>Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Link to this heading"></a></h1>
+<p>The Python Program Stability Score (PSS) calculation is highly configurable to adapt to different application characteristics and performance goals. You can tune the PSS algorithm by adjusting parameters defined in the <code class="docutils literal notranslate"><span class="pre">PSSConfig</span></code> class, located in <code class="docutils literal notranslate"><span class="pre">pypss/utils/config.py</span></code>.</p>
+<p>Configuration can be done via:</p>
+<ol class="arabic simple">
+<li><p><strong>Environment Variables</strong>: Variables prefixed with <code class="docutils literal notranslate"><span class="pre">PYPSS_</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">PYPSS_SAMPLE_RATE</span></code>).</p></li>
+<li><p><strong>TOML Files</strong>: A <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code> file in the project root, or a <code class="docutils literal notranslate"><span class="pre">[tool.pypss]</span></code> section in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p></li>
+</ol>
+<section id="key-configuration-parameters">
+<h2>Key Configuration Parameters:<a class="headerlink" href="#key-configuration-parameters" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 60.0%" />
+<col style="width: 10.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sample_rate</span></code></p></td>
+<td><p>The fraction of traces to collect (0.01 to 1.0). A value of 1.0 collects all traces, while lower values sample traces to reduce overhead in high-traffic applications.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_traces</span></code></p></td>
+<td><p>The maximum number of traces to keep in the internal ring buffer. This limits memory usage.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10000</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">w_ts</span></code></p></td>
+<td><p>Weight for Timing Stability. Higher value means timing consistency is more critical.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.30</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">w_ms</span></code></p></td>
+<td><p>Weight for Memory Stability. Higher value means predictable memory usage is more critical.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.20</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">w_ev</span></code></p></td>
+<td><p>Weight for Error Volatility. Higher value means fewer/less bursty errors are more important.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.20</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">w_be</span></code></p></td>
+<td><p>Weight for Branching Entropy. Higher value means predictable execution paths are more important.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.15</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">w_cc</span></code></p></td>
+<td><p>Weight for Concurrency Chaos. Higher value means low contention and efficient parallel execution is more important.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.15</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code></p></td>
+<td><p>Sensitivity for Timing Stability variance. Higher values penalize timing variance more strictly.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">beta</span></code></p></td>
+<td><p>Sensitivity for Timing Stability tail (latency spikes). Higher values penalize latency spikes more strictly.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gamma</span></code></p></td>
+<td><p>Sensitivity for Memory Stability. Higher values penalize memory usage fluctuations more strictly.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mem_spike_threshold_ratio</span></code></p></td>
+<td><p>Ratio of peak memory usage to median memory usage to detect a significant spike (e.g., 1.5 means peak can be 50% higher than median).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1.5</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">delta</span></code></p></td>
+<td><p>Sensitivity for Error Volatility. Higher values penalize bursts of errors more strictly.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">error_spike_threshold</span></code></p></td>
+<td><p>The error rate threshold (as a decimal, e.g., 0.1 for 10%) that triggers a penalty for Error Volatility.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">consecutive_error_threshold</span></code></p></td>
+<td><p>The number of consecutive errors that triggers an additional penalty for Error Volatility.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">3</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">concurrency_wait_threshold</span></code></p></td>
+<td><p>The minimum average wait time (in seconds) considered significant for calculating Concurrency Chaos.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.001</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Example <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code> Configuration:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Adjust memory spike sensitivity: penalize peak memory usage if it&#39;s</span>
+<span class="c1"># more than 20% higher than the median.</span>
+<span class="n">mem_spike_threshold_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.2</span>
+
+<span class="c1"># Make error detection more aggressive: penalize if error rate exceeds 5%,</span>
+<span class="c1"># and penalize consecutive errors more heavily (threshold of 2).</span>
+<span class="n">error_spike_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span>
+<span class="n">consecutive_error_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+
+<span class="c1"># Increase sensitivity to timing variance and latency spikes.</span>
+<span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span>
+<span class="n">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.5</span>
+
+<span class="c1"># Make Concurrency Chaos score more sensitive to wait times.</span>
+<span class="n">concurrency_wait_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.005</span>
+
+<span class="c1"># Set a lower sample rate to reduce overhead for high-traffic apps</span>
+<span class="n">sample_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span>
+
+<span class="c1"># Limit the trace buffer size</span>
+<span class="n">max_traces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5000</span>
+
+<span class="c1"># Adjust weights: Make timing stability more important</span>
+<span class="n">w_ts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.4</span>
+<span class="n">w_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.15</span>
+<span class="n">w_ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.15</span>
+<span class="n">w_be</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.15</span>
+<span class="n">w_cc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.15</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

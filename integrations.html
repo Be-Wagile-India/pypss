@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integrations &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Integrations</a><ul>
+<li><a class="reference internal" href="#celery">Celery</a></li>
+<li><a class="reference internal" href="#fastapi">FastAPI</a></li>
+<li><a class="reference internal" href="#flask">Flask</a></li>
+<li><a class="reference internal" href="#opentelemetry-otel">OpenTelemetry (OTel)</a></li>
+<li><a class="reference internal" href="#rq-redis-queue">RQ (Redis Queue)</a></li>
+<li><a class="reference internal" href="#pytest-plugin">Pytest Plugin</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Integrations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/integrations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="integrations">
+<h1>Integrations<a class="headerlink" href="#integrations" title="Link to this heading"></a></h1>
+<p>PyPSS can be integrated with various popular Python frameworks and libraries to automatically collect stability metrics.</p>
+<p>This section outlines how to set up PyPSS with different integrations.</p>
+<section id="celery">
+<h2>Celery<a class="headerlink" href="#celery" title="Link to this heading"></a></h2>
+<p>To instrument Celery tasks with PyPSS:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.integrations.celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyPssCeleryIntegration</span>
+
+<span class="c1"># Initialize PyPSS integration (e.g., in your Celery app setup)</span>
+<span class="n">PyPssCeleryIntegration</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;my_celery_task&quot;</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;celery_worker&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_celery_task</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">):</span>
+    <span class="c1"># Your task logic here</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="fastapi">
+<h2>FastAPI<a class="headerlink" href="#fastapi" title="Link to this heading"></a></h2>
+<p>Integrate PyPSS with FastAPI by adding it as middleware:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.integrations.fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyPssFastAPIMiddleware</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="c1"># Add PyPSS middleware</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">PyPssFastAPIMiddleware</span><span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;root_endpoint&quot;</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;api_gateway&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_root</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Hello&quot;</span><span class="p">:</span> <span class="s2">&quot;World&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="flask">
+<h2>Flask<a class="headerlink" href="#flask" title="Link to this heading"></a></h2>
+<p>Use PyPSS with Flask by adding it as a Flask extension or using decorators:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.integrations.flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyPssFlaskIntegration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Initialize PyPSS integration with Flask app</span>
+<span class="n">PyPssFlaskIntegration</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;root_route&quot;</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;web_framework&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hello_world</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;Hello, World!&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="opentelemetry-otel">
+<h2>OpenTelemetry (OTel)<a class="headerlink" href="#opentelemetry-otel" title="Link to this heading"></a></h2>
+<p>PyPSS can leverage OpenTelemetry for trace collection. Ensure you have installed the <cite>otel</cite> optional dependencies (<cite>pip install “pypss[otel]”</cite>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.integrations.otel</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyPssOtelIntegration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span>
+
+<span class="c1"># Initialize OpenTelemetry and then PyPSS OTel integration</span>
+<span class="n">PyPssOtelIntegration</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;otel_instrumented_function&quot;</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;otel_integration&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_otel_function</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="rq-redis-queue">
+<h2>RQ (Redis Queue)<a class="headerlink" href="#rq-redis-queue" title="Link to this heading"></a></h2>
+<p>Instrument RQ workers and jobs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.integrations.rq</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyPssRQIntegration</span>
+
+<span class="c1"># Initialize PyPSS integration for RQ</span>
+<span class="n">PyPssRQIntegration</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;my_rq_job&quot;</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;rq_worker&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_rq_job</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1"># Your job logic</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="pytest-plugin">
+<h2>Pytest Plugin<a class="headerlink" href="#pytest-plugin" title="Link to this heading"></a></h2>
+<p>PyPSS includes a pytest plugin to automatically capture stability metrics during your test runs.</p>
+<p>Ensure <cite>pypss</cite> is installed with its dev dependencies, including pytest (<cite>pip install -e .[dev]</cite>).</p>
+<p>Your <code class="docutils literal notranslate"><span class="pre">pytest.ini</span></code> or <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> might need to be configured to load the plugin, although it is often discovered automatically.</p>
+<p>Example test function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span>
+
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;test_stability&quot;</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;tests&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_that_code_is_stable</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>To run tests and generate stability reports:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pypss-report<span class="o">=</span>stability_report.json
+</pre></div>
+</div>
+<p>PyPSS will collect stability data during the test execution and save it to the specified file.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

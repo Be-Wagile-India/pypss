@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#core-concepts">Core Concepts</a></li>
+<li><a class="reference internal" href="#instrumenting-code">Instrumenting Code</a><ul>
+<li><a class="reference internal" href="#asyncio-support">AsyncIO Support</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cli-usage">CLI Usage</a></li>
+<li><a class="reference internal" href="#interactive-dashboard">Interactive Dashboard</a></li>
+<li><a class="reference internal" href="#pss-configuration">PSS Configuration</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
+<section id="core-concepts">
+<h2>Core Concepts<a class="headerlink" href="#core-concepts" title="Link to this heading"></a></h2>
+<p>pypss calculates a score based on:</p>
+<ul class="simple">
+<li><p><strong>Timing Stability (TS)</strong></p></li>
+<li><p><strong>Memory Stability (MS)</strong></p></li>
+<li><p><strong>Error Volatility (EV)</strong></p></li>
+<li><p><strong>Branching Entropy (BE)</strong></p></li>
+</ul>
+</section>
+<section id="instrumenting-code">
+<h2>Instrumenting Code<a class="headerlink" href="#instrumenting-code" title="Link to this heading"></a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">&#64;monitor_function</span></code> decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span>
+
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;my_task&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_task</span><span class="p">():</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<section id="asyncio-support">
+<h3>AsyncIO Support<a class="headerlink" href="#asyncio-support" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">monitor_function</span></code> fully supports <code class="docutils literal notranslate"><span class="pre">async/await</span></code>. It correctly handles coroutines, ensuring accurate duration measurement and error capture.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;async_api_call&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_data</span><span class="p">():</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;data&quot;</span>
+</pre></div>
+</div>
+<p><strong>Note:</strong> For async functions, the <strong>Concurrency Chaos</strong> metric is calculated based on the variance of the total wall-clock time (latency), rather than CPU vs Wait time, to accurately reflect event loop contention and I/O delays.</p>
+<p>Or the context manager:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_block</span>
+
+<span class="k">with</span> <span class="n">monitor_block</span><span class="p">(</span><span class="s2">&quot;critical_section&quot;</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cli-usage">
+<h2>CLI Usage<a class="headerlink" href="#cli-usage" title="Link to this heading"></a></h2>
+<p>Analyze a trace file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pypss<span class="w"> </span>analyze<span class="w"> </span>traces.json
+</pre></div>
+</div>
+<p><strong>Scalability:</strong> The <code class="docutils literal notranslate"><span class="pre">analyze</span></code> command uses streaming JSON parsing (via <code class="docutils literal notranslate"><span class="pre">ijson</span></code>) and O(1) memory algorithms. It can process multi-gigabyte trace files with minimal RAM usage.</p>
+</section>
+<section id="interactive-dashboard">
+<h2>Interactive Dashboard<a class="headerlink" href="#interactive-dashboard" title="Link to this heading"></a></h2>
+<p>Visualize your traces using the web-based dashboard:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pypss<span class="w"> </span>board<span class="w"> </span>traces.json
+</pre></div>
+</div>
+<p>Features:</p>
+<ul class="simple">
+<li><p><strong>Overall PSS Gauge</strong>: Instant view of system health.</p></li>
+<li><p><strong>Metric Breakdown</strong>: Scores for Timing, Memory, Errors, etc.</p></li>
+<li><p><strong>Latency Trends</strong>: P50/P95/Max latency over time.</p></li>
+<li><p><strong>Error Analysis</strong>: Click the <strong>Error Rate</strong> box to view a detailed table of all failed traces, including error messages and timestamps.</p></li>
+<li><p><strong>Module Details</strong>: Click on any module in the table to see module-specific metrics and trends.</p></li>
+<li><p><strong>AI Advisor</strong>: Auto-generated insights and recommendations based on your data.</p></li>
+</ul>
+</section>
+<section id="pss-configuration">
+<h2>PSS Configuration<a class="headerlink" href="#pss-configuration" title="Link to this heading"></a></h2>
+<p>The Python Program Stability Score (PSS) calculation can be fine-tuned using various parameters defined in the <code class="docutils literal notranslate"><span class="pre">PSSConfig</span></code> class within <code class="docutils literal notranslate"><span class="pre">pypss/utils/config.py</span></code>. These parameters can be overridden by creating a <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code> file in your project root or by adding a <code class="docutils literal notranslate"><span class="pre">[tool.pypss]</span></code> section to your <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p>
+<p>Here are the key configuration parameters and their impact on the PSS:</p>
+<ul class="simple">
+<li><p><strong>`mem_spike_threshold_ratio`</strong>:
+*   <strong>Description</strong>: This parameter (default: 1.5) defines the ratio by which peak memory usage can exceed the median memory usage before an additional penalty is applied to the Memory Stability (MS) score. For example, a value of 1.5 means that if peak memory is more than 50% higher than median memory, the MS score will be negatively affected.
+*   <strong>Impact</strong>: A lower <cite>mem_spike_threshold_ratio</cite> makes the MS score more sensitive to sudden memory consumption spikes, helping to detect potential memory leaks or inefficient memory usage patterns more aggressively.</p></li>
+<li><p><strong>`error_spike_threshold`</strong>:
+*   <strong>Description</strong>: This parameter (default: 0.1) sets a threshold for the mean error rate (e.g., 0.1 means 10% error rate). If the observed mean error rate exceeds this threshold, an additional penalty is applied to the Error Volatility (EV) score.
+*   <strong>Impact</strong>: A lower <cite>error_spike_threshold</cite> makes the EV score more sensitive to sudden increases in error rates, allowing for earlier detection of system instability or outages.</p></li>
+<li><p><strong>`consecutive_error_threshold`</strong>:
+*   <strong>Description</strong>: This integer parameter (default: 3) specifies the number of consecutive errors that must occur to trigger an additional, more aggressive penalty to the Error Volatility (EV) score.
+*   <strong>Impact</strong>: This parameter helps in identifying sustained failure conditions, which are often stronger indicators of a severe outage than isolated errors. A lower threshold will penalize shorter sequences of consecutive errors more heavily.</p></li>
+<li><p><strong>`concurrency_wait_threshold`</strong>:
+*   <strong>Description</strong>: This parameter (default: 0.001 seconds) sets the minimum mean wait time for concurrency chaos calculation. Wait times below this threshold are considered negligible and do not contribute to concurrency chaos.
+*   <strong>Impact</strong>: Adjusting this threshold allows you to focus the Concurrency Chaos (CC) score on more significant contention issues, ignoring very short, potentially insignificant wait times.</p></li>
+</ul>
+<p>Example <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code> configuration:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[pypss]</span>
+<span class="c1"># Adjust memory spike sensitivity</span>
+<span class="n">mem_spike_threshold_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.2</span>
+
+<span class="c1"># Make error detection more aggressive</span>
+<span class="n">error_spike_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span>
+<span class="n">consecutive_error_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+
+<span class="c1"># Adjust concurrency sensitivity</span>
+<span class="n">concurrency_wait_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.005</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

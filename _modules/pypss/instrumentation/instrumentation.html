@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypss.instrumentation.instrumentation &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pypss.instrumentation.instrumentation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypss.instrumentation.instrumentation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.collectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">GLOBAL_CONFIG</span>
+
+<span class="c1"># Global collector instance</span>
+<span class="n">global_collector</span> <span class="o">=</span> <span class="n">Collector</span><span class="p">()</span>
+
+<span class="c1"># Memoize the process handle</span>
+<span class="n">_process</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="get_memory_usage">
+<a class="viewcode-back" href="../../../api.html#pypss.instrumentation.get_memory_usage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_memory_usage</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns RSS memory usage in bytes.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_process</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span><span class="o">.</span><span class="n">rss</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_finalize_trace</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">,</span>
+    <span class="n">branch_tag</span><span class="p">,</span>
+    <span class="n">module_name</span><span class="p">,</span>
+    <span class="n">start_wall</span><span class="p">,</span>
+    <span class="n">start_cpu</span><span class="p">,</span>
+    <span class="n">start_mem</span><span class="p">,</span>
+    <span class="n">error_info</span><span class="p">,</span>
+    <span class="n">is_async</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper to calculate metrics and record the trace.&quot;&quot;&quot;</span>
+    <span class="n">end_wall</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">end_cpu</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+    <span class="n">end_mem</span> <span class="o">=</span> <span class="n">get_memory_usage</span><span class="p">()</span>
+
+    <span class="n">duration_wall</span> <span class="o">=</span> <span class="n">end_wall</span> <span class="o">-</span> <span class="n">start_wall</span>
+    <span class="n">duration_cpu</span> <span class="o">=</span> <span class="n">end_cpu</span> <span class="o">-</span> <span class="n">start_cpu</span>
+
+    <span class="c1"># Concurrency Wait Time (Approximate)</span>
+    <span class="k">if</span> <span class="n">is_async</span><span class="p">:</span>
+        <span class="c1"># For async functions, process_time() is unreliable (includes other tasks).</span>
+        <span class="c1"># We assume async tasks are primarily I/O bound.</span>
+        <span class="c1"># We treat the entire duration as &#39;wait_time&#39; (waiting for I/O or Event Loop).</span>
+        <span class="c1"># This penalizes blocking CPU work in async (which increases duration)</span>
+        <span class="c1"># and event loop lag, which is appropriate for Concurrency Chaos metric.</span>
+        <span class="n">duration_cpu</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># Cannot reliably attribute CPU to this specific task</span>
+        <span class="n">wait_time</span> <span class="o">=</span> <span class="n">duration_wall</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># If Wall Time &gt; CPU Time, we were waiting (I/O, Locks, Sleep)</span>
+        <span class="n">wait_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">duration_wall</span> <span class="o">-</span> <span class="n">duration_cpu</span><span class="p">)</span>
+
+    <span class="c1"># Extract source location and module if available</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="vm">__code__</span><span class="p">,</span> <span class="s2">&quot;co_filename&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+    <span class="n">lineno</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="vm">__code__</span><span class="p">,</span> <span class="s2">&quot;co_firstlineno&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Use provided module_name or fallback to auto-detection</span>
+    <span class="n">final_module_name</span> <span class="o">=</span> <span class="n">module_name</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">&quot;__module__&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+
+    <span class="n">error_occurred</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_message</span> <span class="o">=</span> <span class="n">error_info</span>
+
+    <span class="n">trace</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;trace_id&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">start_wall</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1_000_000</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span>
+        <span class="s2">&quot;lineno&quot;</span><span class="p">:</span> <span class="n">lineno</span><span class="p">,</span>
+        <span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="n">final_module_name</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">duration_wall</span><span class="p">,</span>
+        <span class="s2">&quot;cpu_time&quot;</span><span class="p">:</span> <span class="n">duration_cpu</span><span class="p">,</span>
+        <span class="s2">&quot;wait_time&quot;</span><span class="p">:</span> <span class="n">wait_time</span><span class="p">,</span>
+        <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="n">end_mem</span><span class="p">,</span>
+        <span class="s2">&quot;memory_diff&quot;</span><span class="p">:</span> <span class="n">end_mem</span> <span class="o">-</span> <span class="n">start_mem</span><span class="p">,</span>
+        <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">error_occurred</span><span class="p">,</span>
+        <span class="s2">&quot;exception_type&quot;</span><span class="p">:</span> <span class="n">exception_type</span><span class="p">,</span>
+        <span class="s2">&quot;exception_message&quot;</span><span class="p">:</span> <span class="n">exception_message</span><span class="p">,</span>
+        <span class="s2">&quot;branch_tag&quot;</span><span class="p">:</span> <span class="n">branch_tag</span><span class="p">,</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">start_wall</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">global_collector</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="monitor_function">
+<a class="viewcode-back" href="../../../api.html#pypss.instrumentation.monitor_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">monitor_function</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">branch_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+
+            <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="c1"># Sampling Check</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">GLOBAL_CONFIG</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">&lt;</span> <span class="mf">1.0</span>
+                    <span class="ow">and</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">GLOBAL_CONFIG</span><span class="o">.</span><span class="n">sample_rate</span>
+                <span class="p">):</span>
+                    <span class="k">return</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="c1"># Capture Start Metrics</span>
+                <span class="n">start_wall</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">start_cpu</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+                <span class="n">start_mem</span> <span class="o">=</span> <span class="n">get_memory_usage</span><span class="p">()</span>
+                <span class="n">error_occurred</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">exception_type</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">exception_message</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">result</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">error_occurred</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">exception_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                    <span class="n">exception_message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">e</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">_finalize_trace</span><span class="p">(</span>
+                        <span class="n">func</span><span class="p">,</span>
+                        <span class="n">name</span><span class="p">,</span>
+                        <span class="n">branch_tag</span><span class="p">,</span>
+                        <span class="n">module_name</span><span class="p">,</span>
+                        <span class="n">start_wall</span><span class="p">,</span>
+                        <span class="n">start_cpu</span><span class="p">,</span>
+                        <span class="n">start_mem</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">error_occurred</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_message</span><span class="p">),</span>
+                        <span class="n">is_async</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">wrapper</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="c1"># Sampling Check</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">GLOBAL_CONFIG</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">&lt;</span> <span class="mf">1.0</span>
+                    <span class="ow">and</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">GLOBAL_CONFIG</span><span class="o">.</span><span class="n">sample_rate</span>
+                <span class="p">):</span>
+                    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="c1"># Capture Start Metrics</span>
+                <span class="n">start_wall</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">start_cpu</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+                <span class="n">start_mem</span> <span class="o">=</span> <span class="n">get_memory_usage</span><span class="p">()</span>
+                <span class="n">error_occurred</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">exception_type</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">exception_message</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">result</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">error_occurred</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">exception_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                    <span class="n">exception_message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">e</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">_finalize_trace</span><span class="p">(</span>
+                        <span class="n">func</span><span class="p">,</span>
+                        <span class="n">name</span><span class="p">,</span>
+                        <span class="n">branch_tag</span><span class="p">,</span>
+                        <span class="n">module_name</span><span class="p">,</span>
+                        <span class="n">start_wall</span><span class="p">,</span>
+                        <span class="n">start_cpu</span><span class="p">,</span>
+                        <span class="n">start_mem</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">error_occurred</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_message</span><span class="p">),</span>
+                        <span class="n">is_async</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+
+<div class="viewcode-block" id="monitor_block">
+<a class="viewcode-back" href="../../../api.html#pypss.instrumentation.monitor_block">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">monitor_block</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">branch_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_tag</span> <span class="o">=</span> <span class="n">branch_tag</span>
+        <span class="k">if</span> <span class="n">module_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module_name</span> <span class="o">=</span> <span class="n">module_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Portable way to get caller&#39;s module name.</span>
+                <span class="c1"># inspect.stack() can be slow, but it&#39;s only called on __init__.</span>
+                <span class="n">frm</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">mod</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmodule</span><span class="p">(</span><span class="n">frm</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">module_name</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">mod</span> <span class="k">else</span> <span class="s2">&quot;unknown&quot;</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">module_name</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_wall</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_cpu</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_mem</span> <span class="o">=</span> <span class="n">get_memory_usage</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="n">end_wall</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">end_cpu</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="n">end_mem</span> <span class="o">=</span> <span class="n">get_memory_usage</span><span class="p">()</span>
+
+        <span class="n">duration_wall</span> <span class="o">=</span> <span class="n">end_wall</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_wall</span>
+        <span class="n">duration_cpu</span> <span class="o">=</span> <span class="n">end_cpu</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_cpu</span>
+        <span class="n">wait_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">duration_wall</span> <span class="o">-</span> <span class="n">duration_cpu</span><span class="p">)</span>
+
+        <span class="n">exception_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">exception_message</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">exc_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exception_type</span> <span class="o">=</span> <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">exception_message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc_val</span><span class="p">)</span>
+
+        <span class="n">trace</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">duration_wall</span><span class="p">,</span>
+            <span class="s2">&quot;cpu_time&quot;</span><span class="p">:</span> <span class="n">duration_cpu</span><span class="p">,</span>
+            <span class="s2">&quot;wait_time&quot;</span><span class="p">:</span> <span class="n">wait_time</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">exc_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;exception_type&quot;</span><span class="p">:</span> <span class="n">exception_type</span><span class="p">,</span>
+            <span class="s2">&quot;exception_message&quot;</span><span class="p">:</span> <span class="n">exception_message</span><span class="p">,</span>
+            <span class="s2">&quot;branch_tag&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_tag</span><span class="p">,</span>
+            <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="n">end_mem</span><span class="p">,</span>
+            <span class="s2">&quot;memory_diff&quot;</span><span class="p">:</span> <span class="n">end_mem</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_mem</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_wall</span><span class="p">,</span>
+            <span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">global_collector</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

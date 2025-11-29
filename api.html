@@ -1,0 +1,904 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">API Reference</a><ul>
+<li><a class="reference internal" href="#module-pypss.core">Core</a><ul>
+<li><a class="reference internal" href="#pypss.core.StabilityAdvisor"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor</span></code></a><ul>
+<li><a class="reference internal" href="#pypss.core.StabilityAdvisor.analyze"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor.analyze()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pypss.core.compute_pss_from_traces"><code class="docutils literal notranslate"><span class="pre">compute_pss_from_traces()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.core.generate_advisor_report"><code class="docutils literal notranslate"><span class="pre">generate_advisor_report()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.core.core._calculate_branching_entropy_score"><code class="docutils literal notranslate"><span class="pre">_calculate_branching_entropy_score()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.core.core._calculate_concurrency_chaos_score"><code class="docutils literal notranslate"><span class="pre">_calculate_concurrency_chaos_score()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.core.core._calculate_error_volatility_score"><code class="docutils literal notranslate"><span class="pre">_calculate_error_volatility_score()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.core.core._calculate_memory_stability_score"><code class="docutils literal notranslate"><span class="pre">_calculate_memory_stability_score()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.core.core._calculate_timing_stability_score"><code class="docutils literal notranslate"><span class="pre">_calculate_timing_stability_score()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.core.core.compute_pss_from_traces"><code class="docutils literal notranslate"><span class="pre">compute_pss_from_traces()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.core.advisor.StabilityAdvisor"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor</span></code></a><ul>
+<li><a class="reference internal" href="#pypss.core.advisor.StabilityAdvisor.analyze"><code class="docutils literal notranslate"><span class="pre">StabilityAdvisor.analyze()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pypss.core.advisor.generate_advisor_report"><code class="docutils literal notranslate"><span class="pre">generate_advisor_report()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pypss.instrumentation">Instrumentation</a><ul>
+<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper"><code class="docutils literal notranslate"><span class="pre">AutoDumper</span></code></a><ul>
+<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper.dump"><code class="docutils literal notranslate"><span class="pre">AutoDumper.dump()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper.rotate"><code class="docutils literal notranslate"><span class="pre">AutoDumper.rotate()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper.start"><code class="docutils literal notranslate"><span class="pre">AutoDumper.start()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.AutoDumper.stop"><code class="docutils literal notranslate"><span class="pre">AutoDumper.stop()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pypss.instrumentation.Collector"><code class="docutils literal notranslate"><span class="pre">Collector</span></code></a><ul>
+<li><a class="reference internal" href="#pypss.instrumentation.Collector.add_trace"><code class="docutils literal notranslate"><span class="pre">Collector.add_trace()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.Collector.clear"><code class="docutils literal notranslate"><span class="pre">Collector.clear()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.Collector.get_traces"><code class="docutils literal notranslate"><span class="pre">Collector.get_traces()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pypss.instrumentation.get_memory_usage"><code class="docutils literal notranslate"><span class="pre">get_memory_usage()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.monitor_block"><code class="docutils literal notranslate"><span class="pre">monitor_block</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.monitor_function"><code class="docutils literal notranslate"><span class="pre">monitor_function()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.collectors.Collector"><code class="docutils literal notranslate"><span class="pre">Collector</span></code></a><ul>
+<li><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.add_trace"><code class="docutils literal notranslate"><span class="pre">Collector.add_trace()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.clear"><code class="docutils literal notranslate"><span class="pre">Collector.clear()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.instrumentation.collectors.Collector.get_traces"><code class="docutils literal notranslate"><span class="pre">Collector.get_traces()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pypss.cli.reporting">CLI &amp; Reporting</a><ul>
+<li><a class="reference internal" href="#pypss.cli.reporting.render_report_json"><code class="docutils literal notranslate"><span class="pre">render_report_json()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.cli.reporting.render_report_text"><code class="docutils literal notranslate"><span class="pre">render_report_text()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.cli.runner.AutoInstrumentor"><code class="docutils literal notranslate"><span class="pre">AutoInstrumentor</span></code></a><ul>
+<li><a class="reference internal" href="#pypss.cli.runner.AutoInstrumentor.apply"><code class="docutils literal notranslate"><span class="pre">AutoInstrumentor.apply()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pypss.cli.runner.run_with_instrumentation"><code class="docutils literal notranslate"><span class="pre">run_with_instrumentation()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pypss.utils.utils">Utils &amp; Config</a><ul>
+<li><a class="reference internal" href="#pypss.utils.utils.calculate_cv"><code class="docutils literal notranslate"><span class="pre">calculate_cv()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.utils.calculate_entropy"><code class="docutils literal notranslate"><span class="pre">calculate_entropy()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.utils.exponential_decay_score"><code class="docutils literal notranslate"><span class="pre">exponential_decay_score()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.utils.normalize_score"><code class="docutils literal notranslate"><span class="pre">normalize_score()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.utils.parse_time_string"><code class="docutils literal notranslate"><span class="pre">parse_time_string()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig"><code class="docutils literal notranslate"><span class="pre">PSSConfig</span></code></a><ul>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_entropy_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_entropy_threshold</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_error_critical"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_error_critical</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_error_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_error_warning</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_metric_score_critical"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_metric_score_critical</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_metric_score_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_metric_score_warning</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_excellent"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_excellent</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_good"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_good</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.advisor_threshold_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.advisor_threshold_warning</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.alpha"><code class="docutils literal notranslate"><span class="pre">PSSConfig.alpha</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.background_archive_dir"><code class="docutils literal notranslate"><span class="pre">PSSConfig.background_archive_dir</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.background_dump_interval"><code class="docutils literal notranslate"><span class="pre">PSSConfig.background_dump_interval</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.beta"><code class="docutils literal notranslate"><span class="pre">PSSConfig.beta</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.collector_max_traces_sharding_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.collector_max_traces_sharding_threshold</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.collector_shard_count"><code class="docutils literal notranslate"><span class="pre">PSSConfig.collector_shard_count</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.concurrency_wait_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.concurrency_wait_threshold</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.consecutive_error_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.consecutive_error_threshold</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.dashboard_critical_pss_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.dashboard_critical_pss_threshold</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.dashboard_warning_error_rate"><code class="docutils literal notranslate"><span class="pre">PSSConfig.dashboard_warning_error_rate</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.default_html_report_title"><code class="docutils literal notranslate"><span class="pre">PSSConfig.default_html_report_title</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.default_trace_file"><code class="docutils literal notranslate"><span class="pre">PSSConfig.default_trace_file</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.delta"><code class="docutils literal notranslate"><span class="pre">PSSConfig.delta</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_file_extension"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_file_extension</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_dirs"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_dirs</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_funcs_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_funcs_prefix</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_ignore_modules"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_ignore_modules</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.discovery_unknown_module_name"><code class="docutils literal notranslate"><span class="pre">PSSConfig.discovery_unknown_module_name</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.error_spike_threshold"><code class="docutils literal notranslate"><span class="pre">PSSConfig.error_spike_threshold</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.gamma"><code class="docutils literal notranslate"><span class="pre">PSSConfig.gamma</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.header_pss_latency"><code class="docutils literal notranslate"><span class="pre">PSSConfig.header_pss_latency</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.header_pss_wait"><code class="docutils literal notranslate"><span class="pre">PSSConfig.header_pss_wait</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_celery_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_celery_trace_prefix</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_header_latency"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_header_latency</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_header_wait"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_header_wait</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_flask_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_flask_trace_prefix</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_meter_name"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_meter_name</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_meter_version"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_meter_version</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_otel_metric_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_otel_metric_prefix</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_pytest_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_pytest_trace_prefix</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.integration_rq_trace_prefix"><code class="docutils literal notranslate"><span class="pre">PSSConfig.integration_rq_trace_prefix</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_max_tokens"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_max_tokens</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_ollama_model"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_ollama_model</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_ollama_url"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_ollama_url</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.llm_openai_model"><code class="docutils literal notranslate"><span class="pre">PSSConfig.llm_openai_model</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.load"><code class="docutils literal notranslate"><span class="pre">PSSConfig.load()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.max_traces"><code class="docutils literal notranslate"><span class="pre">PSSConfig.max_traces</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.mem_spike_threshold_ratio"><code class="docutils literal notranslate"><span class="pre">PSSConfig.mem_spike_threshold_ratio</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.sample_rate"><code class="docutils literal notranslate"><span class="pre">PSSConfig.sample_rate</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.save"><code class="docutils literal notranslate"><span class="pre">PSSConfig.save()</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_consecutive_error_decay_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_consecutive_error_decay_multiplier</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_error_spike_impact_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_error_spike_impact_multiplier</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_error_vmr_multiplier"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_error_vmr_multiplier</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_latency_tail_percentile"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_latency_tail_percentile</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.score_memory_epsilon"><code class="docutils literal notranslate"><span class="pre">PSSConfig.score_memory_epsilon</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_port"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_port</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_accent"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_accent</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_info"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_info</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_negative"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_negative</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_positive"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_positive</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_primary"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_primary</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_secondary"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_secondary</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_theme_warning"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_theme_warning</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.ui_title"><code class="docutils literal notranslate"><span class="pre">PSSConfig.ui_title</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_be"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_be</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_cc"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_cc</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ev"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ev</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ms"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ms</span></code></a></li>
+<li><a class="reference internal" href="#pypss.utils.config.PSSConfig.w_ts"><code class="docutils literal notranslate"><span class="pre">PSSConfig.w_ts</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<section id="module-pypss.core">
+<span id="core"></span><h2>Core<a class="headerlink" href="#module-pypss.core" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pypss.core.StabilityAdvisor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.core.</span></span><span class="sig-name descname"><span class="pre">StabilityAdvisor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/advisor.html#StabilityAdvisor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.StabilityAdvisor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The ‘Brain’ of pypss. Analyzes stability metrics to provide
+human-readable diagnoses and actionable advice.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.core.StabilityAdvisor.analyze">
+<span class="sig-name descname"><span class="pre">analyze</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/advisor.html#StabilityAdvisor.analyze"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.StabilityAdvisor.analyze" title="Link to this definition"></a></dt>
+<dd><p>Performs the analysis and returns a dictionary with ‘diagnosis’ and ‘advice’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.core.compute_pss_from_traces">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.</span></span><span class="sig-name descname"><span class="pre">compute_pss_from_traces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/core.html#compute_pss_from_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.compute_pss_from_traces" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.core.generate_advisor_report">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.</span></span><span class="sig-name descname"><span class="pre">generate_advisor_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/advisor.html#generate_advisor_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.generate_advisor_report" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function" id="module-pypss.core.core">
+<dt class="sig sig-object py" id="pypss.core.core._calculate_branching_entropy_score">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.core.</span></span><span class="sig-name descname"><span class="pre">_calculate_branching_entropy_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">branch_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/core.html#_calculate_branching_entropy_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.core._calculate_branching_entropy_score" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.core.core._calculate_concurrency_chaos_score">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.core.</span></span><span class="sig-name descname"><span class="pre">_calculate_concurrency_chaos_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/core.html#_calculate_concurrency_chaos_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.core._calculate_concurrency_chaos_score" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.core.core._calculate_error_volatility_score">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.core.</span></span><span class="sig-name descname"><span class="pre">_calculate_error_volatility_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">errors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/core.html#_calculate_error_volatility_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.core._calculate_error_volatility_score" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.core.core._calculate_memory_stability_score">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.core.</span></span><span class="sig-name descname"><span class="pre">_calculate_memory_stability_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memory_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/core.html#_calculate_memory_stability_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.core._calculate_memory_stability_score" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.core.core._calculate_timing_stability_score">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.core.</span></span><span class="sig-name descname"><span class="pre">_calculate_timing_stability_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/core.html#_calculate_timing_stability_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.core._calculate_timing_stability_score" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.core.core.compute_pss_from_traces">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.core.</span></span><span class="sig-name descname"><span class="pre">compute_pss_from_traces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/core.html#compute_pss_from_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.core.compute_pss_from_traces" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class" id="module-pypss.core.advisor">
+<dt class="sig sig-object py" id="pypss.core.advisor.StabilityAdvisor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.core.advisor.</span></span><span class="sig-name descname"><span class="pre">StabilityAdvisor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/advisor.html#StabilityAdvisor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.advisor.StabilityAdvisor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The ‘Brain’ of pypss. Analyzes stability metrics to provide
+human-readable diagnoses and actionable advice.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.core.advisor.StabilityAdvisor.analyze">
+<span class="sig-name descname"><span class="pre">analyze</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/advisor.html#StabilityAdvisor.analyze"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.advisor.StabilityAdvisor.analyze" title="Link to this definition"></a></dt>
+<dd><p>Performs the analysis and returns a dictionary with ‘diagnosis’ and ‘advice’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.core.advisor.generate_advisor_report">
+<span class="sig-prename descclassname"><span class="pre">pypss.core.advisor.</span></span><span class="sig-name descname"><span class="pre">generate_advisor_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/core/advisor.html#generate_advisor_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.core.advisor.generate_advisor_report" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pypss.instrumentation">
+<span id="instrumentation"></span><h2>Instrumentation<a class="headerlink" href="#module-pypss.instrumentation" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pypss.instrumentation.AutoDumper">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.instrumentation.</span></span><span class="sig-name descname"><span class="pre">AutoDumper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotate_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/background.html#AutoDumper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.AutoDumper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Background thread that periodically dumps collector traces to a file.
+Performs atomic writes to ensure readers (like the dashboard) don’t see partial files.
+Supports file rotation to prevent data loss while keeping the active file manageable.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.AutoDumper.dump">
+<span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/background.html#AutoDumper.dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.AutoDumper.dump" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.AutoDumper.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/background.html#AutoDumper.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.AutoDumper.rotate" title="Link to this definition"></a></dt>
+<dd><p>Rotates the current trace file to an archive and clears memory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.AutoDumper.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/background.html#AutoDumper.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.AutoDumper.start" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.AutoDumper.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/background.html#AutoDumper.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.AutoDumper.stop" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pypss.instrumentation.Collector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.instrumentation.</span></span><span class="sig-name descname"><span class="pre">Collector</span></span><a class="reference internal" href="_modules/pypss/instrumentation/collectors.html#Collector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.Collector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Thread-safe, sharded collector to minimize lock contention.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.Collector.add_trace">
+<span class="sig-name descname"><span class="pre">add_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/collectors.html#Collector.add_trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.Collector.add_trace" title="Link to this definition"></a></dt>
+<dd><p>Adds a trace to a thread-local shard. Thread-safe and low contention.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.Collector.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/collectors.html#Collector.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.Collector.clear" title="Link to this definition"></a></dt>
+<dd><p>Clears all shards.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.Collector.get_traces">
+<span class="sig-name descname"><span class="pre">get_traces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/collectors.html#Collector.get_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.Collector.get_traces" title="Link to this definition"></a></dt>
+<dd><p>Returns a snapshot of the current traces, aggregated from all shards.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.instrumentation.get_memory_usage">
+<span class="sig-prename descclassname"><span class="pre">pypss.instrumentation.</span></span><span class="sig-name descname"><span class="pre">get_memory_usage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/instrumentation.html#get_memory_usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.get_memory_usage" title="Link to this definition"></a></dt>
+<dd><p>Returns RSS memory usage in bytes.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pypss.instrumentation.monitor_block">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.instrumentation.</span></span><span class="sig-name descname"><span class="pre">monitor_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/instrumentation.html#monitor_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.monitor_block" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.instrumentation.monitor_function">
+<span class="sig-prename descclassname"><span class="pre">pypss.instrumentation.</span></span><span class="sig-name descname"><span class="pre">monitor_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/instrumentation.html#monitor_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.monitor_function" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class" id="module-pypss.instrumentation.collectors">
+<dt class="sig sig-object py" id="pypss.instrumentation.collectors.Collector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.instrumentation.collectors.</span></span><span class="sig-name descname"><span class="pre">Collector</span></span><a class="reference internal" href="_modules/pypss/instrumentation/collectors.html#Collector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.collectors.Collector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Thread-safe, sharded collector to minimize lock contention.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.collectors.Collector.add_trace">
+<span class="sig-name descname"><span class="pre">add_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/collectors.html#Collector.add_trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.collectors.Collector.add_trace" title="Link to this definition"></a></dt>
+<dd><p>Adds a trace to a thread-local shard. Thread-safe and low contention.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.collectors.Collector.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/collectors.html#Collector.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.collectors.Collector.clear" title="Link to this definition"></a></dt>
+<dd><p>Clears all shards.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.instrumentation.collectors.Collector.get_traces">
+<span class="sig-name descname"><span class="pre">get_traces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/instrumentation/collectors.html#Collector.get_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.instrumentation.collectors.Collector.get_traces" title="Link to this definition"></a></dt>
+<dd><p>Returns a snapshot of the current traces, aggregated from all shards.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pypss.cli.reporting">
+<span id="cli-reporting"></span><h2>CLI &amp; Reporting<a class="headerlink" href="#module-pypss.cli.reporting" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.cli.reporting.render_report_json">
+<span class="sig-prename descclassname"><span class="pre">pypss.cli.reporting.</span></span><span class="sig-name descname"><span class="pre">render_report_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/cli/reporting.html#render_report_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.cli.reporting.render_report_json" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.cli.reporting.render_report_text">
+<span class="sig-prename descclassname"><span class="pre">pypss.cli.reporting.</span></span><span class="sig-name descname"><span class="pre">render_report_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/cli/reporting.html#render_report_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.cli.reporting.render_report_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class" id="module-pypss.cli.runner">
+<dt class="sig sig-object py" id="pypss.cli.runner.AutoInstrumentor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.cli.runner.</span></span><span class="sig-name descname"><span class="pre">AutoInstrumentor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/cli/runner.html#AutoInstrumentor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.cli.runner.AutoInstrumentor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dynamically imports modules and wraps their functions with the monitor decorator.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.cli.runner.AutoInstrumentor.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/cli/runner.html#AutoInstrumentor.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.cli.runner.AutoInstrumentor.apply" title="Link to this definition"></a></dt>
+<dd><p>Attempts to import modules and wrap functions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.cli.runner.run_with_instrumentation">
+<span class="sig-prename descclassname"><span class="pre">pypss.cli.runner.</span></span><span class="sig-name descname"><span class="pre">run_with_instrumentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_script</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/cli/runner.html#run_with_instrumentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.cli.runner.run_with_instrumentation" title="Link to this definition"></a></dt>
+<dd><ol class="arabic simple">
+<li><p>Discovers code.</p></li>
+<li><p>Auto-instruments it.</p></li>
+<li><p>Runs the target script.</p></li>
+</ol>
+</dd></dl>
+
+</section>
+<section id="module-pypss.utils.utils">
+<span id="utils-config"></span><h2>Utils &amp; Config<a class="headerlink" href="#module-pypss.utils.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.utils.utils.calculate_cv">
+<span class="sig-prename descclassname"><span class="pre">pypss.utils.utils.</span></span><span class="sig-name descname"><span class="pre">calculate_cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/utils.html#calculate_cv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.utils.calculate_cv" title="Link to this definition"></a></dt>
+<dd><p>Calculates Coefficient of Variation (std / mean).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.utils.utils.calculate_entropy">
+<span class="sig-prename descclassname"><span class="pre">pypss.utils.utils.</span></span><span class="sig-name descname"><span class="pre">calculate_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/utils.html#calculate_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.utils.calculate_entropy" title="Link to this definition"></a></dt>
+<dd><p>Calculates Shannon entropy for a list of discrete items (e.g., branch tags).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.utils.utils.exponential_decay_score">
+<span class="sig-prename descclassname"><span class="pre">pypss.utils.utils.</span></span><span class="sig-name descname"><span class="pre">exponential_decay_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/utils.html#exponential_decay_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.utils.exponential_decay_score" title="Link to this definition"></a></dt>
+<dd><p>Maps a metric (where 0 is best) to a score [0, 1] using exponential decay.
+score = exp(-alpha * metric)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.utils.utils.normalize_score">
+<span class="sig-prename descclassname"><span class="pre">pypss.utils.utils.</span></span><span class="sig-name descname"><span class="pre">normalize_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/utils.html#normalize_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.utils.normalize_score" title="Link to this definition"></a></dt>
+<dd><p>Clamps a value between min_val and max_val.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pypss.utils.utils.parse_time_string">
+<span class="sig-prename descclassname"><span class="pre">pypss.utils.utils.</span></span><span class="sig-name descname"><span class="pre">parse_time_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/utils.html#parse_time_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.utils.parse_time_string" title="Link to this definition"></a></dt>
+<dd><p>Parses a human-readable time string (e.g., “5s”, “2m”, “1.5h”, “1d”, “1w”) into seconds.
+Raises ValueError for invalid formats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class" id="module-pypss.utils.config">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pypss.utils.config.</span></span><span class="sig-name descname"><span class="pre">PSSConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_traces=10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_ts=0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_ms=0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_ev=0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_be=0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_cc=0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha=2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma=2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_spike_threshold_ratio=1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_spike_threshold=0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consecutive_error_threshold=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concurrency_wait_threshold=0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_ignore_dirs=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_primary='#4285F4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_secondary='#607D8B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_accent='#34A853'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_positive='#34A853'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_negative='#EA4335'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_info='#FBBC04'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_theme_warning='#FBBC04'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_port=8080</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_title='PyPSS</span> <span class="pre">|</span> <span class="pre">Reliability</span> <span class="pre">Platform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dashboard_critical_pss_threshold=60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dashboard_warning_error_rate=0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_dump_interval=60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_archive_dir='archive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_trace_file='traces.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_html_report_title='PyPSS</span> <span class="pre">Stability</span> <span class="pre">Report'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_latency_tail_percentile=94</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_memory_epsilon=1e-09</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_error_vmr_multiplier=0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_error_spike_impact_multiplier=0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_consecutive_error_decay_multiplier=2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collector_max_traces_sharding_threshold=1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collector_shard_count=16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_threshold_excellent=90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_threshold_good=75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_threshold_warning=50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_metric_score_critical=0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_metric_score_warning=0.85</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_error_critical=0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_error_warning=0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advisor_entropy_threshold=0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_pss_latency='X-PSS-Latency'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_pss_wait='X-PSS-Wait'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_celery_trace_prefix='celery:'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_flask_trace_prefix='flask:'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_flask_header_latency='X-PSS-Latency'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_flask_header_wait='X-PSS-Wait'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_rq_trace_prefix='rq:'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_pytest_trace_prefix='test::'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_otel_metric_prefix='pypss.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_otel_meter_name='pypss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_otel_meter_version='0.1.0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_file_extension='.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_ignore_modules=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_ignore_funcs_prefix='_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discovery_unknown_module_name='unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_openai_model='gpt-4o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_ollama_url='http://localhost:11434/api/generate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_ollama_model='llama3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_max_tokens=1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/config.html#PSSConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.config.PSSConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_entropy_threshold">
+<span class="sig-name descname"><span class="pre">advisor_entropy_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.8</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_entropy_threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_error_critical">
+<span class="sig-name descname"><span class="pre">advisor_error_critical</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.7</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_error_critical" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_error_warning">
+<span class="sig-name descname"><span class="pre">advisor_error_warning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.9</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_error_warning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_metric_score_critical">
+<span class="sig-name descname"><span class="pre">advisor_metric_score_critical</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.6</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_metric_score_critical" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_metric_score_warning">
+<span class="sig-name descname"><span class="pre">advisor_metric_score_warning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.85</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_metric_score_warning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_threshold_excellent">
+<span class="sig-name descname"><span class="pre">advisor_threshold_excellent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">90</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_threshold_excellent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_threshold_good">
+<span class="sig-name descname"><span class="pre">advisor_threshold_good</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">75</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_threshold_good" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.advisor_threshold_warning">
+<span class="sig-name descname"><span class="pre">advisor_threshold_warning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">50</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.advisor_threshold_warning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2.0</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.alpha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.background_archive_dir">
+<span class="sig-name descname"><span class="pre">background_archive_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'archive'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.background_archive_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.background_dump_interval">
+<span class="sig-name descname"><span class="pre">background_dump_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.background_dump_interval" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.beta">
+<span class="sig-name descname"><span class="pre">beta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.beta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.collector_max_traces_sharding_threshold">
+<span class="sig-name descname"><span class="pre">collector_max_traces_sharding_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.collector_max_traces_sharding_threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.collector_shard_count">
+<span class="sig-name descname"><span class="pre">collector_shard_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.collector_shard_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.concurrency_wait_threshold">
+<span class="sig-name descname"><span class="pre">concurrency_wait_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.001</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.concurrency_wait_threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.consecutive_error_threshold">
+<span class="sig-name descname"><span class="pre">consecutive_error_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.consecutive_error_threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.dashboard_critical_pss_threshold">
+<span class="sig-name descname"><span class="pre">dashboard_critical_pss_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60.0</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.dashboard_critical_pss_threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.dashboard_warning_error_rate">
+<span class="sig-name descname"><span class="pre">dashboard_warning_error_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.dashboard_warning_error_rate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.default_html_report_title">
+<span class="sig-name descname"><span class="pre">default_html_report_title</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PyPSS</span> <span class="pre">Stability</span> <span class="pre">Report'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.default_html_report_title" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.default_trace_file">
+<span class="sig-name descname"><span class="pre">default_trace_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'traces.json'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.default_trace_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.delta">
+<span class="sig-name descname"><span class="pre">delta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.delta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.discovery_file_extension">
+<span class="sig-name descname"><span class="pre">discovery_file_extension</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.py'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.discovery_file_extension" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.discovery_ignore_dirs">
+<span class="sig-name descname"><span class="pre">discovery_ignore_dirs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.discovery_ignore_dirs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.discovery_ignore_funcs_prefix">
+<span class="sig-name descname"><span class="pre">discovery_ignore_funcs_prefix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.discovery_ignore_funcs_prefix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.discovery_ignore_modules">
+<span class="sig-name descname"><span class="pre">discovery_ignore_modules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.discovery_ignore_modules" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.discovery_unknown_module_name">
+<span class="sig-name descname"><span class="pre">discovery_unknown_module_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'unknown'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.discovery_unknown_module_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.error_spike_threshold">
+<span class="sig-name descname"><span class="pre">error_spike_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.1</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.error_spike_threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.gamma">
+<span class="sig-name descname"><span class="pre">gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2.0</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.gamma" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.header_pss_latency">
+<span class="sig-name descname"><span class="pre">header_pss_latency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'X-PSS-Latency'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.header_pss_latency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.header_pss_wait">
+<span class="sig-name descname"><span class="pre">header_pss_wait</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'X-PSS-Wait'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.header_pss_wait" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_celery_trace_prefix">
+<span class="sig-name descname"><span class="pre">integration_celery_trace_prefix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'celery:'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_celery_trace_prefix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_flask_header_latency">
+<span class="sig-name descname"><span class="pre">integration_flask_header_latency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'X-PSS-Latency'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_flask_header_latency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_flask_header_wait">
+<span class="sig-name descname"><span class="pre">integration_flask_header_wait</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'X-PSS-Wait'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_flask_header_wait" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_flask_trace_prefix">
+<span class="sig-name descname"><span class="pre">integration_flask_trace_prefix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'flask:'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_flask_trace_prefix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_otel_meter_name">
+<span class="sig-name descname"><span class="pre">integration_otel_meter_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pypss'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_otel_meter_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_otel_meter_version">
+<span class="sig-name descname"><span class="pre">integration_otel_meter_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.1.0'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_otel_meter_version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_otel_metric_prefix">
+<span class="sig-name descname"><span class="pre">integration_otel_metric_prefix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pypss.'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_otel_metric_prefix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_pytest_trace_prefix">
+<span class="sig-name descname"><span class="pre">integration_pytest_trace_prefix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'test::'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_pytest_trace_prefix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.integration_rq_trace_prefix">
+<span class="sig-name descname"><span class="pre">integration_rq_trace_prefix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'rq:'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.integration_rq_trace_prefix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.llm_max_tokens">
+<span class="sig-name descname"><span class="pre">llm_max_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.llm_max_tokens" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.llm_ollama_model">
+<span class="sig-name descname"><span class="pre">llm_ollama_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'llama3'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.llm_ollama_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.llm_ollama_url">
+<span class="sig-name descname"><span class="pre">llm_ollama_url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'http://localhost:11434/api/generate'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.llm_ollama_url" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.llm_openai_model">
+<span class="sig-name descname"><span class="pre">llm_openai_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gpt-4o'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.llm_openai_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.load">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/config.html#PSSConfig.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.config.PSSConfig.load" title="Link to this definition"></a></dt>
+<dd><p>Loads config from pypss.toml, pyproject.toml, or env vars.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#pypss.utils.config.PSSConfig" title="pypss.utils.config.PSSConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">PSSConfig</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.max_traces">
+<span class="sig-name descname"><span class="pre">max_traces</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10000</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.max_traces" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.mem_spike_threshold_ratio">
+<span class="sig-name descname"><span class="pre">mem_spike_threshold_ratio</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.5</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.mem_spike_threshold_ratio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.sample_rate">
+<span class="sig-name descname"><span class="pre">sample_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.sample_rate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pypss.toml'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pypss/utils/config.html#PSSConfig.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pypss.utils.config.PSSConfig.save" title="Link to this definition"></a></dt>
+<dd><p>Saves the current config to a TOML file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.score_consecutive_error_decay_multiplier">
+<span class="sig-name descname"><span class="pre">score_consecutive_error_decay_multiplier</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2.0</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.score_consecutive_error_decay_multiplier" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.score_error_spike_impact_multiplier">
+<span class="sig-name descname"><span class="pre">score_error_spike_impact_multiplier</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.score_error_spike_impact_multiplier" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.score_error_vmr_multiplier">
+<span class="sig-name descname"><span class="pre">score_error_vmr_multiplier</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.score_error_vmr_multiplier" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.score_latency_tail_percentile">
+<span class="sig-name descname"><span class="pre">score_latency_tail_percentile</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">94</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.score_latency_tail_percentile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.score_memory_epsilon">
+<span class="sig-name descname"><span class="pre">score_memory_epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-09</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.score_memory_epsilon" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_port">
+<span class="sig-name descname"><span class="pre">ui_port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8080</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_port" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_theme_accent">
+<span class="sig-name descname"><span class="pre">ui_theme_accent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#34A853'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_theme_accent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_theme_info">
+<span class="sig-name descname"><span class="pre">ui_theme_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#FBBC04'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_theme_info" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_theme_negative">
+<span class="sig-name descname"><span class="pre">ui_theme_negative</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#EA4335'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_theme_negative" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_theme_positive">
+<span class="sig-name descname"><span class="pre">ui_theme_positive</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#34A853'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_theme_positive" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_theme_primary">
+<span class="sig-name descname"><span class="pre">ui_theme_primary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#4285F4'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_theme_primary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_theme_secondary">
+<span class="sig-name descname"><span class="pre">ui_theme_secondary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#607D8B'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_theme_secondary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_theme_warning">
+<span class="sig-name descname"><span class="pre">ui_theme_warning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#FBBC04'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_theme_warning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.ui_title">
+<span class="sig-name descname"><span class="pre">ui_title</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PyPSS</span> <span class="pre">|</span> <span class="pre">Reliability</span> <span class="pre">Platform'</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.ui_title" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.w_be">
+<span class="sig-name descname"><span class="pre">w_be</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.15</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.w_be" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.w_cc">
+<span class="sig-name descname"><span class="pre">w_cc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.15</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.w_cc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.w_ev">
+<span class="sig-name descname"><span class="pre">w_ev</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.w_ev" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.w_ms">
+<span class="sig-name descname"><span class="pre">w_ms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.w_ms" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pypss.utils.config.PSSConfig.w_ts">
+<span class="sig-name descname"><span class="pre">w_ts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.3</span></em><a class="headerlink" href="#pypss.utils.config.PSSConfig.w_ts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
