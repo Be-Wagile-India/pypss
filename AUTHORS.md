@@ -1,4 +1,4 @@
-# 👥 Authors and Contributors
+# Authors and Contributors
 
 We would like to thank all the contributors who have helped build **pypss**.
 

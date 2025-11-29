@@ -1,4 +1,4 @@
-# 🤝 Contributing to pypss
+# Contributing to pypss
 
 First off, thank you for considering contributing to `pypss`! It's people like you that make this tool better.
 

@@ -1,13 +1,14 @@
 # pypss
 
-[![CI / Coverage](https://github.com/Be-Wagile-India/pypss/actions/workflows/ci.yml/badge.svg)](https://github.com/Be-Wagile-India/pypss/actions/workflows/ci.yml)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/pypss)](https://pypi.org/project/pypss/)
-[![Docs Status](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml/badge.svg)](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml)
 [![PyPI version](https://badge.fury.io/py/pypss.svg)](https://badge.fury.io/py/pypss)
+[![Downloads](https://img.shields.io/pypi/dm/pypss)](https://pypi.org/project/pypss/)
+[![Docs Status](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml/badge.svg)](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml)
 [![Python Support](https://img.shields.io/pypi/pyversions/pypss.svg)](https://pypi.org/project/pypss/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code Style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type Checked: Mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](http://mypy-lang.org/)
+[![Tests](https://img.shields.io/badge/tests-563%20passing-success.svg)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-81.03%25-brightgreen.svg)](htmlcov/index.html)
 
 Python systems often fail not because they are slow — but because they are unstable. `pypss` gives you the first metric that measures runtime flakiness, reliability, and stability in a single score.
 
