@@ -55,21 +55,28 @@ class TestLLMAdvisor:
         )  # 100/1MB, 200/1MB, 150/1MB, so average is about 150B which is 0MB
         assert "Source Code (extracted from a.py:1)" in summary
 
-    @patch("openai.OpenAI")  # Patch the actual OpenAI class
-    def test_get_llm_diagnosis_openai(self, mock_openai_cls):
-        # Mock the client instance that OpenAIClient.__init__ creates
-        mock_openai_instance = MagicMock()
-        mock_openai_cls.return_value = mock_openai_instance
-        mock_openai_instance.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content="It's broken."))]
-        )
+    def test_get_llm_diagnosis_openai(self):
+        # Mock openai module in sys.modules to prevent ModuleNotFoundError
+        mock_openai_module = MagicMock()
+        with patch.dict(sys.modules, {"openai": mock_openai_module}):
+            # Patch the OpenAI class inside the mocked module
+            mock_openai_cls = mock_openai_module.OpenAI
+            mock_openai_instance = MagicMock()
+            mock_openai_cls.return_value = mock_openai_instance
+            mock_openai_instance.chat.completions.create.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="It's broken."))]
+            )
 
-        # Call the function under test
-        diagnosis = get_llm_diagnosis([], provider="openai", api_key="fake")
+            # Re-import OpenAIClient inside the patched context if necessary,
+            # or rely on dynamic import in __init__.
+            # Since OpenAIClient imports inside __init__, this patch dict should work.
 
-        assert diagnosis == "It's broken."
-        mock_openai_cls.assert_called_with(api_key="fake")
-        mock_openai_instance.chat.completions.create.assert_called_once()
+            # Call the function under test
+            diagnosis = get_llm_diagnosis([], provider="openai", api_key="fake")
+
+            assert diagnosis == "It's broken."
+            mock_openai_cls.assert_called_with(api_key="fake")
+            mock_openai_instance.chat.completions.create.assert_called_once()
 
     @patch("pypss.core.llm_advisor.OllamaClient")
     def test_get_llm_diagnosis_ollama(self, mock_client_cls):
@@ -84,11 +91,13 @@ class TestLLMAdvisor:
         diagnosis = get_llm_diagnosis([], provider="unknown")
         assert "Unknown provider" in diagnosis
 
-    @patch("openai.OpenAI")
-    def test_openai_client_import_error(self, mock_openai):
-        mock_openai.side_effect = ImportError
-        with pytest.raises(ImportError, match="Install 'openai' package"):
-            OpenAIClient()
+    def test_openai_client_import_error(self):
+        # Simulate openai module missing by setting it to None in sys.modules
+        with patch.dict(sys.modules, {"openai": None}):
+            with pytest.raises(ImportError, match="Install 'openai' package"):
+                # We need to reload or re-import the module or just instantiate logic that imports it
+                # Because the import happens inside __init__, instantiating should trigger it.
+                OpenAIClient()
 
     def test_ollama_client_connection_error(self):
         # Mock requests so OllamaClient can be instantiated without real requests

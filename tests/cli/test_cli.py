@@ -307,42 +307,57 @@ if __name__ == "__main__":
 
     @patch("subprocess.run")
     def test_board_command_subprocess_success(self, mock_subprocess_run, tmp_path):
-        # Mock a successful subprocess run
-        mock_subprocess_run.return_value = MagicMock(returncode=0)
-        trace_file = tmp_path / "traces.json"
-        trace_file.touch()
+        # Mock dependencies being present so we don't exit early
+        with patch.dict(
+            sys.modules,
+            {"nicegui": MagicMock(), "plotly": MagicMock(), "pandas": MagicMock()},
+        ):
+            # Mock a successful subprocess run
+            mock_subprocess_run.return_value = MagicMock(returncode=0)
+            trace_file = tmp_path / "traces.json"
+            trace_file.touch()
 
-        runner = CliRunner()
-        result = runner.invoke(main, ["board", str(trace_file)])
+            runner = CliRunner()
+            result = runner.invoke(main, ["board", str(trace_file)])
 
-        assert result.exit_code == 0
-        mock_subprocess_run.assert_called_once_with(
-            [sys.executable, "-m", "pypss.board.app", str(trace_file)], check=False
-        )
+            assert result.exit_code == 0
+            mock_subprocess_run.assert_called_once_with(
+                [sys.executable, "-m", "pypss.board.app", str(trace_file)], check=False
+            )
 
     @patch("subprocess.run")
     def test_board_command_subprocess_failure(self, mock_subprocess_run, tmp_path):
-        # Mock a failing subprocess run
-        mock_subprocess_run.return_value = MagicMock(returncode=123)
-        trace_file = tmp_path / "traces.json"
-        trace_file.touch()
+        # Mock dependencies being present
+        with patch.dict(
+            sys.modules,
+            {"nicegui": MagicMock(), "plotly": MagicMock(), "pandas": MagicMock()},
+        ):
+            # Mock a failing subprocess run
+            mock_subprocess_run.return_value = MagicMock(returncode=123)
+            trace_file = tmp_path / "traces.json"
+            trace_file.touch()
 
-        runner = CliRunner()
-        result = runner.invoke(main, ["board", str(trace_file)])
+            runner = CliRunner()
+            result = runner.invoke(main, ["board", str(trace_file)])
 
-        assert result.exit_code == 123
-        assert "Dashboard crashed with exit code 123" in result.output
-        mock_subprocess_run.assert_called_once()
+            assert result.exit_code == 123
+            assert "Dashboard crashed with exit code 123" in result.output
+            mock_subprocess_run.assert_called_once()
 
     @patch("subprocess.run")
     def test_board_command_keyboard_interrupt(self, mock_subprocess_run, tmp_path):
-        # Mock KeyboardInterrupt during subprocess run
-        mock_subprocess_run.side_effect = KeyboardInterrupt
-        trace_file = tmp_path / "traces.json"
-        trace_file.touch()
+        # Mock dependencies being present
+        with patch.dict(
+            sys.modules,
+            {"nicegui": MagicMock(), "plotly": MagicMock(), "pandas": MagicMock()},
+        ):
+            # Mock KeyboardInterrupt during subprocess run
+            mock_subprocess_run.side_effect = KeyboardInterrupt
+            trace_file = tmp_path / "traces.json"
+            trace_file.touch()
 
-        runner = CliRunner()
-        result = runner.invoke(main, ["board", str(trace_file)])
+            runner = CliRunner()
+            result = runner.invoke(main, ["board", str(trace_file)])
 
-        assert result.exit_code == 0  # Handled gracefully
-        mock_subprocess_run.assert_called_once()
+            assert result.exit_code == 0  # Handled gracefully
+            mock_subprocess_run.assert_called_once()

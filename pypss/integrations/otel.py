@@ -9,6 +9,7 @@ try:
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
+    metrics = None  # type: ignore
     # Dummy types for type hinting when OTel is missing
     Observation = Any  # type: ignore
     CallbackOptions = Any  # type: ignore
