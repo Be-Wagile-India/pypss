@@ -1,10 +1,10 @@
 # pypss
 
-[![PyPI version](https://badge.fury.io/py/pypss.svg)](https://badge.fury.io/py/pypss)
-[![Downloads](https://img.shields.io/pypi/dm/pypss)](https://pypi.org/project/pypss/)
-[![Docs Status](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml/badge.svg)](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml)
-[![Python Support](https://img.shields.io/pypi/pyversions/pypss.svg)](https://pypi.org/project/pypss/)
+[![PyPI version](https://img.shields.io/pypi/v/pypss.svg)](https://pypi.org/project/pypss/)
+[![Downloads](https://img.shields.io/pypi/dm/pypss.svg)](https://pypi.org/project/pypss/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/pypss.svg)](https://pypi.org/project/pypss/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docs Status](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml/badge.svg)](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml)
 [![Code Style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type Checked: Mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](http://mypy-lang.org/)
 [![Tests](https://img.shields.io/badge/tests-563%20passing-success.svg)](tests/)
@@ -297,6 +297,8 @@ The Python Program Stability Score (PSS) is a composite metric designed to provi
 1. Each of the five sub-scores is calculated, resulting in a value between 0.0 and 1.0.
 2. These scores are combined using configurable weights (e.g., `w_ts`, `w_ms`, etc.) found in your `pyproject.toml` or `pypss.toml`.
 3. The final weighted average is normalized and scaled to produce the final PSS score from 0 to 100.
+
+## 🛣️ Future Roadmap
 
 ## 🛣️ Future Roadmap
 
