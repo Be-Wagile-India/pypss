@@ -27,3 +27,4 @@ MANIFEST
 env/
 venv/
 ENV/
+.coverage
