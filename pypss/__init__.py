@@ -1,4 +1,4 @@
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from .core import compute_pss_from_traces, StabilityAdvisor, generate_advisor_report
 from .instrumentation import (
