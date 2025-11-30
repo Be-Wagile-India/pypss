@@ -87,6 +87,9 @@ pypss-board = "pypss.board.app:main"
 
 [project.urls]
 "Homepage" = "https://github.com/Be-Wagile-India/pypss"
+"PyPI" = "https://pypi.org/project/pypss/"
+"Source" = "https://github.com/Be-Wagile-India/pypss"
+"Changelog" = "https://github.com/Be-Wagile-India/pypss/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["pypss", "pypss.*"]
