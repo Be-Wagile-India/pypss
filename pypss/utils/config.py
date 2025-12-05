@@ -89,7 +89,7 @@ class PSSConfig:
     background_archive_dir: str = "archive"
 
     # Defaults
-    default_trace_file: str = "traces.json"
+    default_trace_file: str = "pypss_output/traces.json"
     default_html_report_title: str = "PyPSS Stability Report"
 
     # Core Logic
@@ -137,6 +137,12 @@ class PSSConfig:
     llm_ollama_url: str = "http://localhost:11434/api/generate"
     llm_ollama_model: str = "llama3"
     llm_max_tokens: int = 1000
+
+    # Storage
+    storage_backend: str = "sqlite"
+    storage_uri: str = "pypss_history.db"
+    regression_threshold_drop: float = 10.0
+    regression_history_limit: int = 5
 
     @classmethod
     def load(cls) -> "PSSConfig":

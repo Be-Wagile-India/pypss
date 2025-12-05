@@ -7,8 +7,10 @@ from pypss.utils.config import GLOBAL_CONFIG
 from pypss.board.charts import (
     create_trend_chart,
     create_gauge_chart,
+    create_historical_chart,
 )
 from pypss.core import compute_pss_from_traces
+from pypss.storage import get_storage_backend
 
 
 def start_board(trace_file: str):
@@ -257,6 +259,24 @@ def start_board(trace_file: str):
                         2.  Increase the **Timing Stability** weight (e.g., from `0.3` to `0.4`).
                         
                         This makes the PSS score more sensitive to performance and less sensitive to errors.
+                        """
+                    ).classes("text-sm text-gray-600 ml-8")
+
+                ui.separator()
+
+                # Section 6: Historical Trends
+                with ui.column().classes("gap-2"):
+                    with ui.row().classes("items-center gap-2"):
+                        ui.icon("history", size="sm").classes("text-blue-500")
+                        ui.label("Historical Trends").classes(
+                            "text-md font-bold text-gray-700"
+                        )
+                    ui.markdown(
+                        """
+                        The **Historical Stability Trend** chart shows how your PSS score has evolved over time.
+                        *   **Blue Line:** Overall PSS Score.
+                        *   **Dashed Lines:** Individual stability pillars (Timing, Memory, Errors).
+                        *   **Drops:** A sudden drop in the blue line indicates a regression. Hover over the point to see which pillar caused it.
                         """
                     ).classes("text-sm text-gray-600 ml-8")
 
@@ -602,6 +622,22 @@ def start_board(trace_file: str):
         @ui.refreshable
         def content():
             report, df, raw_traces = load_trace_data(trace_file)
+
+            # Load History
+            history_data = []
+            try:
+                storage = get_storage_backend(
+                    {
+                        "storage_backend": GLOBAL_CONFIG.storage_backend,
+                        "storage_uri": GLOBAL_CONFIG.storage_uri,
+                    }
+                )
+                history_data = storage.get_history(limit=50)
+                # Sort by timestamp ascending for the chart (oldest first)
+                history_data.reverse()
+            except Exception:
+                # Silently fail if storage not configured or db missing
+                pass
 
             if not report:
                 with ui.column().classes(
@@ -1019,6 +1055,22 @@ def start_board(trace_file: str):
                         ui.icon("show_chart", size="sm").classes("text-gray-400")
                     ui.plotly(create_trend_chart(raw_traces)).classes("w-full h-80")
 
+                # Historical Trend Chart
+                with ui.card().classes(
+                    "col-span-12 shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
+                ):
+                    with ui.row().classes(
+                        "w-full p-4 border-b border-gray-200 items-center justify-between"
+                    ):
+                        ui.label("Long-term Stability History").classes(
+                            "font-bold text-gray-700 text-lg"
+                        ).tooltip("Evolution of PSS over multiple runs.")
+                        ui.icon("history", size="sm").classes("text-gray-400")
+
+                    ui.plotly(create_historical_chart(history_data)).classes(
+                        "w-full h-64"
+                    )
+
                 # --- ROW 3: MODULE DETAILS & AI ---
 
                 # AI Advisor
@@ -1046,246 +1098,163 @@ def start_board(trace_file: str):
                 with ui.card().classes(
                     "col-span-12 lg:col-span-8 shadow-sm border border-gray-200 bg-white p-0"
                 ):
-                    # --- Dynamic Pagination Controls ---
                     if df is not None and not df.empty:
                         table_rows = df.to_dict("records")
+                        # Pre-format float values for display
+                        for row in table_rows:
+                            if "timing" in row:
+                                row["timing"] = f"{row['timing']:.2f}"
+                            if "errors" in row:
+                                row["errors"] = f"{row['errors']:.2f}"
+
                         total_rows = len(table_rows)
 
-                        # Define options for items per page, including 'All'
-                        available_options = [5, 10, 20, 50]
-                        if total_rows > 50:
-                            available_options.append(total_rows)
-                        else:
-                            available_options.append(
-                                total_rows
-                            )  # Add total if less than 50 for 'show all' behavior
+                        # Pagination State (mutable dict to persist in closure)
+                        pagination = {"page": 1, "per_page": 5}
 
-                        # Remove duplicates and sort
-                        available_options = sorted(list(set(available_options)))
+                        # Calculate options
+                        opts = {5, 10, 20, 50}
+                        if total_rows > 0:
+                            opts.add(total_rows)
+                        options = sorted(list(opts))
 
-                        items_per_page_options = [
-                            {"label": str(opt), "value": opt}
-                            for opt in available_options
-                        ]
+                        # Default to showing all if small number of rows
+                        if total_rows <= 50:
+                            pagination["per_page"] = total_rows
 
-                        # Determine default value: If total rows are <= 50, default to total. Otherwise, default to 5.
-                        default_items_per_page = total_rows if total_rows <= 50 else 5
+                        # Safety fallback
+                        if pagination["per_page"] not in options:
+                            pagination["per_page"] = options[0] if options else 5
 
-                        # Reactive variable for selected items per page
-                        items_per_page = ui.select(
-                            items_per_page_options,
-                            value=default_items_per_page,
-                            label="Items per page",
-                        ).classes("w-32")
-
-                        # Reactive variable for current page number
-                        current_page = ui.state(1)
-
-                        # Label to display pagination info
-                        pagination_label = ui.label().classes("text-sm text-gray-600")
-
-                        # Update pagination label and table display logic
-                        def update_pagination_display():
-                            if not table_rows:
-                                pagination_label.set_text("No data available")
-                                return
-
-                            rows_per_page = items_per_page.value
-                            if (
-                                rows_per_page == "All"
-                            ):  # Check for string "All" if that's a possible value
-                                rows_per_page = total_rows
-
-                            # Ensure rows_per_page is an integer for calculations
-                            try:
-                                rows_per_page = int(rows_per_page)
-                            except (ValueError, TypeError):
-                                rows_per_page = total_rows  # Fallback if 'All' is not handled as int
-
-                            total_pages = (
-                                total_rows + rows_per_page - 1
-                            ) // rows_per_page
-
-                            # Ensure current_page is within bounds after changes
-                            if current_page.value > total_pages:
-                                current_page.set(total_pages)
-                            if current_page.value < 1:
-                                current_page.set(1)
-
-                            pagination_label.set_text(
-                                f"Page {current_page.value} of {total_pages}"
+                        # Header with Selector
+                        with ui.row().classes(
+                            "w-full p-4 border-b border-gray-200 items-center justify-between"
+                        ):
+                            ui.label("Module Performance").classes(
+                                "font-bold text-gray-700 text-lg"
                             )
 
-                        # Watch for changes in items_per_page and update display
-                        items_per_page.on("change", update_pagination_display)
-                        # Initial update
-                        update_pagination_display()
+                            def update_per_page(e):
+                                pagination["per_page"] = e.value
+                                pagination["page"] = 1
+                                table_view.refresh()
 
-                    # --- Original UI Row for title moved down to be within the card ---
-                    with ui.row().classes(
-                        "w-full p-4 border-b border-gray-200 items-center justify-between"
-                    ):  # Adjusted row classes to include pagination controls alignment
-                        ui.label("Module Performance").classes(
-                            "font-bold text-gray-700 text-lg"
-                        )
-                        # Place pagination controls next to the title
-                        if df is not None and not df.empty:
-                            with ui.row().classes("items-center gap-2"):
-                                # The select and label are already defined above, just need to ensure they are placed here
-                                # This part needs careful restructuring to place them together
-                                # For now, assuming they are placed after the title for demonstration
-                                # The actual placement will be handled by nesting `with ui.row().classes("items-center gap-2"):`
-                                # The code above for select and label is placed OUTSIDE this row.
-                                # Re-structuring to place them inline with the title.
-                                pass  # Placeholder, logic moved to actual new string
+                            ui.select(
+                                options,
+                                value=pagination["per_page"],
+                                label="Per Page",
+                                on_change=update_per_page,
+                            ).classes("w-24")
 
-                    if df is not None and not df.empty:
-                        # Format for table
-                        table_df = df.copy()
-                        # Keep as numbers for correct sorting, just round them
-                        table_df["timing"] = table_df["timing"].round(2)
-                        table_df["errors"] = table_df["errors"].round(2)
+                        # Refreshable Table View
+                        @ui.refreshable
+                        def table_view():
+                            per_page = pagination["per_page"]
+                            page = pagination["page"]
 
-                        # Calculate the actual rows to display based on current selection
-                        rows_to_display = table_rows
-                        rows_per_page = items_per_page.value
-                        if (
-                            isinstance(rows_per_page, str)
-                            and rows_per_page.lower() == "all"
-                        ):  # Handle "All" case
-                            rows_per_page = total_rows
+                            # Calculate Slice
+                            start = (page - 1) * per_page
+                            end = start + per_page
+                            rows_slice = table_rows[start:end]
 
-                        try:
-                            rows_per_page = int(rows_per_page)
-                        except (ValueError, TypeError):
-                            rows_per_page = total_rows  # Fallback
+                            # Table
+                            ui.table(
+                                columns=[
+                                    {
+                                        "name": "module",
+                                        "label": "Module Name",
+                                        "field": "module",
+                                        "align": "left",
+                                        "sortable": True,
+                                        "classes": "text-gray-700 cursor-pointer hover:text-blue-600 transition-colors",
+                                    },
+                                    {
+                                        "name": "pss",
+                                        "label": "PSS",
+                                        "field": "pss",
+                                        "sortable": True,
+                                        "align": "center",
+                                    },
+                                    {
+                                        "name": "traces",
+                                        "label": "Samples",
+                                        "field": "traces",
+                                        "sortable": True,
+                                        "align": "center",
+                                    },
+                                    {
+                                        "name": "timing",
+                                        "label": "Timing",
+                                        "field": "timing",
+                                        "sortable": True,
+                                        "align": "right",
+                                    },
+                                    {
+                                        "name": "errors",
+                                        "label": "Errors",
+                                        "field": "errors",
+                                        "sortable": True,
+                                        "align": "right",
+                                    },
+                                ],
+                                rows=rows_slice,
+                                row_key="module",
+                                pagination=None,  # We handle pagination manually
+                            ).classes("w-full flat-table").on(
+                                "cell_click",
+                                lambda e: show_module_detail_dialog(e.args[1]["module"])
+                                if e.args[0]["name"] == "module"
+                                else None,
+                            )
 
-                        start_index = (current_page.value - 1) * rows_per_page
-                        end_index = start_index + rows_per_page
-                        rows_to_display = table_rows[start_index:end_index]
+                            # Navigation Controls
+                            total_pages = (total_rows + per_page - 1) // per_page
+                            # Ensure page is valid (if per_page increased)
+                            if page > total_pages and total_pages > 0:
+                                pagination["page"] = total_pages
+                                # Trigger re-render? No, careful of recursion.
+                                # Just rendering controls is fine, but content might be empty if we don't adjust `start`.
+                                # Actually, better to adjust page before slice.
+                                # For now, basic controls:
 
-                        # --- Modified ui.table with dynamic pagination ---
-                        ui.table(
-                            columns=[
-                                {
-                                    "name": "module",
-                                    "label": "Module Name",
-                                    "field": "module",
-                                    "align": "left",
-                                    "sortable": True,
-                                    "classes": "text-gray-700 cursor-pointer hover:text-blue-600 transition-colors",
-                                },
-                                {
-                                    "name": "pss",
-                                    "label": "PSS Score",
-                                    "field": "pss",
-                                    "sortable": True,
-                                    "align": "center",
-                                    "classes": "text-gray-700",
-                                },
-                                {
-                                    "name": "traces",
-                                    "label": "Samples",
-                                    "field": "traces",
-                                    "sortable": True,
-                                    "align": "center",
-                                    "classes": "text-gray-700",
-                                },
-                                {
-                                    "name": "timing",
-                                    "label": "Timing Stab.",
-                                    "field": "timing",
-                                    "sortable": True,
-                                    "align": "right",
-                                    "classes": "text-gray-700",
-                                },
-                                {
-                                    "name": "errors",
-                                    "label": "Error Vol.",
-                                    "field": "errors",
-                                    "sortable": True,
-                                    "align": "right",
-                                    "classes": "text-gray-700",
-                                },
-                            ],
-                            rows=rows_to_display,
-                            # Dynamic pagination dictionary
-                            pagination={
-                                "sortBy": "module",  # Default sort order
-                                "page": current_page.value,
-                                "rowsPerPage": rows_per_page,
-                                "rowsNumber": total_rows,  # Important for Quasar table to know total
-                            },
-                        ).classes("w-full flat-table").on(
-                            "cell_click",
-                            lambda e: show_module_detail_dialog(e.args[1]["module"])
-                            if e.args[0]["name"] == "module"
-                            else None,
-                        )
-                        # --- Navigation Buttons ---
-                        with ui.row().classes(
-                            "w-full justify-between items-center mt-4"
-                        ):
-                            # Helper for total pages calculation
-                            def get_total_pages():
-                                r = items_per_page.value
-                                if isinstance(r, str) and r.lower() == "all":
-                                    return 1
-                                try:
-                                    r_int = int(r)
-                                    if r_int <= 0:
-                                        return 1
-                                    return (total_rows + r_int - 1) // r_int
-                                except (ValueError, TypeError):
-                                    return 1
+                            with ui.row().classes(
+                                "w-full justify-between items-center p-4"
+                            ):
+                                ui.label(
+                                    f"Page {pagination['page']} of {total_pages}"
+                                ).classes("text-sm text-gray-600")
 
-                            with ui.row().classes("items-center gap-2"):
-                                ui.button(
-                                    "<<", on_click=lambda: current_page.set(1)
-                                ).props("flat round dense")
-                                ui.button(
-                                    "<",
-                                    on_click=lambda: current_page.set(
-                                        max(1, current_page.value - 1)
-                                    ),
-                                ).props("flat round dense")
-                                ui.button(
-                                    ">",
-                                    on_click=lambda: current_page.set(
-                                        min(get_total_pages(), current_page.value + 1)
-                                    ),
-                                ).props("flat round dense")
-                                ui.button(
-                                    ">>",
-                                    on_click=lambda: current_page.set(
-                                        get_total_pages()
-                                    ),
-                                ).props("flat round dense")
+                                def go_page(new_page):
+                                    pagination["page"] = max(
+                                        1, min(new_page, total_pages)
+                                    )
+                                    table_view.refresh()
 
-                            # Update the displayed label and navigation button logic
-                            def update_pagination_and_nav():
-                                if not table_rows:
-                                    pagination_label.set_text("No data available")
-                                    return
+                                with ui.row().classes("items-center gap-2"):
+                                    ui.button("<<", on_click=lambda: go_page(1)).props(
+                                        "flat round dense"
+                                    ).set_enabled(page > 1)
+                                    ui.button(
+                                        "<", on_click=lambda: go_page(page - 1)
+                                    ).props("flat round dense").set_enabled(page > 1)
+                                    ui.button(
+                                        ">", on_click=lambda: go_page(page + 1)
+                                    ).props("flat round dense").set_enabled(
+                                        page < total_pages
+                                    )
+                                    ui.button(
+                                        ">>", on_click=lambda: go_page(total_pages)
+                                    ).props("flat round dense").set_enabled(
+                                        page < total_pages
+                                    )
 
-                                total_pages_val = get_total_pages()
-
-                                # Ensure current page is valid
-                                current_page.set(
-                                    max(1, min(current_page.value, total_pages_val))
-                                )
-
-                                pagination_label.set_text(
-                                    f"Page {current_page.value} of {total_pages_val}"
-                                )
-
-                            # React to changes in current_page and items_per_page
-                            current_page.subscribe(update_pagination_and_nav)
-                            items_per_page.on("change", update_pagination_and_nav)
-                            # Initial setup of pagination display and navigation
-                            update_pagination_and_nav()
+                        table_view()
 
                     else:
+                        with ui.row().classes("w-full p-4 border-b border-gray-200"):
+                            ui.label("Module Performance").classes(
+                                "font-bold text-gray-700 text-lg"
+                            )
                         ui.label("No module performance data available.").classes(
                             "text-gray-500 italic p-4"
                         )
@@ -1341,3 +1310,12 @@ def start_board(trace_file: str):
         port=GLOBAL_CONFIG.ui_port,
         favicon="📊",
     )
+
+
+if __name__ in {"__main__", "__mp_main__"}:
+    import sys
+
+    if len(sys.argv) > 1:
+        start_board(sys.argv[1])
+    else:
+        print("Usage: python -m pypss.board.app <trace_file>")

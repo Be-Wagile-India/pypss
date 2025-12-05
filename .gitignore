@@ -30,4 +30,7 @@ ENV/
 
 # PyPSS
 .pypss_traces/
+pypss_output/
+traces_*.json
+*.db
 

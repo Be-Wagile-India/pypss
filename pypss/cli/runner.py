@@ -94,6 +94,10 @@ def run_with_instrumentation(target_script: str, root_dir: str):
 
     print(f"🚀 Launching {target_script}...\n" + "=" * 50)
 
+    # Patch sys.argv so the script sees only itself as argument
+    original_argv = sys.argv
+    sys.argv = [target_script]
+
     try:
         # Run the user's script in the current process
         runpy.run_path(target_script, run_name="__main__")
@@ -101,3 +105,5 @@ def run_with_instrumentation(target_script: str, root_dir: str):
         print(f"\n💥 Application crashed: {e}")
         # We still want to report on what happened before the crash
         pass
+    finally:
+        sys.argv = original_argv
