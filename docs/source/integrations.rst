@@ -95,9 +95,11 @@ Instrument RQ jobs by using the ``PSSJob`` class:
 Pytest Plugin
 -------------
 
-PyPSS includes a pytest plugin to automatically capture stability metrics during your test runs.
+PyPSS includes a powerful pytest plugin to measure the stability of your test suite. It automatically wraps your tests, calculates a PSS score for each test case, and can fail the build if stability drops.
 
-Ensure `pypss` is installed with its dev dependencies (`pip install -e .[dev]`).
+Ensure `pypss` is installed in your test environment.
+
+**Basic Usage:**
 
 To run tests and generate stability reports, simply use the `--pss` flag:
 
@@ -105,8 +107,27 @@ To run tests and generate stability reports, simply use the `--pss` flag:
 
    pytest --pss
 
-You can also fail the test run if the stability score drops below a certain threshold:
+**Measuring Stability (Variance):**
+
+To statistically measure stability (variance), you need multiple data points for each test. You can use `pytest-repeat` or simply run a loop:
 
 .. code-block:: bash
 
-   pytest --pss --pss-fail-below 80
+   pytest --pss --count=10
+
+**Fail on Instability:**
+
+You can fail the test session if *any* individual test's PSS score drops below a threshold (e.g., 80):
+
+.. code-block:: bash
+
+   pytest --pss --count=10 --pss-fail-below 80
+
+**Distributed Testing Support:**
+
+PyPSS supports distributed test execution (e.g., using `pytest-xdist`). It automatically synchronizes traces from worker processes to the master process to generate the final report.
+
+.. code-block:: bash
+
+   # Run with 4 workers
+   pytest --pss --count=10 -n 4

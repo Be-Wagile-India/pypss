@@ -27,4 +27,7 @@ MANIFEST
 env/
 venv/
 ENV/
-.coverage
+
+# PyPSS
+.pypss_traces/
+
