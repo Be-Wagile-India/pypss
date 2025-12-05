@@ -59,6 +59,29 @@ Utils & Config
    :undoc-members:
    :show-inheritance:
 
+Storage
+-------
+
+.. automodule:: pypss.storage
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.storage.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.storage.sqlite
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.storage.prometheus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Integrations
 ------------
 

@@ -137,3 +137,63 @@ Configure the AI backend for the ``diagnose`` command.
    [pypss.llm]
    openai_model = "gpt-4o"
    ollama_url = "http://localhost:11434/api/generate"
+
+Storage & Monitoring
+--------------------
+
+PyPSS supports persisting stability scores to enable long-term trend analysis and integration with monitoring systems.
+
+SQLite (Default)
+~~~~~~~~~~~~~~~~
+
+For local development and CI environments, SQLite is the easiest way to track history.
+
+.. code-block:: toml
+
+   [tool.pypss]
+   storage_backend = "sqlite"
+   storage_uri = "pypss_history.db"
+   # Automatically remove records older than 90 days
+   retention_days = 90
+
+Prometheus (Production)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+PyPSS supports two modes for Prometheus integration:
+
+1.  **Push Mode (Default)**: Pushes metrics to a PushGateway at the end of execution. Ideal for batch jobs or CLI runs.
+2.  **Pull Mode**: Starts an HTTP server to expose metrics. Ideal for long-running services.
+
+**Prerequisites:**
+
+1.  Install optional dependencies: ``pip install pypss[monitoring]``
+
+**Configuration:**
+
+.. code-block:: toml
+
+   [tool.pypss]
+   storage_backend = "prometheus"
+
+   # Push Mode
+   storage_mode = "push"
+   storage_uri = "pushgateway.example.com:9091"
+
+   # Pull Mode
+   # storage_mode = "pull"
+   # storage_uri = "8000"  # Port to listen on
+
+**How it works:**
+
+When you run ``pypss run ... --store-history`` (Push Mode) or initialize the app (Pull Mode), PyPSS exposes/pushes the following metrics:
+
+*   ``pypss_score``: The overall PSS score (0-100).
+*   ``pypss_ts``: Timing Stability score.
+*   ``pypss_ms``: Memory Stability score.
+*   ``pypss_ev``: Error Volatility score.
+*   ``pypss_be``: Branching Entropy score.
+*   ``pypss_cc``: Concurrency Chaos score.
+
+**Grafana Integration:**
+
+You can then query these metrics in Prometheus (e.g., ``pypss_score{job="pypss"}``) and build dashboards in Grafana.

@@ -58,6 +58,10 @@ dev = [
     "rq>=1.0.0",
 ]
 
+monitoring = [
+    "prometheus-client>=0.17.0",
+]
+
 otel = [
     "opentelemetry-api>=1.0.0",
     "opentelemetry-sdk>=1.0.0",

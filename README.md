@@ -260,6 +260,61 @@ pypss analyze --trace-file traces.json --output report.txt
 pypss analyze --trace-file traces.json --fail-if-below 80
 ```
 
+## 📜 Historical Trends & Regression Detection
+
+PyPSS can store stability scores over time to help you track long-term trends and detect regressions.
+
+### Usage
+
+1.  **Store History**: Add the `--store-history` flag to your run or analysis.
+    ```bash
+    pypss run my_app.py --store-history
+    pypss analyze --trace-file traces.json --store-history
+    ```
+
+2.  **View Trends**: Use the `history` command to see a table of recent runs.
+    ```bash
+    # Show last 20 runs
+    pypss history --limit 20
+    
+    # Show history for the last 7 days
+    pypss history --days 7
+    
+    # Export to CSV for spreadsheet analysis
+    pypss history --days 30 --export csv > stability_report.csv
+    ```
+
+3.  **Automated Regression Detection**:
+    When `--store-history` is used, PyPSS automatically compares the current PSS against the average of the last 5 runs. If a significant drop (default > 10 points) is detected, it will print a warning:
+    > ⚠️ REGRESSION DETECTED: Current PSS (75.0) is significantly lower than the 5-run average (90.0).
+
+### Configuration
+
+Configure storage backends in `pyproject.toml`:
+
+```toml
+[tool.pypss]
+storage_backend = "sqlite"  # or "prometheus"
+storage_uri = "pypss_history.db"  # path to db or pushgateway url
+regression_threshold_drop = 10.0
+regression_history_limit = 5
+```
+
+**Prometheus Support**:
+To use Prometheus PushGateway (Push Mode):
+```toml
+storage_backend = "prometheus"
+storage_uri = "localhost:9091"
+```
+
+To expose metrics via HTTP server (Pull Mode):
+```toml
+storage_backend = "prometheus"
+storage_mode = "pull"
+storage_uri = "8000"  # Port number
+```
+*Note: Requires `pip install pypss[monitoring]`.*
+
 ## 🧩 Integrations
 
 `pypss` provides built-in integrations for popular Python frameworks and tools:
@@ -335,17 +390,7 @@ The Python Program Stability Score (PSS) is a composite metric designed to provi
 
 
 
-### Historical PSS Trends (Time-series Storage)
 
-To enable long-term stability analysis, we plan to add support for storing PSS scores over time. This will allow for:
-
-*   **Stability Trend Analysis**: Track how your application's PSS score evolves with each new release.
-*   **Before/After Deploy Comparisons**: Objectively measure the impact of changes on stability.
-*   **Automated Regression Detection**: Automatically flag deployments that cause a significant drop in the PSS score.
-
-Potential storage backends include:
-*   Simple embedded databases like **SQLite** or **DuckDB** for local and CI environments.
-*   A **Prometheus exporter** to integrate with existing monitoring stacks.
 
 ### PSS Alerting Engine (CI + Runtime)
 

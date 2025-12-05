@@ -94,3 +94,47 @@ Quick example:
 
    [pypss.ui]
    title = "My Production Stability"
+
+Historical Trends & Regression Detection
+----------------------------------------
+
+PyPSS allows you to track the stability score of your application over time, enabling you to detect regressions and view long-term trends.
+
+Enabling History
+^^^^^^^^^^^^^^^^
+
+To store the results of a run, use the ``--store-history`` flag:
+
+.. code-block:: bash
+
+   pypss run my_script.py --store-history
+   pypss analyze --trace-file traces.json --store-history
+
+Viewing History
+^^^^^^^^^^^^^^^
+
+Use the ``history`` command to view past runs:
+
+.. code-block:: bash
+
+   # View last 10 runs
+   pypss history
+
+   # View last 7 days
+   pypss history --days 7
+
+   # Export to CSV
+   pypss history --export csv > history.csv
+
+Automated Regression Detection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When ``--store-history`` is used, PyPSS automatically checks if the current run's score is significantly lower than the average of recent runs (default: last 5 runs). If a regression is detected, a warning is printed to the console.
+
+You can tune the sensitivity in your configuration:
+
+.. code-block:: toml
+
+   [tool.pypss]
+   regression_threshold_drop = 5.0  # Warn if score drops by more than 5 points
+   regression_history_limit = 10    # Compare against last 10 runs

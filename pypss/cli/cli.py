@@ -1,3 +1,4 @@
+import time
 import click
 import ijson
 from ..core import compute_pss_from_traces, generate_advisor_report
@@ -20,10 +21,81 @@ def main():
 
 
 @main.command()
+@click.option("--limit", default=10, help="Number of historical records to show.")
+@click.option("--days", type=int, help="Show history for the last N days.")
+@click.option(
+    "--export",
+    type=click.Choice(["csv", "json"]),
+    help="Export history to file format.",
+)
+@click.option(
+    "--db-path",
+    default=GLOBAL_CONFIG.storage_uri,
+    help="Path to the SQLite history database.",
+)
+def history(limit, db_path, days, export):
+    """Show historical PSS trends."""
+    from ..storage.sqlite import SQLiteStorage
+
+    storage = SQLiteStorage(db_path=db_path)
+    history_data = storage.get_history(limit=limit, days=days)
+
+    if not history_data:
+        click.echo("No history found.")
+        return
+
+    if export:
+        if export == "json":
+            click.echo(json.dumps(history_data, indent=2))
+        elif export == "csv":
+            import csv
+            import io
+
+            output = io.StringIO()
+            # Flatten meta for CSV? Or just dump as string.
+            # For simplicity, we dump as is.
+            # Keys: id, timestamp, pss, ts, ms, ev, be, cc, meta
+            # Meta is a dict, might mess up CSV if not handled.
+            # We'll flatten or just stringify.
+            flat_data = []
+            for row in history_data:
+                r = row.copy()
+                r["meta"] = json.dumps(r["meta"])
+                flat_data.append(r)
+
+            if flat_data:
+                keys = flat_data[0].keys()
+                writer = csv.DictWriter(output, fieldnames=keys)
+                writer.writeheader()
+                writer.writerows(flat_data)
+            click.echo(output.getvalue())
+        return
+
+    click.echo(f"\n📜 Historical PSS Trends (Last {limit} runs)")
+    click.echo("=" * 60)
+    click.echo(
+        f"{'Timestamp':<20} | {'PSS':<5} | {'TS':<4} | {'MS':<4} | {'EV':<4} | {'BE':<4} | {'CC':<4}"
+    )
+    click.echo("-" * 60)
+
+    for item in history_data:
+        ts_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(item["timestamp"]))
+        click.echo(
+            f"{ts_str:<20} | {int(item['pss']):<5} | {item['ts']:.2f} | {item['ms']:.2f} | {item['ev']:.2f} | {item['be']:.2f} | {item['cc']:.2f}"
+        )
+    click.echo("=" * 60)
+
+
+@main.command()
 @click.argument("script", type=click.Path(exists=True))
 @click.option("--output", type=click.Path(), help="Path to save the output report.")
 @click.option("--html", is_flag=True, help="Generate an HTML dashboard.")
-def run(script, output, html):
+@click.option(
+    "--store-history",
+    is_flag=True,
+    help="Store the PSS score in the local history database.",
+)
+def run(script, output, html, store_history):
     """Run a Python script with auto-instrumentation and report stability."""
 
     # Run the script with our magic
@@ -57,6 +129,10 @@ def run(script, output, html):
 
     # Save if requested
     if output:
+        output_dir = os.path.dirname(output)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+
         if html:
             advisor = generate_advisor_report(overall_report)
             content = render_report_html(overall_report, advisor)
@@ -71,6 +147,31 @@ def run(script, output, html):
             with open(output, "w") as f:
                 json.dump(full_data, f, indent=2)
         click.echo(f"\nReport saved to {output}")
+
+    if store_history:
+        from ..storage import get_storage_backend, check_regression
+
+        try:
+            storage_config = {
+                "storage_backend": GLOBAL_CONFIG.storage_backend,
+                "storage_uri": GLOBAL_CONFIG.storage_uri,
+            }
+            storage = get_storage_backend(storage_config)
+
+            # Check regression BEFORE saving current run
+            warning = check_regression(
+                overall_report,
+                storage,
+                limit=GLOBAL_CONFIG.regression_history_limit,
+                threshold_drop=GLOBAL_CONFIG.regression_threshold_drop,
+            )
+            if warning:
+                click.echo(f"\n{warning}")
+
+            storage.save(overall_report, meta={"script": script})
+            click.echo("\n✅ PSS Score stored in history.")
+        except Exception as e:
+            click.echo(f"\n⚠️  Failed to store history: {e}")
 
 
 @main.command()
@@ -87,7 +188,12 @@ def run(script, output, html):
     type=int,
     help="Return non-zero exit code if PSS is below this threshold.",
 )
-def analyze(trace_file, output, html, fail_if_below):
+@click.option(
+    "--store-history",
+    is_flag=True,
+    help="Store the PSS score in the local history database.",
+)
+def analyze(trace_file, output, html, fail_if_below, store_history):
     """Compute PSS from a trace file."""
     try:
         # Use streaming JSON parser to handle large files
@@ -120,6 +226,10 @@ def analyze(trace_file, output, html, fail_if_below):
     click.echo(report_text)
 
     if output:
+        output_dir = os.path.dirname(output)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+
         if html:
             advisor = generate_advisor_report(report)
             content = render_report_html(report, advisor)
@@ -129,6 +239,31 @@ def analyze(trace_file, output, html, fail_if_below):
             with open(output, "w") as f:
                 f.write(render_report_json(report))
         click.echo(f"Report saved to {output}")
+
+    if store_history:
+        from ..storage import get_storage_backend, check_regression
+
+        try:
+            storage_config = {
+                "storage_backend": GLOBAL_CONFIG.storage_backend,
+                "storage_uri": GLOBAL_CONFIG.storage_uri,
+            }
+            storage = get_storage_backend(storage_config)
+
+            # Check regression BEFORE saving current run
+            warning = check_regression(
+                report,
+                storage,
+                limit=GLOBAL_CONFIG.regression_history_limit,
+                threshold_drop=GLOBAL_CONFIG.regression_threshold_drop,
+            )
+            if warning:
+                click.echo(f"\n{warning}")
+
+            storage.save(report, meta={"trace_file": trace_file})
+            click.echo("\n✅ PSS Score stored in history.")
+        except Exception as e:
+            click.echo(f"\n⚠️  Failed to store history: {e}")
 
     if fail_if_below is not None:
         if report["pss"] < fail_if_below:
