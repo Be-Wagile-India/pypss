@@ -114,3 +114,36 @@ Integrations
    :members:
    :undoc-members:
    :show-inheritance:
+
+Alerts
+------
+
+.. automodule:: pypss.alerts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.alerts.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.alerts.channels
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.alerts.engine
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.alerts.rules
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.alerts.state
+   :members:
+   :undoc-members:
+   :show-inheritance:

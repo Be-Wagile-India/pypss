@@ -138,6 +138,30 @@ Configure the AI backend for the ``diagnose`` command.
    openai_model = "gpt-4o"
    ollama_url = "http://localhost:11434/api/generate"
 
+Alerting Configuration ``[tool.pypss.alerts]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Configure alerting behavior, channels, and rule thresholds.
+
+.. code-block:: toml
+
+   [tool.pypss]
+   alerts_enabled = true             # Enable or disable the alerting engine
+   alerts_cooldown_seconds = 3600    # Cooldown period (in seconds) for suppressing duplicate alerts
+
+   # Webhook Channels
+   alerts_slack_webhook = "https://hooks.slack.com/services/..."
+   alerts_teams_webhook = "https://outlook.office.com/webhook/..."
+   alerts_generic_webhook = "https://your.webhook.site/..."
+   alerts_alertmanager_url = "http://localhost:9093/api/v2/alerts" # Prometheus Alertmanager URL
+
+   # Rule Thresholds (Scores are 0.0-1.0 for sub-metrics)
+   alert_threshold_ts = 0.70         # Timing Stability score below this triggers an alert
+   alert_threshold_ms = 0.70         # Memory Stability score below this triggers an alert
+   alert_threshold_ev = 0.80         # Error Volatility score below this triggers an alert
+   alert_threshold_be = 0.70         # Branching Entropy score below this triggers an alert
+   alert_threshold_cc = 0.70         # Concurrency Chaos score below this triggers an alert
+
 Storage & Monitoring
 --------------------
 

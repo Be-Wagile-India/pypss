@@ -1,3 +1,4 @@
+import logging
 import sys
 import importlib
 import inspect
@@ -70,7 +71,6 @@ def run_with_instrumentation(target_script: str, root_dir: str):
     2. Auto-instruments it.
     3. Runs the target script.
     """
-    import logging
     from ..utils import GLOBAL_CONFIG
 
     logging.basicConfig(level=logging.INFO)
