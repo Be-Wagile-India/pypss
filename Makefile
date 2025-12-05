@@ -22,7 +22,7 @@ install:
 	pre-commit install
 
 test:
-	pytest --cov=pypss tests/
+	PYTHONPATH=. pytest --cov=pypss tests/
 	@echo "\nRunning Benchmarks..."
 	$(MAKE) benchmark
 

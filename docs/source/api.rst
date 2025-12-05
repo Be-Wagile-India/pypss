@@ -58,3 +58,36 @@ Utils & Config
    :members:
    :undoc-members:
    :show-inheritance:
+
+Integrations
+------------
+
+.. automodule:: pypss.integrations.celery
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.integrations.fastapi
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.integrations.flask
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.integrations.pytest_plugin
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.integrations.rq
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pypss.integrations.otel
+   :members:
+   :undoc-members:
+   :show-inheritance:
