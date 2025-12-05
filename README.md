@@ -74,6 +74,7 @@ Python systems often fail not because they are slow — but because they are uns
 - **Branching Entropy (BE)**: Measures the unpredictability of code execution paths.
 - **Async-Aware Instrumentation**: Natively handles `async` functions to measure event loop stability.
 - **Concurrency Chaos (CC)**: *(Experimental)* Quantifies thread contention and locking overhead.
+- **Alerting Engine**: Proactively monitors and notifies on stability changes with configurable rules and channels.
 
 ### Developer Experience
 - **Non-Intrusive Instrumentation**: Lightweight decorators and context managers.
@@ -390,27 +391,291 @@ The Python Program Stability Score (PSS) is a composite metric designed to provi
 
 
 
-
-
-### PSS Alerting Engine (CI + Runtime)
-
-We plan to introduce a powerful alerting engine to transform `pypss` into a proactive monitoring solution. This will include:
-
-*   **Built-in Alerting Rules:**
-    *   `TS` surge (unexpected changes in Timing Stability)
-    *   `MS` spike (sudden Memory Stability drops)
-    *   Error burst (abnormal increase in Error Volatility)
-    *   Entropy anomaly (unusual Branching Entropy patterns)
-    *   `CC` variance spike (spikes in Concurrency Chaos variance)
-*   **Multiple Output Targets:**
-    *   Slack
-    *   Microsoft Teams
-    *   Generic Webhooks
-    *   Prometheus Alertmanager integration
-
-This will allow `pypss` to not just score, but actively monitor and alert on potential instability, making it a critical tool for maintaining robust Python applications in production and CI/CD pipelines.
-
 ### Distributed Trace Collector
+
+
+
+To support large-scale microservices, ETL pipelines, and multi-process applications, we will develop a distributed trace collector. The current in-process collector is not suitable for these environments.
+
+
+
+**Key Features:**
+
+*   **Pluggable Collector Backend**: A simple interface to allow users to create their own custom collectors.
+
+*   **Built-in Remote Collectors**:
+
+    *   **Redis-backed collector** for high-throughput, low-latency trace ingestion.
+
+    *   **gRPC trace ingestion** for efficient, cross-language observability.
+
+    *   **File-based FIFO collector** for simple, durable multi-process communication.
+
+
+
+Example usage (conceptual):
+
+```python
+
+from pypss.collectors import RedisCollector
+
+global_collector = RedisCollector("redis://localhost:6379/0")
+
+```
+
+
+
+### Advanced Dashboard Visualizations
+
+
+
+To provide deeper, at-a-glance insights, we plan to enhance the interactive dashboard with more advanced visualizations:
+
+
+
+*   **Time-series for All Metrics**: Plot not just Timing Stability, but all five stability scores (TS, MS, EV, BE, CC) over time.
+
+*   **Error Cluster Heatmaps**: Visually identify periods of high error density to pinpoint systemic failures.
+
+*   **Entropy Heatmaps**: Visualize changes in code path predictability (Branching Entropy) over time.
+
+*   **Concurrency Wait-Time Distributions**: Analyze the distribution of wait times to better understand Concurrency Chaos.
+
+*   **Overall PSS Score Trend**: A top-level chart showing how the final PSS score has trended throughout the application's runtime.
+
+
+
+### Advanced Async Support
+
+
+
+To provide even deeper insights into `asyncio`-based applications, we plan to add:
+
+
+
+*   **Async Context Manager**: A native `async with monitor_block()` for instrumenting asynchronous code blocks.
+
+*   **Event Loop Wait-Time Measurement**: More precise metrics on time spent waiting for the event loop.
+
+*   **Task Switching Analysis**: Detect patterns of excessive task switching that could indicate concurrency issues.
+
+
+
+### Adaptive Sampling Modes
+
+
+
+To make `pypss` even more efficient for production environments, we plan to move beyond static `sample_rate` to intelligent, adaptive sampling. This will reduce overhead during normal operation while increasing precision when anomalies are detected.
+
+
+
+**Adaptive Modes:**
+
+*   **High-Load Mode**: Automatically reduce sampling (e.g., to 1%) when QPS (queries per second) is high.
+
+*   **Error-Triggered Mode**: Automatically increase sampling to maximum when error volatility is detected.
+
+*   **Surge Detection**: Trigger burst sampling during sudden performance or memory anomalies.
+
+*   **Low-Noise Mode**: Reduce or temporarily halt sampling when the system is consistently stable, saving resources.
+
+
+
+**Conceptual Logic:**
+
+```python
+
+if volatility_score < threshold:
+
+    current_sample_rate = max_rate  # Instability detected, capture everything
+
+else:
+
+    current_sample_rate = min_rate  # System is stable, reduce overhead
+
+```
+
+
+
+### Plugin System for Custom Metrics
+
+
+
+To transform `pypss` from a library into a true stability analysis framework, we plan to introduce a plugin system. This will allow the community and large engineering teams to extend `pypss` with custom, domain-specific stability metrics.
+
+
+
+**Examples of Potential Plugins:**
+
+*   **I/O Stability**: Measure the consistency of disk read/write operations.
+
+*   **Database Roundtrip Stability**: Track the stability of database query times.
+
+*   **Network Jitter Stability**: Analyze the variance in network requests to external services.
+
+*   **Cache Hit Ratio Stability**: Ensure your cache hit rates are predictable.
+
+*   **GPU Memory Spike Stability**: For ML applications, monitor GPU memory for unexpected spikes.
+
+*   **Kafka Consumer Lag Stability**: For streaming applications, track the stability of consumer lag.
+
+
+
+**Conceptual API Sketch:**
+
+```python
+
+from pypss.plugins import register_metric, BaseMetric
+
+
+
+@register_metric("io_stability")
+
+class IOStabilityMetric(BaseMetric):
+
+    def compute(self, traces):
+
+        # Custom logic to calculate I/O stability score
+
+        ...
+
+        return io_stability_score
+
+```
+
+
+
+### Metric Auto-Tuning (AI/Statistical)
+
+
+
+To further enhance the accuracy and reduce manual configuration, we envision AI and statistical methods for auto-tuning `pypss` metrics:
+
+
+
+*   **Auto-tune Metric Weights**: Dynamically adjust the `w_ts`, `w_ms`, etc., based on observed historical variance and the specific characteristics of your application.
+
+*   **Bayesian Optimization for Thresholds**: Use advanced statistical techniques to automatically find optimal thresholds for alerts and scoring (e.g., `mem_spike_threshold_ratio`).
+
+*   **ML-based Pattern Detection**: In later phases, leverage machine learning to detect subtle, complex instability patterns that are hard to define with static rules.
+
+
+
+Example usage (conceptual):
+
+```python
+
+pss = compute_pss(traces, mode="auto_tune")
+
+```
+
+
+
+This will increase accuracy and relevance automatically, making `pypss` even smarter.
+
+
+
+## 🚨 Alerting Engine
+
+
+
+PyPSS includes a powerful alerting engine to proactively monitor your application's stability and notify you of significant changes or regressions.
+
+
+
+### Core Concepts
+
+
+
+The alerting engine works by:
+
+
+
+1.  **Rules**: Logic that evaluates your application's PSS report (and historical data) against predefined thresholds or patterns.
+
+2.  **Alerts**: If a rule is triggered, an `Alert` object is created with details like severity, message, and metric values.
+
+3.  **Channels**: The `Alert`s are then dispatched to configured notification channels (Slack, Microsoft Teams, Prometheus Alertmanager, or generic webhooks).
+
+
+
+### Enabling Alerting
+
+
+
+To enable the alerting engine, set `alerts_enabled = true` in your ``pypss.toml`` or ``pyproject.toml``:
+
+
+
+```toml
+
+[tool.pypss]
+
+alerts_enabled = true
+
+```
+
+
+
+### Integrating with CLI
+
+
+
+When alerting is enabled, the `pypss run` and `pypss analyze` commands will automatically evaluate rules and send alerts if any are triggered:
+
+
+
+```bash
+
+pypss run my_app.py --store-history
+
+pypss analyze --trace-file traces.json
+
+```
+
+
+
+### Built-in Alerting Rules
+
+
+
+PyPSS comes with several pre-defined rules to detect common stability issues:
+
+
+
+*   **Timing Stability Surge**: Detects significant drops in timing consistency.
+
+*   **Memory Stability Spike**: Triggers on sudden or sustained increases in memory volatility.
+
+*   **Error Burst**: Identifies abnormal increases in error rates.
+
+*   **Entropy Anomaly**: Flags unusual changes in code execution paths.
+
+*   **Concurrency Variance Spike**: Alerts on high inconsistency in concurrency-related wait times.
+
+*   **Stability Regression**: Compares the current PSS score against historical averages and alerts on significant drops.
+
+
+
+### Notification Channels
+
+
+
+You can configure multiple channels to receive alerts:
+
+
+
+*   **Slack**: Send formatted messages to Slack channels.
+
+*   **Microsoft Teams**: Dispatch rich message cards to Teams.
+
+*   **Generic Webhook**: Send raw JSON payloads to any endpoint.
+
+*   **Prometheus Alertmanager**: Integrate with your existing Prometheus alerting infrastructure.
+
+
+
+See :doc:`advanced_config` for detailed configuration of rules and channels.
 
 To support large-scale microservices, ETL pipelines, and multi-process applications, we will develop a distributed trace collector. The current in-process collector is not suitable for these environments.
 

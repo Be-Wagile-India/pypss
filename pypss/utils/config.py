@@ -138,6 +138,21 @@ class PSSConfig:
     llm_ollama_model: str = "llama3"
     llm_max_tokens: int = 1000
 
+    # Alerting
+    alerts_enabled: bool = False
+    alerts_slack_webhook: str = ""
+    alerts_teams_webhook: str = ""
+    alerts_generic_webhook: str = ""
+    alerts_alertmanager_url: str = ""
+    alerts_cooldown_seconds: int = 3600
+
+    # Alert Thresholds (defaults)
+    alert_threshold_ts: float = 0.70
+    alert_threshold_ms: float = 0.70
+    alert_threshold_ev: float = 0.80
+    alert_threshold_be: float = 0.70
+    alert_threshold_cc: float = 0.70
+
     # Storage
     storage_backend: str = "sqlite"
     storage_uri: str = "pypss_history.db"

@@ -41,8 +41,11 @@ def history(limit, db_path, days, export):
     history_data = storage.get_history(limit=limit, days=days)
 
     if not history_data:
-        click.echo("No history found.")
-        return
+        if not export:
+            click.echo("No history found.")
+            return
+        # If exporting and no history_data, proceed to export logic
+        # which will output headers and no rows.
 
     if export:
         if export == "json":
@@ -52,11 +55,10 @@ def history(limit, db_path, days, export):
             import io
 
             output = io.StringIO()
-            # Flatten meta for CSV? Or just dump as string.
-            # For simplicity, we dump as is.
-            # Keys: id, timestamp, pss, ts, ms, ev, be, cc, meta
-            # Meta is a dict, might mess up CSV if not handled.
-            # We'll flatten or just stringify.
+            all_keys = ["id", "timestamp", "pss", "ts", "ms", "ev", "be", "cc", "meta"]
+            writer = csv.DictWriter(output, fieldnames=all_keys)
+            writer.writeheader()
+
             flat_data = []
             for row in history_data:
                 r = row.copy()
@@ -64,9 +66,6 @@ def history(limit, db_path, days, export):
                 flat_data.append(r)
 
             if flat_data:
-                keys = flat_data[0].keys()
-                writer = csv.DictWriter(output, fieldnames=keys)
-                writer.writeheader()
                 writer.writerows(flat_data)
             click.echo(output.getvalue())
         return
@@ -148,6 +147,7 @@ def run(script, output, html, store_history):
                 json.dump(full_data, f, indent=2)
         click.echo(f"\nReport saved to {output}")
 
+    history_data = None
     if store_history:
         from ..storage import get_storage_backend, check_regression
 
@@ -157,6 +157,11 @@ def run(script, output, html, store_history):
                 "storage_uri": GLOBAL_CONFIG.storage_uri,
             }
             storage = get_storage_backend(storage_config)
+
+            # Fetch history for regression checking
+            history_data = storage.get_history(
+                limit=GLOBAL_CONFIG.regression_history_limit
+            )
 
             # Check regression BEFORE saving current run
             warning = check_regression(
@@ -172,6 +177,14 @@ def run(script, output, html, store_history):
             click.echo("\n✅ PSS Score stored in history.")
         except Exception as e:
             click.echo(f"\n⚠️  Failed to store history: {e}")
+
+    # Alerting
+    from ..alerts.engine import AlertEngine
+
+    engine = AlertEngine()
+    alerts = engine.run(overall_report, history=history_data)
+    if alerts:
+        click.echo(f"\n🔔 {len(alerts)} Alerts triggered and sent.")
 
 
 @main.command()
@@ -240,6 +253,7 @@ def analyze(trace_file, output, html, fail_if_below, store_history):
                 f.write(render_report_json(report))
         click.echo(f"Report saved to {output}")
 
+    history_data = None
     if store_history:
         from ..storage import get_storage_backend, check_regression
 
@@ -249,6 +263,11 @@ def analyze(trace_file, output, html, fail_if_below, store_history):
                 "storage_uri": GLOBAL_CONFIG.storage_uri,
             }
             storage = get_storage_backend(storage_config)
+
+            # Fetch history for regression checking
+            history_data = storage.get_history(
+                limit=GLOBAL_CONFIG.regression_history_limit
+            )
 
             # Check regression BEFORE saving current run
             warning = check_regression(
@@ -264,6 +283,14 @@ def analyze(trace_file, output, html, fail_if_below, store_history):
             click.echo("\n✅ PSS Score stored in history.")
         except Exception as e:
             click.echo(f"\n⚠️  Failed to store history: {e}")
+
+    # Alerting
+    from ..alerts.engine import AlertEngine
+
+    engine = AlertEngine()
+    alerts = engine.run(report, history=history_data)
+    if alerts:
+        click.echo(f"\n🔔 {len(alerts)} Alerts triggered and sent.")
 
     if fail_if_below is not None:
         if report["pss"] < fail_if_below:

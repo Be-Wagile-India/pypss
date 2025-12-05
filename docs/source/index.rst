@@ -11,6 +11,7 @@ Welcome to pypss's documentation!
    usage
    integrations
    advanced_config
+   alerts
    api
 
 Indices and tables
