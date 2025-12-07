@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package pypss;
+
+service TraceService {
+  rpc SubmitTrace (TraceMessage) returns (TraceResponse) {}
+}
+
+message TraceMessage {
+  string trace_id = 1;
+  string name = 2;
+  string filename = 3;
+  int32 lineno = 4;
+  string module = 5;
+  double duration = 6;
+  double cpu_time = 7;
+  double wait_time = 8;
+  int64 memory = 9;
+  int64 memory_diff = 10;
+  bool error = 11;
+  string exception_type = 12;
+  string exception_message = 13;
+  string branch_tag = 14;
+  double timestamp = 15;
+}
+
+message TraceResponse {
+  bool success = 1;
+  string message = 2;
+}

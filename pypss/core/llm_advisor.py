@@ -1,6 +1,7 @@
 import json
 import statistics
 from typing import List, Dict, Optional
+from abc import ABC, abstractmethod  # Added import
 from ..utils.source_code import extract_function_code
 from ..utils.config import GLOBAL_CONFIG
 
@@ -59,9 +60,10 @@ Sample Trace (Slowest):
 """
 
 
-class LLMClient:
+class LLMClient(ABC):
+    @abstractmethod
     def generate_diagnosis(self, context: str) -> Optional[str]:
-        raise NotImplementedError
+        pass
 
 
 class OpenAIClient(LLMClient):
