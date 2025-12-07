@@ -66,14 +66,36 @@ Visualize your traces using the web-based dashboard:
 
    pypss board traces.json
 
-Features:
+The dashboard is divided into four main tabs:
 
-*   **Overall PSS Gauge**: Instant view of system health.
-*   **Metric Breakdown**: Scores for Timing, Memory, Errors, etc.
-*   **Latency Trends**: P50/P95/Max latency over time.
-*   **Error Analysis**: Click the **Error Rate** box to view a detailed table of all failed traces.
-*   **Module Details**: Click on any module in the table to see module-specific metrics.
-*   **AI Advisor**: Auto-generated insights and recommendations.
+Overview
+^^^^^^^^
+
+*   **KPI Cards**: Instant view of Overall PSS, Total Traces, Error Rate, and Avg Latency.
+*   **Metric Breakdown**: Individual scores for Timing, Memory, Errors, Entropy, and Concurrency.
+*   **AI Advisor**: An intelligent system that analyzes your data and provides natural language summaries and recommendations (e.g., "Investigate latency spikes in module X").
+*   **Module Performance**: A sortable table showing PSS scores per module. Click on a module to see a dedicated detail view.
+
+Metrics
+^^^^^^^
+
+*   **Real-time Stability Trends**: A live, multi-line chart plotting all 5 stability metrics over time. This allows you to correlate drops in stability with specific events (e.g., a memory spike coinciding with an error burst). You can adjust the time window (10s, 1min, 5min, etc.).
+
+Diagnostics
+^^^^^^^^^^^
+
+Advanced visualizations for root cause analysis:
+
+*   **Error Cluster Heatmap**: A density map showing *when* (time) and *where* (module) errors are occurring. Dense red spots indicate critical instability bursts.
+*   **Logic Complexity Heatmap**: Visualizes Branching Entropy density. Helps identify which parts of your codebase are executing the most complex/unpredictable logic paths.
+
+Performance
+^^^^^^^^^^^
+
+Deep dive into execution performance:
+
+*   **Latency Percentiles**: A chart tracking P50 (median), P90 (heavy load), and P99 (worst case) latency over time. A wide gap between P50 and P99 indicates "jitter" or unpredictable performance.
+*   **Concurrency Wait Times**: A violin plot comparing **CPU Time** (active execution) vs. **Wait Time** (blocked/sleeping). High wait times are a strong indicator of resource contention, I/O bottlenecks, or thread starvation (Concurrency Chaos).
 
 PSS Configuration
 -----------------
