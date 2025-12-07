@@ -78,6 +78,7 @@ Python systems often fail not because they are slow — but because they are uns
 
 ### Developer Experience
 - **Non-Intrusive Instrumentation**: Lightweight decorators and context managers.
+- **Distributed Collection**: Built-in support for Redis, gRPC, and File-based trace collection for microservices.
 - **CLI Analysis**: Analyze trace files from production logs or test runs.
 - **Type Safe**: Fully typed codebase with `mypy` compliance.
 - **Production Ready**: Minimal overhead for sampling stability in critical paths.
@@ -100,6 +101,8 @@ Designed for minimal overhead and safe integration into production environments.
 
 ```bash
 pip install pypss
+# For distributed collectors (Redis, gRPC)
+pip install pypss[distributed]
 ```
 
 ### Development Installation
@@ -388,42 +391,6 @@ The Python Program Stability Score (PSS) is a composite metric designed to provi
 3. The final weighted average is normalized and scaled to produce the final PSS score from 0 to 100.
 
 ## 🛣️ Future Roadmap
-
-
-
-### Distributed Trace Collector
-
-
-
-To support large-scale microservices, ETL pipelines, and multi-process applications, we will develop a distributed trace collector. The current in-process collector is not suitable for these environments.
-
-
-
-**Key Features:**
-
-*   **Pluggable Collector Backend**: A simple interface to allow users to create their own custom collectors.
-
-*   **Built-in Remote Collectors**:
-
-    *   **Redis-backed collector** for high-throughput, low-latency trace ingestion.
-
-    *   **gRPC trace ingestion** for efficient, cross-language observability.
-
-    *   **File-based FIFO collector** for simple, durable multi-process communication.
-
-
-
-Example usage (conceptual):
-
-```python
-
-from pypss.collectors import RedisCollector
-
-global_collector = RedisCollector("redis://localhost:6379/0")
-
-```
-
-
 
 ### Advanced Dashboard Visualizations
 

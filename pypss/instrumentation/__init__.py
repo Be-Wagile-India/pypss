@@ -4,7 +4,14 @@ from .instrumentation import (
     global_collector,
     get_memory_usage,
 )
-from .collectors import Collector
+from .collectors import (
+    Collector,
+    BaseCollector,
+    MemoryCollector,
+    RedisCollector,
+    FileFIFOCollector,
+    GRPCCollector,
+)
 from .background import AutoDumper
 
 __all__ = [
@@ -13,5 +20,10 @@ __all__ = [
     "global_collector",
     "get_memory_usage",
     "Collector",
+    "BaseCollector",
+    "MemoryCollector",
+    "RedisCollector",
+    "FileFIFOCollector",
+    "GRPCCollector",
     "AutoDumper",
 ]

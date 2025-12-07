@@ -46,3 +46,9 @@ PyPSS has optional dependencies for specific features. Install them as needed:
     .. code-block:: bash
 
        pip install "pypss[otel]"
+
+*   **Distributed Collectors**: To use Redis or gRPC trace collectors.
+
+    .. code-block:: bash
+
+       pip install "pypss[distributed]"

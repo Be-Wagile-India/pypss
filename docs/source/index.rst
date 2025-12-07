@@ -9,6 +9,7 @@ Welcome to pypss's documentation!
 
    installation
    usage
+   collectors
    integrations
    advanced_config
    alerts

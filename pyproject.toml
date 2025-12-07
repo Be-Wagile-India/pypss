@@ -56,10 +56,17 @@ dev = [
     "flask>=3.0.0",
     "celery>=5.0.0",
     "rq>=1.0.0",
+    "grpcio-tools>=1.50.0",
 ]
 
 monitoring = [
     "prometheus-client>=0.17.0",
+]
+
+distributed = [
+    "redis>=5.0.0",
+    "grpcio>=1.50.0",
+    "protobuf>=4.20.0",
 ]
 
 otel = [

@@ -29,7 +29,7 @@ Instrumentation
    :show-inheritance:
 
 .. automodule:: pypss.instrumentation.collectors
-   :members:
+   :members: BaseCollector, MemoryCollector, ThreadedBatchCollector, RedisCollector, FileFIFOCollector, GRPCCollector
    :undoc-members:
    :show-inheritance:
 
