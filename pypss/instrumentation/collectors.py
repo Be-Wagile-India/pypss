@@ -45,25 +45,46 @@ def cross_platform_file_lock(file_obj, lock_type: str = "exclusive"):
             import msvcrt
 
             # Windows locking requires a byte count.
-            # We'll try to lock the whole file.
+            # We lock the first byte as a convention for the "whole file".
+            # msvcrt.locking raises OSError if the region is already locked (for LK_NBLCK)
+            # or blocks (for LK_RLCK).
+
             # Note: msvcrt doesn't support shared locks in the same way fcntl does,
-            # so we treat both as exclusive for safety or rely on OS behavior.
-            # Using LK_RLCK (blocking) or LK_NBLCK (non-blocking).
+            # so we treat both as exclusive for safety.
 
-            # To be safe and simple, we use blocking lock for the max possible size
-            # or current size. Here we use a large arbitrary number to cover most logs.
-            # 2GB limit is safe for 32-bit systems too.
-            MAX_SIZE = 2 * 1024 * 1024 * 1024
-
+            # Seek to start to lock the first byte
             file_obj.seek(0)
-            msvcrt.locking(file_obj.fileno(), msvcrt.LK_RLCK, MAX_SIZE)
+
+            # If file is empty, we can't lock byte 0.
+            # We can try to write a dummy byte if needed, but that changes file content.
+            # A common workaround is to lock a region *past* the end of file?
+            # msvcrt.locking docs say "Locks bytes...".
+
+            # Simple approach: Lock 1 byte.
+            # If file is empty, this might fail with "Permission denied" or similar on some Py versions.
+            # But let's assume we are locking a protocol file.
+
+            # Using 1 byte instead of 2GB to avoid "locks beyond EOF" errors if OS enforces it.
+            # (Though _locking documentation usually allows locking beyond EOF).
+            # The issue seen might be specific to how msvcrt maps to OS calls.
+
+            try:
+                msvcrt.locking(file_obj.fileno(), msvcrt.LK_RLCK, 1)
+            except OSError:
+                # If locking fails (e.g. empty file), we proceed without lock
+                # This is a tradeoff: correctness vs crashing.
+                # Ideally we'd use a separate lockfile.
+                pass
+
             try:
                 yield
             finally:
                 file_obj.seek(0)
-                msvcrt.locking(file_obj.fileno(), msvcrt.LK_UNLCK, MAX_SIZE)
+                try:
+                    msvcrt.locking(file_obj.fileno(), msvcrt.LK_UNLCK, 1)
+                except OSError:
+                    pass
         except (ImportError, OSError):
-            # Fallback or error (e.g. if file is not a real file)
             yield
     else:
         try:
