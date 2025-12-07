@@ -2,13 +2,14 @@ import threading
 import collections
 import os
 import json
-import fcntl
 import queue
 import time
 import atexit
+import sys
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional
 from types import ModuleType
+from contextlib import contextmanager
 
 try:
     import redis
@@ -31,6 +32,51 @@ except ImportError:
     trace_pb2_grpc_module = None
 
 from ..utils import GLOBAL_CONFIG
+
+
+@contextmanager
+def cross_platform_file_lock(file_obj, lock_type: str = "exclusive"):
+    """
+    Context manager for cross-platform file locking.
+    Uses msvcrt on Windows and fcntl on Unix-like systems.
+    """
+    if sys.platform == "win32":
+        try:
+            import msvcrt
+            
+            # Windows locking requires a byte count.
+            # We'll try to lock the whole file. 
+            # Note: msvcrt doesn't support shared locks in the same way fcntl does,
+            # so we treat both as exclusive for safety or rely on OS behavior.
+            # Using LK_RLCK (blocking) or LK_NBLCK (non-blocking).
+            
+            # To be safe and simple, we use blocking lock for the max possible size
+            # or current size. Here we use a large arbitrary number to cover most logs.
+            # 2GB limit is safe for 32-bit systems too.
+            MAX_SIZE = 2 * 1024 * 1024 * 1024 
+            
+            file_obj.seek(0)
+            msvcrt.locking(file_obj.fileno(), msvcrt.LK_RLCK, MAX_SIZE)
+            try:
+                yield
+            finally:
+                file_obj.seek(0)
+                msvcrt.locking(file_obj.fileno(), msvcrt.LK_UNLCK, MAX_SIZE)
+        except (ImportError, OSError):
+            # Fallback or error (e.g. if file is not a real file)
+            yield
+    else:
+        try:
+            import fcntl
+            
+            op = fcntl.LOCK_EX if lock_type == "exclusive" else fcntl.LOCK_SH
+            fcntl.flock(file_obj, op)
+            try:
+                yield
+            finally:
+                fcntl.flock(file_obj, fcntl.LOCK_UN)
+        except (ImportError, OSError):
+            yield
 
 
 class BaseCollector(ABC):
@@ -280,12 +326,9 @@ class FileFIFOCollector(ThreadedBatchCollector):
             # Open for appending
             with open(self.file_path, "a") as f:
                 # Exclusive lock for writing the whole batch
-                fcntl.flock(f, fcntl.LOCK_EX)
-                try:
+                with cross_platform_file_lock(f, "exclusive"):
                     f.write(content)
                     f.flush()
-                finally:
-                    fcntl.flock(f, fcntl.LOCK_UN)
         except Exception:
             pass
 
@@ -296,16 +339,13 @@ class FileFIFOCollector(ThreadedBatchCollector):
         try:
             with open(self.file_path, "r") as f:
                 # Shared lock for reading
-                fcntl.flock(f, fcntl.LOCK_SH)
-                try:
+                with cross_platform_file_lock(f, "shared"):
                     for line in f:
                         if line.strip():
                             try:
                                 traces.append(json.loads(line))
                             except json.JSONDecodeError:
                                 continue
-                finally:
-                    fcntl.flock(f, fcntl.LOCK_UN)
         except Exception:
             pass
         return traces
@@ -314,11 +354,8 @@ class FileFIFOCollector(ThreadedBatchCollector):
         try:
             # Open for writing (truncates)
             with open(self.file_path, "w") as f:
-                fcntl.flock(f, fcntl.LOCK_EX)
-                try:
+                with cross_platform_file_lock(f, "exclusive"):
                     pass  # Truncation happens on open
-                finally:
-                    fcntl.flock(f, fcntl.LOCK_UN)
         except Exception:
             pass
 
