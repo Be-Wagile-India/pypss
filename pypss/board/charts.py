@@ -323,3 +323,229 @@ def create_historical_chart(history_data):
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     return fig
+
+
+def plot_stability_trends(df: pd.DataFrame):
+    """
+    Plots time-series for all 5 stability metrics + Overall PSS.
+    df should be the aggregated DataFrame from TraceProcessor.
+    """
+    if df is None or df.empty:
+        return go.Figure()
+
+    fig = go.Figure()
+
+    # Scale 0-1 metrics to 0-100 for consistent plotting with PSS
+    metrics = {
+        "pss": {"name": "Overall PSS", "color": "#4285F4", "width": 4, "dash": "solid"},
+        "ts": {
+            "name": "Timing Stability",
+            "color": "#34A853",
+            "width": 2,
+            "dash": "dot",
+        },
+        "ms": {
+            "name": "Memory Stability",
+            "color": "#FBBC04",
+            "width": 2,
+            "dash": "dot",
+        },
+        "ev": {
+            "name": "Error Volatility",
+            "color": "#EA4335",
+            "width": 2,
+            "dash": "dot",
+        },
+        "be": {
+            "name": "Branching Entropy",
+            "color": "#9333EA",
+            "width": 2,
+            "dash": "dot",
+        },
+        "cc": {
+            "name": "Concurrency Chaos",
+            "color": "#06B6D4",
+            "width": 2,
+            "dash": "dot",
+        },
+    }
+
+    for col, style in metrics.items():
+        if col not in df.columns:
+            continue
+
+        # Determine if we need to scale (PSS is already 0-100, others are 0-1)
+        y_vals = df[col] if col == "pss" else df[col] * 100
+
+        fig.add_trace(
+            go.Scatter(
+                x=df.index,
+                y=y_vals,
+                mode="lines+markers",
+                name=style["name"],
+                line=dict(
+                    color=style["color"], width=style["width"], dash=style["dash"]
+                ),
+                hovertemplate=f"<b>{style['name']}: %{{y:.1f}}</b><extra></extra>",
+            )
+        )
+    font_color = "#333333"
+    grid_color = "#e0e0e0"
+
+    fig.update_layout(
+        title="Stability Metrics Over Time",
+        xaxis_title="Time",
+        yaxis_title="Score (0-100)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        margin=dict(l=40, r=20, t=40, b=40),
+        hovermode="x unified",
+        yaxis=dict(range=[0, 105], gridcolor=grid_color),
+        xaxis=dict(gridcolor=grid_color),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    )
+
+    return fig
+
+
+def plot_error_heatmap(traces: list):
+    """
+    Heatmap of Error Density: Time vs Module.
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+    # Robustly check columns exist
+    if "error" not in df.columns or "module" not in df.columns:
+        return go.Figure()
+
+    # Ensure error is boolean and handle filtering safely
+    try:
+        # Fill NAs with False to avoid errors during filtering
+        df["error"] = df["error"].fillna(False).astype(bool)
+        errors = df[df["error"]].copy()
+    except Exception:
+        return go.Figure()
+
+    if errors.empty:
+        # Return empty with message? Or just empty grid
+        fig = go.Figure()
+        fig.update_layout(
+            title="No errors detected (Great job!)",
+            xaxis={"visible": False},
+            yaxis={"visible": False},
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font_color="#333333",
+        )
+        return fig
+
+    if "timestamp" in errors.columns:
+        errors["datetime"] = pd.to_datetime(errors["timestamp"], unit="s")
+    else:
+        # Fallback if no timestamp
+        return go.Figure()
+
+    # Use Density Heatmap
+    fig = px.density_heatmap(
+        errors,
+        x="datetime",
+        y="module",
+        nbinsx=30,  # Auto-binning
+        title="Error Cluster Heatmap",
+        color_continuous_scale="Reds",
+    )
+
+    font_color = "#333333"
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig
+
+
+def plot_entropy_heatmap(traces: list):
+    """
+    Heatmap of Branching Activity/Entropy: Time vs Module.
+    Uses 'branch_tag' presence as a proxy for complex logic density.
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+    if "branch_tag" not in df.columns or "module" not in df.columns:
+        return go.Figure()
+
+    # Filter traces with branch tags
+    branches = df[df["branch_tag"].notna() & (df["branch_tag"] != "")].copy()
+    if branches.empty:
+        return go.Figure()
+
+    if "timestamp" in branches.columns:
+        branches["datetime"] = pd.to_datetime(branches["timestamp"], unit="s")
+
+    # We want to show 'Entropy' or 'Complexity'.
+    # Simply counting branch tags in a bin gives 'Branch Density'.
+    # Calculating actual entropy requires aggregation.
+    # For visual simplicity in a heatmap, Density of Branching Events is a good proxy for "Hot/Complex Paths".
+
+    fig = px.density_heatmap(
+        branches,
+        x="datetime",
+        y="module",
+        nbinsx=30,
+        title="Branching Activity Heatmap (Complexity Proxy)",
+        color_continuous_scale="Viridis",
+    )
+
+    font_color = "#333333"
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig
+
+
+def plot_concurrency_dist(traces: list):
+    """
+    Distribution of CPU Time vs Wait Time (Violin Plot).
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+    required_cols = ["cpu_time", "wait_time"]
+    if not all(col in df.columns for col in required_cols):
+        return go.Figure()
+
+    # Melt for side-by-side violin
+    melted = df.melt(
+        value_vars=["cpu_time", "wait_time"], var_name="Metric", value_name="Seconds"
+    )
+
+    fig = px.violin(
+        melted,
+        y="Seconds",
+        x="Metric",
+        color="Metric",
+        box=True,  # Show box plot inside violin
+        points="outliers",  # Show outliers
+        title="Concurrency Distribution: CPU vs Wait Time",
+        color_discrete_map={"cpu_time": "#4285F4", "wait_time": "#FBBC04"},
+    )
+
+    font_color = "#333333"
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        showlegend=False,
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig

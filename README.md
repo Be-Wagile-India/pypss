@@ -233,6 +233,21 @@ Then, run the `board` command with your trace file:
 pypss board traces.json
 ```
 
+### Dashboard Features
+
+*   **Overview Tab**:
+    *   **Real-time KPIs**: Instant gauges for Overall PSS, Error Rate, and Throughput.
+    *   **AI Advisor**: Automated root cause analysis and actionable recommendations.
+    *   **Module Breakdown**: Drill down into specific modules to find the weakest link.
+*   **Metrics Tab**:
+    *   **Real-time Trends**: Live line charts showing the evolution of all 5 stability metrics (TS, MS, EV, BE, CC) over time.
+*   **Diagnostics Tab**:
+    *   **Error Heatmap**: Visualize *when* and *where* error bursts are happening across your system.
+    *   **Complexity Heatmap**: Identify "hot spots" of high branching entropy (logic complexity).
+*   **Performance Tab**:
+    *   **Latency Percentiles**: Detailed P50, P90, and P99 latency tracking.
+    *   **Concurrency Analysis**: Violin plots comparing CPU time vs. Wait time to detect resource contention.
+
 ## ⚙️ Configuration
 
 You can configure `pypss` using `pypss.toml` or `pyproject.toml` in your project root. This allows you to tune weights, thresholds, and sampling rates.

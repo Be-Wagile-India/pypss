@@ -8,6 +8,10 @@ from pypss.board.charts import (
     create_trend_chart,
     create_gauge_chart,
     create_historical_chart,
+    plot_stability_trends,
+    plot_error_heatmap,
+    plot_entropy_heatmap,
+    plot_concurrency_dist,
 )
 from pypss.core import compute_pss_from_traces
 from pypss.storage import get_storage_backend
@@ -30,7 +34,12 @@ def start_board(trace_file: str):
     docs_dir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "..", "docs")
     )
-    app.add_static_files("/static", docs_dir)
+    if os.path.exists(docs_dir):
+        app.add_static_files("/static", docs_dir)
+    else:
+        print(
+            f"Warning: Docs directory not found at {docs_dir}. Static files will not be served."
+        )
 
     # State
     last_mtime = 0.0
@@ -192,9 +201,9 @@ def start_board(trace_file: str):
                         """
                         Averages lie. We use **Percentiles** to show the true user experience over the **Execution Timeline** (Left = Start, Right = End):
                         
-                        *   <span class="text-green-600 font-bold">P50 (Median):</span> The **Typical User**. 50% of requests are faster than this.
-                        *   <span class="text-orange-500 font-bold">P90 (Heavy Load):</span> The **Slow User**. 90% of requests are faster than this.
-                        *   <span class="text-red-600 font-bold">P99 (Worst Case):</span> The **Tail End**. 1% of users experience this slowness.
+                        *   <span class=\"text-green-600 font-bold\">P50 (Median):</span> The **Typical User**. 50% of requests are faster than this.
+                        *   <span class=\"text-orange-500 font-bold\">P90 (Heavy Load):</span> The **Slow User**. 90% of requests are faster than this.
+                        *   <span class=\"text-red-600 font-bold\">P99 (Worst Case):</span> The **Tail End**. 1% of users experience this slowness.
                         """
                     ).classes("text-sm text-gray-600 ml-8")
 
@@ -209,7 +218,7 @@ def start_board(trace_file: str):
                         )
                     ui.markdown(
                         """
-                        In the **Latency Percentiles** chart, look at the gap between the <span class="text-green-600">Green Line (P50)</span> and the <span class="text-red-600">Red Line (P99)</span>.
+                        In the **Latency Percentiles** chart, look at the gap between the <span class=\"text-green-600\">Green Line (P50)</span> and the <span class=\"text-red-600\">Red Line (P99)</span>.
                         
                         *   **Narrow Gap:** Predictable performance. (Good)
                         *   **Wide Gap:** Unpredictable "jitter". Some users are waiting much longer than others. (Bad)
@@ -218,7 +227,24 @@ def start_board(trace_file: str):
 
                 ui.separator()
 
-                # Section 4: Scoring Breakdown
+                # Section 4: AI Advisor (New)
+                with ui.column().classes("gap-2"):
+                    with ui.row().classes("items-center gap-2"):
+                        ui.icon("auto_awesome", size="sm").classes("text-purple-600")
+                        ui.label("AI Advisor").classes(
+                            "text-md font-bold text-gray-700"
+                        )
+                    ui.markdown(
+                        """
+                        The **AI Diagnostics** card automatically analyzes your stability report to find the root cause of low scores.
+                        *   **Analysis:** Summarizes the overall health and identifies the weakest metric.
+                        *   **Recommendations:** Provides actionable steps to improve stability, such as "Investigate latency spikes" or "Fix error handling in module X".
+                        """
+                    ).classes("text-sm text-gray-600 ml-8")
+
+                ui.separator()
+
+                # Section 5: Scoring Breakdown
                 with ui.column().classes("gap-2"):
                     with ui.row().classes("items-center gap-2"):
                         ui.icon("fact_check", size="sm").classes("text-indigo-600")
@@ -239,7 +265,41 @@ def start_board(trace_file: str):
 
                 ui.separator()
 
-                # Section 5: Configuration
+                # Section 6: Advanced Diagnostics (New)
+                with ui.column().classes("gap-2"):
+                    with ui.row().classes("items-center gap-2"):
+                        ui.icon("bug_report", size="sm").classes("text-red-500")
+                        ui.label("Advanced Diagnostics (Heatmaps)").classes(
+                            "text-md font-bold text-gray-700"
+                        )
+                    ui.markdown(
+                        """
+                        In the **Diagnostics** tab, we visualize system behavior over time:
+                        *   **Error Clusters:** Shows *when* and *where* errors are happening. Dense red spots indicate instability bursts in specific modules.
+                        *   **Logic Complexity:** Visualizes which modules have the most complex execution paths (branching). High complexity often correlates with lower stability.
+                        """
+                    ).classes("text-sm text-gray-600 ml-8")
+
+                ui.separator()
+
+                # Section 7: Concurrency & Performance (New)
+                with ui.column().classes("gap-2"):
+                    with ui.row().classes("items-center gap-2"):
+                        ui.icon("speed", size="sm").classes("text-teal-500")
+                        ui.label("Concurrency & Performance").classes(
+                            "text-md font-bold text-gray-700"
+                        )
+                    ui.markdown(
+                        """
+                        In the **Performance** tab:
+                        *   **Latency Percentiles:** A detailed view of P50, P90, and P99 latency over time.
+                        *   **Concurrency Wait Times:** A violin plot comparing **CPU Time** (active work) vs. **Wait Time** (blocked/sleeping). High wait times indicate resource contention, I/O bottlenecks, or lock issues.
+                        """
+                    ).classes("text-sm text-gray-600 ml-8")
+
+                ui.separator()
+
+                # Section 8: Configuration
                 with ui.column().classes("gap-2"):
                     with ui.row().classes("items-center gap-2"):
                         ui.icon("settings", size="sm").classes("text-gray-600")
@@ -522,11 +582,12 @@ def start_board(trace_file: str):
         if on_click:
             card_classes += " cursor-pointer hover:shadow-md transition-shadow"
 
-        with (
+        card = (
             ui.card()
             .classes(card_classes)
             .on("click", on_click if on_click else lambda: None)
-        ):
+        )
+        with card:
             with ui.row().classes("justify-between items-start w-full"):
                 with ui.column().classes("gap-1"):
                     ui.label(title).classes(
@@ -545,6 +606,7 @@ def start_board(trace_file: str):
                         with ui.column().classes("gap-0"):
                             ui.label(label).classes("font-semibold text-gray-400")
                             ui.label(val).classes("font-mono font-medium")
+        return card
 
     # --- LAYOUT ---
     ui.query("body").classes("bg-white flex flex-col h-screen")
@@ -621,7 +683,7 @@ def start_board(trace_file: str):
 
         @ui.refreshable
         def content():
-            report, df, raw_traces = load_trace_data(trace_file)
+            report, df, raw_traces, processor = load_trace_data(trace_file)
 
             # Load History
             history_data = []
@@ -668,101 +730,201 @@ def start_board(trace_file: str):
                 )
                 anomaly_tooltip.set_text("No anomalies detected.")
 
-            # --- ROW 1: KPI CARDS AND OVERALL PSS GAUGE ---
+            # --- TABS LAYOUT ---
+            with ui.tabs().classes("w-full text-gray-700") as tabs:
+                ui.tab("overview", icon="dashboard", label="Overview")
+                ui.tab("metrics", icon="timeline", label="Metrics")
+                ui.tab("diagnostics", icon="bug_report", label="Diagnostics")
+                ui.tab("performance", icon="speed", label="Performance")
 
-            # Module Detail Dialog
-            def show_module_detail_dialog(module_name: str):
-                module_traces = [
-                    t for t in raw_traces if t.get("module") == module_name
-                ]
-                if not module_traces:
-                    ui.notify(f"No traces found for module {module_name}.", type="info")
-                    return
-
-                # Calculate module-specific report (can be outside refreshable if only once needed)
-                module_report = compute_pss_from_traces(module_traces)
-
-                with (
-                    ui.dialog() as dialog,
-                    ui.card().classes("w-full max-w-5xl h-[90vh] flex flex-col"),
-                ):
-                    with ui.row().classes(
-                        "w-full items-center justify-between border-b pb-2"
-                    ):
-                        ui.label(f"Module Performance: {module_name}").classes(
-                            "text-xl font-bold text-gray-800"
-                        )
-                        ui.label(f"PSS: {module_report['pss']}/100").classes(
-                            "text-lg font-semibold text-gray-700"
-                        )
-                        ui.button(icon="close", on_click=dialog.close).props(
-                            "flat round dense"
-                        )
-
-                    with ui.column().classes(
-                        "flex-grow overflow-y-auto w-full gap-4 p-4"
-                    ):
-                        # Module-specific Latency Trend
-                        with ui.card().classes(
-                            "w-full shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
-                        ):
-                            with ui.row().classes(
-                                "w-full p-4 border-b border-gray-200 items-center justify-between"
-                            ):
-                                ui.label(
-                                    f"Latency Percentiles for {module_name}"
-                                ).classes("font-bold text-gray-700 text-lg")
-                                ui.icon("show_chart", size="sm").classes(
-                                    "text-gray-400"
-                                )
-                            ui.plotly(create_trend_chart(module_traces)).classes(
-                                "w-full h-64"
-                            )
-
-                        # Module-specific Failed Traces
-                        failed_module_traces_all = [
-                            t for t in module_traces if t.get("error")
-                        ]
-
-                        @ui.refreshable
-                        def refresh_module_failed_table():
-                            if not failed_module_traces_all:
-                                ui.label("No failed traces for this module.").classes(
-                                    "text-gray-500 italic"
+            with ui.tab_panels(tabs, value="overview").classes("w-full bg-transparent"):
+                # --- TAB 1: OVERVIEW ---
+                with ui.tab_panel("overview").classes("p-0 gap-6"):
+                    with ui.column().classes("w-full gap-6"):
+                        # Module Detail Dialog (kept in overview context)
+                        def show_module_detail_dialog(module_name: str):
+                            module_traces = [
+                                t for t in raw_traces if t.get("module") == module_name
+                            ]
+                            if not module_traces:
+                                ui.notify(
+                                    f"No traces found for module {module_name}.",
+                                    type="info",
                                 )
                                 return
 
-                            # Add search/filter inputs for module-specific failed traces if desired, similar to show_failures.
-                            # For now, just display all failed traces for the module.
+                            module_report = compute_pss_from_traces(module_traces)
 
-                            rows = []
-                            for t in failed_module_traces_all:
-                                ts_str = datetime.fromtimestamp(
-                                    t.get("timestamp", 0)
-                                ).strftime("%H:%M:%S")
-                                rows.append(
-                                    {
-                                        "time": ts_str,
-                                        "function": t.get("name", "unknown"),
-                                        "error_type": t.get("exception_type", "N/A"),
-                                        "error_message": t.get(
-                                            "exception_message", "N/A"
-                                        ),
-                                        "duration": f"{t.get('duration', 0) * 1000:.1f}ms",
-                                    }
-                                )
-
-                            with ui.card().classes(
-                                "w-full shadow-sm border border-gray-200 bg-white p-0 flex flex-col mt-4"
+                            with (
+                                ui.dialog() as dialog,
+                                ui.card().classes(
+                                    "w-full max-w-5xl h-[90vh] flex flex-col"
+                                ),
                             ):
                                 with ui.row().classes(
-                                    "w-full p-4 border-b border-gray-200 items-center justify-between"
+                                    "w-full items-center justify-between border-b pb-2"
                                 ):
                                     ui.label(
-                                        f"Failed Traces in {module_name} ({len(failed_module_traces_all)})"
-                                    ).classes("font-bold text-red-600 text-lg")
-                                    ui.icon("error_outline", size="sm").classes(
-                                        "text-red-400"
+                                        f"Module Performance: {module_name}"
+                                    ).classes("text-xl font-bold text-gray-800")
+                                    ui.label(
+                                        f"PSS: {module_report['pss']}/100"
+                                    ).classes("text-lg font-semibold text-gray-700")
+                                    ui.button(
+                                        icon="close", on_click=dialog.close
+                                    ).props("flat round dense")
+
+                                with ui.column().classes(
+                                    "flex-grow overflow-y-auto w-full gap-4 p-4"
+                                ):
+                                    # Module-specific Latency Trend
+                                    with ui.card().classes(
+                                        "w-full shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
+                                    ):
+                                        with ui.row().classes(
+                                            "w-full p-4 border-b border-gray-200 items-center justify-between"
+                                        ):
+                                            ui.label(
+                                                f"Latency Percentiles for {module_name}"
+                                            ).classes("font-bold text-gray-700 text-lg")
+                                            ui.icon("show_chart", size="sm").classes(
+                                                "text-gray-400"
+                                            )
+                                        ui.plotly(
+                                            create_trend_chart(module_traces)
+                                        ).classes("w-full h-64")
+
+                                    # Module-specific Failed Traces
+                                    failed_module_traces_all = [
+                                        t for t in module_traces if t.get("error")
+                                    ]
+
+                                    if failed_module_traces_all:
+                                        rows = []
+                                        for t in failed_module_traces_all:
+                                            ts_str = datetime.fromtimestamp(
+                                                t.get("timestamp", 0)
+                                            ).strftime("%H:%M:%S")
+                                            rows.append(
+                                                {
+                                                    "time": ts_str,
+                                                    "function": t.get(
+                                                        "name", "unknown"
+                                                    ),
+                                                    "error_type": t.get(
+                                                        "exception_type", "N/A"
+                                                    ),
+                                                    "error_message": t.get(
+                                                        "exception_message", "N/A"
+                                                    ),
+                                                    "duration": f"{t.get('duration', 0) * 1000:.1f}ms",
+                                                }
+                                            )
+
+                                        with ui.card().classes(
+                                            "w-full shadow-sm border border-gray-200 bg-white p-0 flex flex-col mt-4"
+                                        ):
+                                            with ui.row().classes(
+                                                "w-full p-4 border-b border-gray-200 items-center justify-between"
+                                            ):
+                                                ui.label(
+                                                    f"Failed Traces in {module_name} ({len(failed_module_traces_all)})"
+                                                ).classes(
+                                                    "font-bold text-red-600 text-lg"
+                                                )
+                                                ui.icon(
+                                                    "error_outline", size="sm"
+                                                ).classes("text-red-400")
+
+                                            ui.table(
+                                                columns=[
+                                                    {
+                                                        "name": "time",
+                                                        "label": "Time",
+                                                        "field": "time",
+                                                        "sortable": True,
+                                                        "align": "left",
+                                                    },
+                                                    {
+                                                        "name": "function",
+                                                        "label": "Function",
+                                                        "field": "function",
+                                                        "sortable": True,
+                                                        "align": "left",
+                                                    },
+                                                    {
+                                                        "name": "error_type",
+                                                        "label": "Error Type",
+                                                        "field": "error_type",
+                                                        "sortable": True,
+                                                        "align": "left",
+                                                    },
+                                                    {
+                                                        "name": "error_message",
+                                                        "label": "Error Message",
+                                                        "field": "error_message",
+                                                        "sortable": False,
+                                                        "align": "left",
+                                                        "classes": "max-w-xs truncate",
+                                                    },
+                                                    {
+                                                        "name": "duration",
+                                                        "label": "Duration",
+                                                        "field": "duration",
+                                                        "sortable": True,
+                                                        "align": "right",
+                                                    },
+                                                ],
+                                                rows=rows,
+                                                pagination=5,
+                                            ).classes("w-full flex-grow")
+                                    else:
+                                        ui.label(
+                                            "No failed traces for this module."
+                                        ).classes("text-gray-500 italic mt-4")
+
+                                dialog.open()
+
+                        def show_failures():
+                            failed_traces = [t for t in raw_traces if t.get("error")]
+                            if not failed_traces:
+                                ui.notify("No failed traces found.", type="positive")
+                                return
+
+                            with (
+                                ui.dialog() as dialog,
+                                ui.card().classes(
+                                    "w-full max-w-6xl h-[90vh] flex flex-col"
+                                ),
+                            ):
+                                with ui.row().classes(
+                                    "w-full items-center justify-between border-b pb-2"
+                                ):
+                                    ui.label(
+                                        f"All Failed Traces ({len(failed_traces)})"
+                                    ).classes("text-xl font-bold text-red-600")
+                                    ui.button(
+                                        icon="close", on_click=dialog.close
+                                    ).props("flat round dense")
+
+                                rows = []
+                                for t in failed_traces:
+                                    ts_str = datetime.fromtimestamp(
+                                        t.get("timestamp", 0)
+                                    ).strftime("%H:%M:%S")
+                                    rows.append(
+                                        {
+                                            "time": ts_str,
+                                            "module": t.get("module", "unknown"),
+                                            "function": t.get("name", "unknown"),
+                                            "error_type": t.get(
+                                                "exception_type", "N/A"
+                                            ),
+                                            "error_message": t.get(
+                                                "exception_message", "N/A"
+                                            ),
+                                            "duration": f"{t.get('duration', 0) * 1000:.1f}ms",
+                                        }
                                     )
 
                                 ui.table(
@@ -771,6 +933,13 @@ def start_board(trace_file: str):
                                             "name": "time",
                                             "label": "Time",
                                             "field": "time",
+                                            "sortable": True,
+                                            "align": "left",
+                                        },
+                                        {
+                                            "name": "module",
+                                            "label": "Module",
+                                            "field": "module",
                                             "sortable": True,
                                             "align": "left",
                                         },
@@ -805,459 +974,406 @@ def start_board(trace_file: str):
                                         },
                                     ],
                                     rows=rows,
-                                    pagination=5,
+                                    pagination=10,
                                 ).classes("w-full flex-grow")
 
-                        refresh_module_failed_table()  # Initial render
+                                dialog.open()
 
-                    dialog.open()
-
-            def show_failures():
-                failed_traces = [t for t in raw_traces if t.get("error")]
-                if not failed_traces:
-                    ui.notify("No failed traces found.", type="positive")
-                    return
-
-                with (
-                    ui.dialog() as dialog,
-                    ui.card().classes("w-full max-w-6xl h-[90vh] flex flex-col"),
-                ):
-                    with ui.row().classes(
-                        "w-full items-center justify-between border-b pb-2"
-                    ):
-                        ui.label(f"All Failed Traces ({len(failed_traces)})").classes(
-                            "text-xl font-bold text-red-600"
-                        )
-                        ui.button(icon="close", on_click=dialog.close).props(
-                            "flat round dense"
-                        )
-
-                    rows = []
-                    for t in failed_traces:
-                        ts_str = datetime.fromtimestamp(t.get("timestamp", 0)).strftime(
-                            "%H:%M:%S"
-                        )
-                        rows.append(
-                            {
-                                "time": ts_str,
-                                "module": t.get("module", "unknown"),
-                                "function": t.get("name", "unknown"),
-                                "error_type": t.get("exception_type", "N/A"),
-                                "error_message": t.get("exception_message", "N/A"),
-                                "duration": f"{t.get('duration', 0) * 1000:.1f}ms",
-                            }
-                        )
-
-                    ui.table(
-                        columns=[
-                            {
-                                "name": "time",
-                                "label": "Time",
-                                "field": "time",
-                                "sortable": True,
-                                "align": "left",
-                            },
-                            {
-                                "name": "module",
-                                "label": "Module",
-                                "field": "module",
-                                "sortable": True,
-                                "align": "left",
-                            },
-                            {
-                                "name": "function",
-                                "label": "Function",
-                                "field": "function",
-                                "sortable": True,
-                                "align": "left",
-                            },
-                            {
-                                "name": "error_type",
-                                "label": "Error Type",
-                                "field": "error_type",
-                                "sortable": True,
-                                "align": "left",
-                            },
-                            {
-                                "name": "error_message",
-                                "label": "Error Message",
-                                "field": "error_message",
-                                "sortable": False,
-                                "align": "left",
-                                "classes": "max-w-xs truncate",
-                            },
-                            {
-                                "name": "duration",
-                                "label": "Duration",
-                                "field": "duration",
-                                "sortable": True,
-                                "align": "right",
-                            },
-                        ],
-                        rows=rows,
-                        pagination=10,
-                    ).classes("w-full flex-grow")
-
-                    dialog.open()
-
-            # 2. Dashboard Grid (Theme-aware)
-            with ui.grid().classes("w-full gap-6 grid-cols-12"):
-                # Overall PSS Gauge Chart
-                with ui.card().classes(
-                    "col-span-12 sm:col-span-6 md:col-span-3 p-4 shadow-sm border border-gray-200 bg-white flex flex-col"
-                ):
-                    with ui.row().classes(
-                        "w-full pb-2 mb-2 border-b border-gray-200 items-center justify-between"
-                    ):
-                        ui.label("Overall PSS").classes(
-                            "font-bold text-gray-700 text-lg"
-                        ).tooltip("0-100 Stability Score. Higher is better.")
-                        ui.icon("speed", size="sm").classes("text-gray-400")
-                    ui.plotly(create_gauge_chart(report["pss"], "")).classes(
-                        "w-full h-48"
-                    )
-
-                # Total Samples Calculations
-                timestamps = [t.get("timestamp", 0) for t in raw_traces]
-                duration_window = (
-                    max(timestamps) - min(timestamps)
-                    if timestamps and len(timestamps) > 1
-                    else 0
-                )
-                rps = len(raw_traces) / duration_window if duration_window > 0 else 0
-
-                kpi_card(
-                    "Total Traces",
-                    f"{len(raw_traces):,}",
-                    "Recorded Executions",
-                    "dataset",
-                    "text-blue-600",
-                    extra_details={
-                        "Time Window": f"{duration_window:.1f}s",
-                        "Throughput": f"{rps:.1f} req/s",
-                    },
-                )
-
-                # Error Rate Calculations
-                error_traces = [t for t in raw_traces if t.get("error")]
-                err_count = len(error_traces)
-                err_rate = (err_count / len(raw_traces) * 100) if raw_traces else 0
-
-                # Find top offender
-                from collections import Counter
-
-                failing_modules = [t.get("module", "unknown") for t in error_traces]
-                top_offender = Counter(failing_modules).most_common(1)
-                top_offender_name = top_offender[0][0] if top_offender else "None"
-                affected_count = len(set(failing_modules))
-
-                kpi_card(
-                    "Error Rate",
-                    f"{err_rate:.1f}%",
-                    f"{err_count} Failed Traces",
-                    "error_outline",
-                    "text-red-500",
-                    extra_details={
-                        "Affected Mods": f"{affected_count}",
-                        "Top Offender": top_offender_name,
-                    },
-                    on_click=lambda: show_failures(),
-                )
-
-                # Avg Latency Calculations
-                import statistics
-
-                durations = [t.get("duration", 0) for t in raw_traces]
-                avg_lat = statistics.mean(durations) if durations else 0
-                max_lat = max(durations) if durations else 0
-                sorted_dur = sorted(durations)
-                p95_lat = sorted_dur[int(len(sorted_dur) * 0.95)] if sorted_dur else 0
-
-                kpi_card(
-                    "Avg Latency",
-                    f"{avg_lat * 1000:.1f}ms",
-                    "Per Execution",
-                    "timer",
-                    "text-gray-700",
-                    extra_details={
-                        "P95 Latency": f"{p95_lat * 1000:.1f}ms",
-                        "Max Spike": f"{max_lat * 1000:.1f}ms",
-                    },
-                )
-
-                # Add tooltip for Avg Latency manually since it's inside a helper
-                # Note: kpi_card helper doesn't support adding tooltips to internal labels easily without refactor.
-                # Instead, I will modify the Latency Percentiles and Metric Breakdown labels below which are accessible.
-
-                # --- ROW 2: MAIN CHARTS ---
-
-                # Metric Breakdown Gauges
-                with ui.card().classes(
-                    "col-span-12 md:col-span-4 shadow-sm border border-gray-200 bg-white p-4 flex flex-col"
-                ):
-                    with ui.row().classes(
-                        "w-full pb-2 border-b border-gray-200 items-center justify-between"
-                    ):
-                        ui.label("Metric Breakdown").classes(
-                            "font-bold text-gray-700 text-lg"
-                        ).tooltip(
-                            "Scores for individual stability pillars (Timing, Memory, Errors, etc.)"
-                        )
-                        ui.icon("monitoring", size="sm").classes(
-                            "text-gray-400"
-                        )  # Changed icon
-
-                    # Container for individual gauges
-                    with ui.grid().classes("w-full grid-cols-2 gap-y-4 gap-x-2 mt-4"):
-                        for metric_name, score_value in report["breakdown"].items():
-                            with ui.column().classes("items-center justify-center"):
-                                # Determine color based on score_value
-                                score_color_class = (
-                                    "text-green-600"
-                                    if score_value >= 0.90
-                                    else "text-amber-500"
-                                    if score_value >= 0.70
-                                    else "text-red-600"
-                                )
-
-                                metric_descriptions = {
-                                    "timing_stability": "Consistency of task execution time.",
-                                    "memory_stability": "Predictability of memory usage.",
-                                    "error_volatility": "Frequency and burstiness of errors.",
-                                    "branching_entropy": "Determinism of code execution paths.",
-                                    "concurrency_chaos": "Resource contention and wait times.",
-                                }
-
-                                ui.label(metric_name.replace("_", " ").title()).classes(
-                                    f"text-xs font-semibold {score_color_class} mb-1"
-                                )
-                                ui.label(
-                                    metric_descriptions.get(metric_name, "")
-                                ).classes(
-                                    "text-tiny text-gray-500 text-center mx-1"
-                                ).tooltip(metric_descriptions.get(metric_name, ""))
-                                ui.plotly(
-                                    create_gauge_chart(round(score_value, 2) * 100, "")
-                                ).classes("w-36 h-36")  # Slightly larger gauges
-
-                # Trend Chart
-                with ui.card().classes(
-                    "col-span-12 md:col-span-8 shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
-                ):
-                    with ui.row().classes(
-                        "w-full p-4 border-b border-gray-200 items-center justify-between"
-                    ):
-                        ui.label("Latency Percentiles").classes(
-                            "font-bold text-gray-700 text-lg"
-                        ).tooltip(
-                            "P50 (Green) = Typical. P99 (Red) = Worst Case. Wide gap = Instability."
-                        )
-                        ui.icon("show_chart", size="sm").classes("text-gray-400")
-                    ui.plotly(create_trend_chart(raw_traces)).classes("w-full h-80")
-
-                # Historical Trend Chart
-                with ui.card().classes(
-                    "col-span-12 shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
-                ):
-                    with ui.row().classes(
-                        "w-full p-4 border-b border-gray-200 items-center justify-between"
-                    ):
-                        ui.label("Long-term Stability History").classes(
-                            "font-bold text-gray-700 text-lg"
-                        ).tooltip("Evolution of PSS over multiple runs.")
-                        ui.icon("history", size="sm").classes("text-gray-400")
-
-                    ui.plotly(create_historical_chart(history_data)).classes(
-                        "w-full h-64"
-                    )
-
-                # --- ROW 3: MODULE DETAILS & AI ---
-
-                # AI Advisor
-                with ui.card().classes(
-                    "col-span-12 lg:col-span-4 shadow-sm border border-gray-200 bg-white p-6"
-                ):
-                    with ui.row().classes("items-center gap-3 mb-4"):
-                        ui.icon("auto_awesome", size="md").classes("text-purple-600")
-                        ui.label("AI Diagnostics").classes(
-                            "text-xl font-bold text-gray-800"
-                        )
-
-                    analysis_text, recommendations_text = generate_ai_diagnostics(
-                        report, df
-                    )
-
-                    ui.markdown(f"**Analysis:**\n{analysis_text}").classes(
-                        "text-sm text-gray-600 leading-relaxed font-mono"
-                    )
-                    ui.markdown(
-                        f"**Recommendations:**\n{recommendations_text}"
-                    ).classes("text-sm text-gray-600 leading-relaxed font-mono mt-4")
-
-                # Data Table
-                with ui.card().classes(
-                    "col-span-12 lg:col-span-8 shadow-sm border border-gray-200 bg-white p-0"
-                ):
-                    if df is not None and not df.empty:
-                        table_rows = df.to_dict("records")
-                        # Pre-format float values for display
-                        for row in table_rows:
-                            if "timing" in row:
-                                row["timing"] = f"{row['timing']:.2f}"
-                            if "errors" in row:
-                                row["errors"] = f"{row['errors']:.2f}"
-
-                        total_rows = len(table_rows)
-
-                        # Pagination State (mutable dict to persist in closure)
-                        pagination = {"page": 1, "per_page": 5}
-
-                        # Calculate options
-                        opts = {5, 10, 20, 50}
-                        if total_rows > 0:
-                            opts.add(total_rows)
-                        options = sorted(list(opts))
-
-                        # Default to showing all if small number of rows
-                        if total_rows <= 50:
-                            pagination["per_page"] = total_rows
-
-                        # Safety fallback
-                        if pagination["per_page"] not in options:
-                            pagination["per_page"] = options[0] if options else 5
-
-                        # Header with Selector
-                        with ui.row().classes(
-                            "w-full p-4 border-b border-gray-200 items-center justify-between"
-                        ):
-                            ui.label("Module Performance").classes(
-                                "font-bold text-gray-700 text-lg"
-                            )
-
-                            def update_per_page(e):
-                                pagination["per_page"] = e.value
-                                pagination["page"] = 1
-                                table_view.refresh()
-
-                            ui.select(
-                                options,
-                                value=pagination["per_page"],
-                                label="Per Page",
-                                on_change=update_per_page,
-                            ).classes("w-24")
-
-                        # Refreshable Table View
-                        @ui.refreshable
-                        def table_view():
-                            per_page = pagination["per_page"]
-                            page = pagination["page"]
-
-                            # Calculate Slice
-                            start = (page - 1) * per_page
-                            end = start + per_page
-                            rows_slice = table_rows[start:end]
-
-                            # Table
-                            ui.table(
-                                columns=[
-                                    {
-                                        "name": "module",
-                                        "label": "Module Name",
-                                        "field": "module",
-                                        "align": "left",
-                                        "sortable": True,
-                                        "classes": "text-gray-700 cursor-pointer hover:text-blue-600 transition-colors",
-                                    },
-                                    {
-                                        "name": "pss",
-                                        "label": "PSS",
-                                        "field": "pss",
-                                        "sortable": True,
-                                        "align": "center",
-                                    },
-                                    {
-                                        "name": "traces",
-                                        "label": "Samples",
-                                        "field": "traces",
-                                        "sortable": True,
-                                        "align": "center",
-                                    },
-                                    {
-                                        "name": "timing",
-                                        "label": "Timing",
-                                        "field": "timing",
-                                        "sortable": True,
-                                        "align": "right",
-                                    },
-                                    {
-                                        "name": "errors",
-                                        "label": "Errors",
-                                        "field": "errors",
-                                        "sortable": True,
-                                        "align": "right",
-                                    },
-                                ],
-                                rows=rows_slice,
-                                row_key="module",
-                                pagination=None,  # We handle pagination manually
-                            ).classes("w-full flat-table").on(
-                                "cell_click",
-                                lambda e: show_module_detail_dialog(e.args[1]["module"])
-                                if e.args[0]["name"] == "module"
-                                else None,
-                            )
-
-                            # Navigation Controls
-                            total_pages = (total_rows + per_page - 1) // per_page
-                            # Ensure page is valid (if per_page increased)
-                            if page > total_pages and total_pages > 0:
-                                pagination["page"] = total_pages
-                                # Trigger re-render? No, careful of recursion.
-                                # Just rendering controls is fine, but content might be empty if we don't adjust `start`.
-                                # Actually, better to adjust page before slice.
-                                # For now, basic controls:
-
-                            with ui.row().classes(
-                                "w-full justify-between items-center p-4"
+                        # --- ROW 1: Key Performance Indicators ---
+                        with ui.grid().classes("w-full gap-6 grid-cols-12"):
+                            # Overall PSS Gauge (3 cols)
+                            with ui.card().classes(
+                                "col-span-12 sm:col-span-6 xl:col-span-3 p-4 shadow-sm border border-gray-200 bg-white flex flex-col"
                             ):
-                                ui.label(
-                                    f"Page {pagination['page']} of {total_pages}"
-                                ).classes("text-sm text-gray-600")
-
-                                def go_page(new_page):
-                                    pagination["page"] = max(
-                                        1, min(new_page, total_pages)
+                                with ui.row().classes(
+                                    "w-full pb-2 mb-2 border-b border-gray-200 items-center justify-between"
+                                ):
+                                    ui.label("Overall PSS").classes(
+                                        "font-bold text-gray-700 text-lg"
+                                    ).tooltip(
+                                        "0-100 Stability Score. Higher is better."
                                     )
-                                    table_view.refresh()
+                                    ui.icon("speed", size="sm").classes("text-gray-400")
+                                ui.plotly(
+                                    create_gauge_chart(report["pss"], "")
+                                ).classes("w-full h-40")
 
-                                with ui.row().classes("items-center gap-2"):
-                                    ui.button("<<", on_click=lambda: go_page(1)).props(
-                                        "flat round dense"
-                                    ).set_enabled(page > 1)
-                                    ui.button(
-                                        "<", on_click=lambda: go_page(page - 1)
-                                    ).props("flat round dense").set_enabled(page > 1)
-                                    ui.button(
-                                        ">", on_click=lambda: go_page(page + 1)
-                                    ).props("flat round dense").set_enabled(
-                                        page < total_pages
-                                    )
-                                    ui.button(
-                                        ">>", on_click=lambda: go_page(total_pages)
-                                    ).props("flat round dense").set_enabled(
-                                        page < total_pages
-                                    )
-
-                        table_view()
-
-                    else:
-                        with ui.row().classes("w-full p-4 border-b border-gray-200"):
-                            ui.label("Module Performance").classes(
-                                "font-bold text-gray-700 text-lg"
+                            # Total Samples (3 cols)
+                            timestamps = [t.get("timestamp", 0) for t in raw_traces]
+                            duration_window = (
+                                max(timestamps) - min(timestamps)
+                                if timestamps and len(timestamps) > 1
+                                else 0
                             )
-                        ui.label("No module performance data available.").classes(
-                            "text-gray-500 italic p-4"
-                        )
+                            rps = (
+                                len(raw_traces) / duration_window
+                                if duration_window > 0
+                                else 0
+                            )
+                            kpi_card(
+                                "Total Traces",
+                                f"{len(raw_traces):,}",
+                                "Recorded Executions",
+                                "dataset",
+                                "text-blue-600",
+                                extra_details={
+                                    "Time Window": f"{duration_window:.1f}s",
+                                    "Throughput": f"{rps:.1f} req/s",
+                                },
+                            ).classes("col-span-12 sm:col-span-6 xl:col-span-3")
+
+                            # Error Rate (3 cols)
+                            error_traces = [t for t in raw_traces if t.get("error")]
+                            err_count = len(error_traces)
+                            err_rate = (
+                                (err_count / len(raw_traces) * 100) if raw_traces else 0
+                            )
+                            from collections import Counter
+
+                            failing_modules = [
+                                t.get("module", "unknown") for t in error_traces
+                            ]
+                            top_offender = Counter(failing_modules).most_common(1)
+                            top_offender_name = (
+                                top_offender[0][0] if top_offender else "None"
+                            )
+                            affected_count = len(set(failing_modules))
+                            kpi_card(
+                                "Error Rate",
+                                f"{err_rate:.1f}%",
+                                f"{err_count} Failed Traces",
+                                "error_outline",
+                                "text-red-500",
+                                extra_details={
+                                    "Affected Mods": f"{affected_count}",
+                                    "Top Offender": top_offender_name,
+                                },
+                                on_click=lambda: show_failures(),
+                            ).classes("col-span-12 sm:col-span-6 xl:col-span-3")
+
+                            # Avg Latency (3 cols)
+                            import statistics
+
+                            durations = [t.get("duration", 0) for t in raw_traces]
+                            avg_lat = statistics.mean(durations) if durations else 0
+                            max_lat = max(durations) if durations else 0
+                            sorted_dur = sorted(durations)
+                            p95_lat = (
+                                sorted_dur[int(len(sorted_dur) * 0.95)]
+                                if sorted_dur
+                                else 0
+                            )
+                            kpi_card(
+                                "Avg Latency",
+                                f"{avg_lat * 1000:.1f}ms",
+                                "Per Execution",
+                                "timer",
+                                "text-gray-700",
+                                extra_details={
+                                    "P95 Latency": f"{p95_lat * 1000:.1f}ms",
+                                    "Max Spike": f"{max_lat * 1000:.1f}ms",
+                                },
+                            ).classes("col-span-12 sm:col-span-6 xl:col-span-3")
+
+                        # Row 2: Metric Breakdown + AI Advisor (4 + 8 cols)
+                        with ui.grid().classes("w-full gap-6 grid-cols-12"):
+                            # Metric Breakdown (4 cols)
+                            with ui.card().classes(
+                                "col-span-12 md:col-span-4 shadow-sm border border-gray-200 bg-white p-4 flex flex-col"
+                            ):
+                                with ui.row().classes(
+                                    "w-full pb-2 border-b border-gray-200 items-center justify-between"
+                                ):
+                                    ui.label("Metric Breakdown").classes(
+                                        "font-bold text-gray-700 text-lg"
+                                    )
+                                    ui.icon("monitoring", size="sm").classes(
+                                        "text-gray-400"
+                                    )
+
+                                # Vertical list layout for gauges (Compact)
+                                with ui.column().classes("w-full gap-3 mt-2"):
+                                    for metric_name, score_value in report[
+                                        "breakdown"
+                                    ].items():
+                                        with ui.row().classes(
+                                            "w-full items-center justify-between"
+                                        ):
+                                            score_color_class = (
+                                                "text-green-600"
+                                                if score_value >= 0.90
+                                                else "text-amber-500"
+                                                if score_value >= 0.70
+                                                else "text-red-600"
+                                            )
+                                            ui.label(
+                                                metric_name.replace("_", " ").title()
+                                            ).classes(
+                                                "text-sm font-medium text-gray-600"
+                                            )
+
+                                            with ui.row().classes("items-center gap-3"):
+                                                ui.label(
+                                                    f"{int(score_value * 100)}"
+                                                ).classes(
+                                                    f"text-sm font-bold {score_color_class}"
+                                                )
+                                                # Tiny linear progress instead of gauge for compactness
+                                                ui.linear_progress(
+                                                    value=score_value, show_value=False
+                                                ).props(
+                                                    f"color={'positive' if score_value >= 0.9 else 'warning' if score_value >= 0.7 else 'negative'}"
+                                                ).classes("w-24")
+
+                            # AI Advisor (8 cols)
+                            with ui.card().classes(
+                                "col-span-12 md:col-span-8 shadow-sm border border-gray-200 bg-white p-6 flex flex-col"
+                            ):
+                                with ui.row().classes("items-center gap-3 mb-4"):
+                                    ui.icon("auto_awesome", size="md").classes(
+                                        "text-purple-600"
+                                    )
+                                    ui.label("AI Diagnostics").classes(
+                                        "text-xl font-bold text-gray-800"
+                                    )
+
+                                analysis_text, recommendations_text = (
+                                    generate_ai_diagnostics(report, df)
+                                )
+                                with ui.scroll_area().classes("h-64 w-full pr-2"):
+                                    ui.markdown(
+                                        f"**Analysis:**\n{analysis_text}"
+                                    ).classes(
+                                        "text-sm text-gray-600 leading-relaxed font-mono"
+                                    )
+                                    ui.markdown(
+                                        f"**Recommendations:**\n{recommendations_text}"
+                                    ).classes(
+                                        "text-sm text-gray-600 leading-relaxed font-mono mt-4"
+                                    )
+
+                        # Row 3: Historical Trend + Module Table (6 + 6 cols)
+                        with ui.grid().classes("w-full gap-6 grid-cols-12"):
+                            # Historical Trend (6 cols)
+                            with ui.card().classes(
+                                "col-span-12 lg:col-span-6 shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
+                            ):
+                                with ui.row().classes(
+                                    "w-full p-4 border-b border-gray-200 items-center justify-between"
+                                ):
+                                    ui.label("Long-term Stability History").classes(
+                                        "font-bold text-gray-700 text-lg"
+                                    )
+                                    ui.icon("history", size="sm").classes(
+                                        "text-gray-400"
+                                    )
+                                # Fixed height to prevent infinite growth loop
+                                ui.plotly(
+                                    create_historical_chart(history_data)
+                                ).classes("w-full h-96")
+
+                            # Module Table (6 cols)
+                            with ui.card().classes(
+                                "col-span-12 lg:col-span-6 shadow-sm border border-gray-200 bg-white p-0"
+                            ):
+                                if df is not None and not df.empty:
+                                    table_rows = df.to_dict("records")
+                                    for row in table_rows:
+                                        if "timing" in row:
+                                            row["timing"] = f"{row['timing']:.2f}"
+                                        if "errors" in row:
+                                            row["errors"] = f"{row['errors']:.2f}"
+
+                                    with ui.row().classes(
+                                        "w-full p-4 border-b border-gray-200 items-center justify-between"
+                                    ):
+                                        ui.label("Module Performance").classes(
+                                            "font-bold text-gray-700 text-lg"
+                                        )
+
+                                    ui.table(
+                                        columns=[
+                                            {
+                                                "name": "module",
+                                                "label": "Module Name",
+                                                "field": "module",
+                                                "align": "left",
+                                                "sortable": True,
+                                                "classes": "text-gray-700 cursor-pointer hover:text-blue-600 transition-colors max-w-[150px] truncate",
+                                            },
+                                            {
+                                                "name": "pss",
+                                                "label": "PSS",
+                                                "field": "pss",
+                                                "sortable": True,
+                                                "align": "center",
+                                            },
+                                            {
+                                                "name": "traces",
+                                                "label": "Samples",
+                                                "field": "traces",
+                                                "sortable": True,
+                                                "align": "center",
+                                            },
+                                            {
+                                                "name": "timing",
+                                                "label": "Timing",
+                                                "field": "timing",
+                                                "sortable": True,
+                                                "align": "right",
+                                            },
+                                            {
+                                                "name": "errors",
+                                                "label": "Errors",
+                                                "field": "errors",
+                                                "sortable": True,
+                                                "align": "right",
+                                            },
+                                        ],
+                                        rows=table_rows,
+                                        row_key="module",
+                                        pagination=10,
+                                    ).classes("w-full flat-table").on(
+                                        "cell_click",
+                                        lambda e: show_module_detail_dialog(
+                                            e.args[1]["module"]
+                                        )
+                                        if e.args[0]["name"] == "module"
+                                        else None,
+                                    )
+                                else:
+                                    ui.label(
+                                        "No module performance data available."
+                                    ).classes("text-gray-500 italic p-4")
+
+                # --- TAB 2: METRICS (DEEP DIVE) ---
+                with ui.tab_panel("metrics"):
+                    with ui.column().classes("w-full gap-6"):
+                        with ui.row().classes("items-center justify-between w-full"):
+                            ui.label("Real-time Stability Trends").classes(
+                                "text-xl font-bold text-gray-800"
+                            )
+
+                            window_size = ui.select(
+                                ["10s", "30s", "1min", "5min", "10min"],
+                                value="1min",
+                                label="Window Size",
+                            ).classes("w-32")
+
+                        @ui.refreshable
+                        def refresh_metrics_chart():
+                            try:
+                                ts_df = processor.get_metric_timeseries(
+                                    window_size.value
+                                )
+                                with ui.card().classes(
+                                    "w-full shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
+                                ):
+                                    ui.plotly(plot_stability_trends(ts_df)).classes(
+                                        "w-full h-[600px]"
+                                    )
+                            except Exception as e:
+                                with ui.card().classes("w-full bg-red-50 p-4"):
+                                    ui.label(
+                                        f"Error loading metrics chart: {e}"
+                                    ).classes("text-red-500")
+
+                        window_size.on_value_change(refresh_metrics_chart.refresh)
+                        refresh_metrics_chart()
+
+                # --- TAB 3: DIAGNOSTICS ---
+                with ui.tab_panel("diagnostics"):
+                    with ui.column().classes("w-full gap-6"):
+                        # Heatmaps Row
+                        with ui.grid().classes(
+                            "w-full grid-cols-1 md:grid-cols-2 gap-6"
+                        ):
+                            # Error Heatmap
+                            with ui.card().classes(
+                                "shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
+                            ):
+                                with ui.row().classes(
+                                    "w-full p-4 border-b border-gray-200"
+                                ):
+                                    ui.label("Error Clusters").classes(
+                                        "font-bold text-gray-700 text-lg"
+                                    )
+                                ui.plotly(plot_error_heatmap(raw_traces)).classes(
+                                    "w-full h-80"
+                                )
+
+                            # Entropy Heatmap
+                            with ui.card().classes(
+                                "shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
+                            ):
+                                with ui.row().classes(
+                                    "w-full p-4 border-b border-gray-200"
+                                ):
+                                    ui.label("Logic Complexity").classes(
+                                        "font-bold text-gray-700 text-lg"
+                                    )
+                                ui.plotly(plot_entropy_heatmap(raw_traces)).classes(
+                                    "w-full h-80"
+                                )
+
+                        # AI Advisor (Moved from Overview)
+                        with ui.card().classes(
+                            "w-full shadow-sm border border-gray-200 bg-white p-6"
+                        ):
+                            with ui.row().classes("items-center gap-3 mb-4"):
+                                ui.icon("auto_awesome", size="md").classes(
+                                    "text-purple-600"
+                                )
+                                ui.label("AI Diagnostics").classes(
+                                    "text-xl font-bold text-gray-800"
+                                )
+
+                            analysis_text, recommendations_text = (
+                                generate_ai_diagnostics(report, df)
+                            )
+                            ui.markdown(f"**Analysis:**\n{analysis_text}").classes(
+                                "text-sm text-gray-600 leading-relaxed font-mono"
+                            )
+                            ui.markdown(
+                                f"**Recommendations:**\n{recommendations_text}"
+                            ).classes(
+                                "text-sm text-gray-600 leading-relaxed font-mono mt-4"
+                            )
+
+                # --- TAB 4: PERFORMANCE ---
+                with ui.tab_panel("performance"):
+                    with ui.column().classes("w-full gap-6"):
+                        # Latency Percentiles (Moved from Overview)
+                        with ui.card().classes(
+                            "w-full shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
+                        ):
+                            with ui.row().classes(
+                                "w-full p-4 border-b border-gray-200 items-center justify-between"
+                            ):
+                                ui.label("Latency Percentiles").classes(
+                                    "font-bold text-gray-700 text-lg"
+                                )
+                                ui.icon("show_chart", size="sm").classes(
+                                    "text-gray-400"
+                                )
+                            ui.plotly(create_trend_chart(raw_traces)).classes(
+                                "w-full h-80"
+                            )
+
+                        # Concurrency Distribution
+                        with ui.card().classes(
+                            "w-full shadow-sm border border-gray-200 bg-white p-0 flex flex-col"
+                        ):
+                            with ui.row().classes(
+                                "w-full p-4 border-b border-gray-200 items-center justify-between"
+                            ):
+                                ui.label("Concurrency Wait Times").classes(
+                                    "font-bold text-gray-700 text-lg"
+                                )
+                                ui.icon("speed", size="sm").classes("text-gray-400")
+                            ui.plotly(plot_concurrency_dist(raw_traces)).classes(
+                                "w-full h-80"
+                            )
 
         # --- HEADER UPDATES ---
         def update_header_stats():
@@ -1303,19 +1419,28 @@ def start_board(trace_file: str):
 
         content()
 
-    # Start
-    ui.run(
-        title=GLOBAL_CONFIG.ui_title,
-        reload=False,
-        port=GLOBAL_CONFIG.ui_port,
-        favicon="📊",
-    )
 
-
-if __name__ in {"__main__", "__mp_main__"}:
+def main():
+    """Entry point for the pypss-board CLI command."""
     import sys
 
     if len(sys.argv) > 1:
         start_board(sys.argv[1])
     else:
-        print("Usage: python -m pypss.board.app <trace_file>")
+        print("Usage: pypss-board <trace_file>")
+        sys.exit(1)
+
+
+if __name__ in {"__main__", "__mp_main__"}:
+    # Force standard asyncio loop to prevent uvloop crashes in virtualized/headless envs
+    os.environ["UVICORN_LOOP"] = "asyncio"
+
+    main()
+
+    ui.run(
+        title=GLOBAL_CONFIG.ui_title,
+        reload=False,
+        port=GLOBAL_CONFIG.ui_port,
+        favicon="📊",
+        show=False,
+    )
