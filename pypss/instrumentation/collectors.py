@@ -43,18 +43,18 @@ def cross_platform_file_lock(file_obj, lock_type: str = "exclusive"):
     if sys.platform == "win32":
         try:
             import msvcrt
-            
+
             # Windows locking requires a byte count.
-            # We'll try to lock the whole file. 
+            # We'll try to lock the whole file.
             # Note: msvcrt doesn't support shared locks in the same way fcntl does,
             # so we treat both as exclusive for safety or rely on OS behavior.
             # Using LK_RLCK (blocking) or LK_NBLCK (non-blocking).
-            
+
             # To be safe and simple, we use blocking lock for the max possible size
             # or current size. Here we use a large arbitrary number to cover most logs.
             # 2GB limit is safe for 32-bit systems too.
-            MAX_SIZE = 2 * 1024 * 1024 * 1024 
-            
+            MAX_SIZE = 2 * 1024 * 1024 * 1024
+
             file_obj.seek(0)
             msvcrt.locking(file_obj.fileno(), msvcrt.LK_RLCK, MAX_SIZE)
             try:
@@ -68,7 +68,7 @@ def cross_platform_file_lock(file_obj, lock_type: str = "exclusive"):
     else:
         try:
             import fcntl
-            
+
             op = fcntl.LOCK_EX if lock_type == "exclusive" else fcntl.LOCK_SH
             fcntl.flock(file_obj, op)
             try:
