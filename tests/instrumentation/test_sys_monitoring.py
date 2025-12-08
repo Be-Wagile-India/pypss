@@ -35,6 +35,10 @@ class TestSetupSysMonitoring:
         _setup_sys_monitoring()
         assert async_ops._MONITORING_ACTIVE
 
+    @pytest.mark.skipif(
+        async_ops.sys.version_info < (3, 12),
+        reason="sys.monitoring requires Python 3.12+",
+    )
     def test_setup_sys_monitoring_no_sys_monitoring(self, monkeypatch, caplog):
         # Test the branch where sys.monitoring is not found
         monkeypatch.setattr(async_ops.sys, "monitoring", None)
@@ -43,6 +47,10 @@ class TestSetupSysMonitoring:
         assert "sys.monitoring not found" in caplog.text
         assert not async_ops._MONITORING_ACTIVE
 
+    @pytest.mark.skipif(
+        async_ops.sys.version_info < (3, 12),
+        reason="sys.monitoring requires Python 3.12+",
+    )
     def test_setup_sys_monitoring_profiler_id_in_use_falls_back_to_debugger(
         self, monkeypatch, caplog
     ):
@@ -80,6 +88,10 @@ class TestSetupSysMonitoring:
         )
         assert async_ops._MONITORING_ACTIVE
 
+    @pytest.mark.skipif(
+        async_ops.sys.version_info < (3, 12),
+        reason="sys.monitoring requires Python 3.12+",
+    )
     def test_setup_sys_monitoring_exception_during_setup(self, monkeypatch, caplog):
         # Test handling of unexpected exceptions during sys.monitoring setup
         mock_monitoring = mock.Mock()
@@ -97,6 +109,10 @@ class TestSetupSysMonitoring:
         assert "Failed to initialize sys.monitoring" in caplog.text
         assert not async_ops._MONITORING_ACTIVE
 
+    @pytest.mark.skipif(
+        async_ops.sys.version_info < (3, 12),
+        reason="sys.monitoring requires Python 3.12+",
+    )
     @pytest.mark.asyncio
     async def test_setup_sys_monitoring_callbacks_registered_and_called(
         self, monkeypatch
@@ -151,6 +167,10 @@ class TestSetupSysMonitoring:
 
         _current_trace_context.reset(token)
 
+    @pytest.mark.skipif(
+        async_ops.sys.version_info < (3, 12),
+        reason="sys.monitoring requires Python 3.12+",
+    )
     def test_setup_sys_monitoring_yield_callback_no_context(self, monkeypatch):
         # Test yield_callback when no AsyncTraceContext is active
         mock_monitoring = mock.Mock()
@@ -176,6 +196,10 @@ class TestSetupSysMonitoring:
 
         _current_trace_context.reset(current_context_token)
 
+    @pytest.mark.skipif(
+        async_ops.sys.version_info < (3, 12),
+        reason="sys.monitoring requires Python 3.12+",
+    )
     def test_setup_sys_monitoring_start_callback_not_coroutine(self, monkeypatch):
         # Test start_callback when code.co_flags does not indicate a coroutine
         mock_monitoring = mock.Mock()
