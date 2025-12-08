@@ -4,7 +4,8 @@ import os
 import json
 import shutil
 import glob
-from ..instrumentation import get_memory_usage, global_collector
+from ..instrumentation import global_collector
+from ..utils.trace_utils import get_memory_usage
 from ..core import compute_pss_from_traces
 from ..utils.config import GLOBAL_CONFIG
 

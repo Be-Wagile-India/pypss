@@ -1,10 +1,12 @@
 import time
 from pypss.instrumentation import monitor_function, global_collector
+from pypss.utils.config import GLOBAL_CONFIG
 
 
 class TestConcurrencyMetrics:
     def test_wait_time_detection(self):
         global_collector.clear()
+        GLOBAL_CONFIG.sample_rate = 1.0
 
         @monitor_function("sleepy")
         def sleepy_func():
@@ -29,6 +31,7 @@ class TestConcurrencyMetrics:
 
     def test_cpu_bound_metrics(self):
         global_collector.clear()
+        GLOBAL_CONFIG.sample_rate = 1.0
 
         @monitor_function("busy")
         def busy_func():

@@ -1,9 +1,13 @@
 import pytest
 import grpc
 from unittest.mock import MagicMock, patch
+from typing import Any
 
-from pypss.protos import trace_pb2
-from pypss.protos import trace_pb2_grpc
+from pypss.protos import trace_pb2 as _trace_pb2  # type: ignore
+from pypss.protos import trace_pb2_grpc as _trace_pb2_grpc  # type: ignore
+
+trace_pb2: Any = _trace_pb2
+trace_pb2_grpc: Any = _trace_pb2_grpc
 
 
 class TestTracePB2:

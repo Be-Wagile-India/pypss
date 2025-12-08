@@ -2,7 +2,9 @@ import os
 import sys
 import toml
 from dataclasses import dataclass, asdict, field
-from typing import Dict, Any
+from typing import Dict, Any, List
+from enum import Enum
+import re  # Add import for re
 
 if sys.version_info >= (3, 11):
     import tomllib as tomli
@@ -103,6 +105,25 @@ class PSSConfig:
     collector_max_traces_sharding_threshold: int = 1000
     collector_shard_count: int = 16
 
+    # Adaptive Sampler
+    adaptive_sampler_min_interval: float = 5.0  # seconds
+    adaptive_sampler_lag_threshold: float = 0.05  # seconds
+    adaptive_sampler_churn_threshold: float = 20.0  # churns per second
+    adaptive_sampler_error_threshold: float = 0.1  # error rate (0.0 to 1.0)
+    adaptive_sampler_increase_step: float = 0.1
+    adaptive_sampler_decrease_step: float = 0.05
+    adaptive_sampler_max_rate: float = 1.0
+    adaptive_sampler_min_rate: float = 0.01
+    adaptive_sampler_mode: str = (
+        "balanced"  # balanced, high_load, error_triggered, surge, low_noise
+    )
+    adaptive_sampler_high_qps_threshold: float = 1000.0
+    adaptive_sampler_low_noise_sample_rate: float = 0.01
+
+    # Context-aware Sampling
+    error_sample_rate: float = 1.0
+    context_sampling_rules: List[Dict[str, Any]] = field(default_factory=list)
+
     # Advisor
     advisor_threshold_excellent: int = 90
     advisor_threshold_good: int = 75
@@ -200,6 +221,72 @@ class PSSConfig:
                 toml.dump(output_data, f)
         except Exception as e:
             print(f"Error saving config to {file_path}: {e}")
+
+
+class SamplingStrategy(Enum):
+    ALWAYS = "always"
+    NEVER = "never"
+    RANDOM = "random"
+    ON_ERROR = "on_error"
+
+    def __str__(self) -> str:
+        return self.value
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}.{self.name}: '{self.value}'>"
+
+    @classmethod
+    def _missing_(cls, value: object):
+        if isinstance(value, str):
+            for member in cls:
+                if member.value == value:
+                    return member
+        return super()._missing_(value)
+
+
+def _get_effective_sample_rate(
+    is_error: bool, trace_name: str, trace_module: str
+) -> float:
+    """
+    Determines the effective sample rate based on context-aware rules and error status.
+    Precedence: error_sample_rate > context_sampling_rules (with strategies) > GLOBAL_CONFIG.sample_rate
+    """
+    # 1. Error traces always get the error_sample_rate by default
+    if is_error:
+        return GLOBAL_CONFIG.error_sample_rate
+
+    # 2. Check context_sampling_rules for a matching pattern and strategy
+    for rule in GLOBAL_CONFIG.context_sampling_rules:
+        pattern = rule.get("pattern")
+        strategy_str = rule.get(
+            "strategy", SamplingStrategy.RANDOM.value
+        )  # Default to RANDOM
+        rule_sample_rate = rule.get("sample_rate")
+
+        if pattern and (
+            re.match(pattern, trace_name) or re.match(pattern, trace_module)
+        ):
+            strategy = SamplingStrategy(strategy_str)
+
+            if strategy == SamplingStrategy.ALWAYS:
+                return 1.0
+            elif strategy == SamplingStrategy.NEVER:
+                return 0.0
+            elif strategy == SamplingStrategy.ON_ERROR:
+                if is_error:
+                    return 1.0
+                else:
+                    return 0.0
+
+            elif strategy == SamplingStrategy.RANDOM:
+                if isinstance(rule_sample_rate, (int, float)):
+                    return float(rule_sample_rate)
+                else:
+                    # If random strategy is specified but no sample_rate, fallback to global
+                    return GLOBAL_CONFIG.sample_rate
+
+    # 3. Fallback to the global adaptive sample rate
+    return GLOBAL_CONFIG.sample_rate
 
 
 # Global singleton

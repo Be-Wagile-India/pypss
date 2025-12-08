@@ -18,6 +18,8 @@ from pypss.alerts.channels import (
 )
 from pypss.utils.config import GLOBAL_CONFIG
 
+_mock_urlopen_for_tests = None
+
 
 # Mock atexit for test isolation
 @pytest.fixture(autouse=True)

@@ -1,7 +1,8 @@
 import time
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
-from ..instrumentation import global_collector, get_memory_usage
+from ..instrumentation import global_collector
+from ..utils.trace_utils import get_memory_usage
 from ..utils.config import GLOBAL_CONFIG
 
 

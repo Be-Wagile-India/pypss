@@ -7,8 +7,8 @@
 [![Docs Status](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml/badge.svg)](https://github.com/Be-Wagile-India/pypss/actions/workflows/docs.yml)
 [![Code Style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type Checked: Mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](http://mypy-lang.org/)
-[![Tests](https://img.shields.io/badge/tests-274%20passing-success.svg)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-89.56%25-brightgreen.svg)](htmlcov/index.html)
+[![Tests](https://img.shields.io/badge/tests-313%20passing-success.svg)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-88.77%25-brightgreen.svg)](htmlcov/index.html)
 
 Python systems often fail not because they are slow — but because they are unstable. `pypss` gives you the first metric that measures runtime flakiness, reliability, and stability in a single score.
 
@@ -75,6 +75,7 @@ Python systems often fail not because they are slow — but because they are uns
 - **Async-Aware Instrumentation**: Natively handles `async` functions to measure event loop stability.
 - **Concurrency Chaos (CC)**: *(Experimental)* Quantifies thread contention and locking overhead.
 - **Alerting Engine**: Proactively monitors and notifies on stability changes with configurable rules and channels.
+- **Adaptive Sampling**: Intelligent sampling modes (`balanced`, `high_load`, `error_triggered`, `surge`, `low_noise`) to optimize overhead.
 
 ### Developer Experience
 - **Non-Intrusive Instrumentation**: Lightweight decorators and context managers.
@@ -101,8 +102,27 @@ Designed for minimal overhead and safe integration into production environments.
 
 ```bash
 pip install pypss
-# For distributed collectors (Redis, gRPC)
-pip install pypss[distributed]
+```
+
+### Optional Features
+
+Install only what you need to keep your environment light:
+
+```bash
+# Distributed Collectors (Redis, gRPC, etc.)
+pip install "pypss[distributed]"
+
+# Web Dashboard
+pip install "pypss[dashboard]"
+
+# AI Diagnosis (OpenAI/Ollama)
+pip install "pypss[llm]"
+
+# Prometheus Monitoring
+pip install "pypss[monitoring]"
+
+# OpenTelemetry Integration
+pip install "pypss[otel]"
 ```
 
 ### Development Installation
@@ -316,6 +336,9 @@ You can configure `pypss` using `pypss.toml` or `pyproject.toml` in your project
 sample_rate = 0.1       # Sample 10% of calls
 max_traces = 5000       # Ring buffer size
 
+# Adaptive Sampling
+adaptive_sampler_mode = "balanced" # or high_load, error_triggered
+
 # Weights (Must sum to ~1.0)
 w_ts = 0.30             # Timing Stability
 w_ms = 0.20             # Memory Stability
@@ -462,89 +485,39 @@ The Python Program Stability Score (PSS) is a composite metric designed to provi
 2. These scores are combined using configurable weights (e.g., `w_ts`, `w_ms`, etc.) found in your `pyproject.toml` or `pypss.toml`.
 3. The final weighted average is normalized and scaled to produce the final PSS score from 0 to 100.
 
-## 🛣️ Future Roadmap
+## 🎛️ Adaptive Sampling Modes
 
+PyPSS supports adaptive sampling to balance observability depth with runtime overhead. By default, it uses a **Balanced** mode, but you can configure specialized behaviors.
 
-
-### Advanced Dashboard Visualizations
-
-
-
-To provide deeper, at-a-glance insights, we plan to enhance the interactive dashboard with more advanced visualizations:
-
-
-
-*   **Time-series for All Metrics**: Plot not just Timing Stability, but all five stability scores (TS, MS, EV, BE, CC) over time.
-
-*   **Error Cluster Heatmaps**: Visually identify periods of high error density to pinpoint systemic failures.
-
-*   **Entropy Heatmaps**: Visualize changes in code path predictability (Branching Entropy) over time.
-
-*   **Concurrency Wait-Time Distributions**: Analyze the distribution of wait times to better understand Concurrency Chaos.
-
-*   **Overall PSS Score Trend**: A top-level chart showing how the final PSS score has trended throughout the application's runtime.
-
-
-
-### Adaptive Sampling Modes
-
-
-
-To make `pypss` even more efficient for production environments, we plan to move beyond static `sample_rate` to intelligent, adaptive sampling. This will reduce overhead during normal operation while increasing precision when anomalies are detected.
-
-
-
-**Adaptive Modes:**
-
-*   **High-Load Mode**: Automatically reduce sampling (e.g., to 1%) when QPS (queries per second) is high.
-
-*   **Error-Triggered Mode**: Automatically increase sampling to maximum when error volatility is detected.
-
-*   **Surge Detection**: Trigger burst sampling during sudden performance or memory anomalies.
-
-*   **Low-Noise Mode**: Reduce or temporarily halt sampling when the system is consistently stable, saving resources.
-
-
-
-**Conceptual Logic:**
-
-```python
-
-if volatility_score < threshold:
-
-    current_sample_rate = max_rate  # Instability detected, capture everything
-
-else:
-
-    current_sample_rate = min_rate  # System is stable, reduce overhead
-
+Configure via `pypss.toml`:
+```toml
+[tool.pypss]
+adaptive_sampler_mode = "high_load"  # Choose your mode
+adaptive_sampler_high_qps_threshold = 1000.0
 ```
 
+| Mode | Behavior | Use Case |
+| :--- | :--- | :--- |
+| **balanced** (Default) | Increases sampling on errors/lag, decreases when stable. | General purpose monitoring. |
+| **high_load** | Drops sampling rate to minimum when QPS exceeds threshold. | Protecting high-traffic production endpoints. |
+| **error_triggered** | Instantly maximizes sampling when error rate spikes. | Debugging crash loops or unstable releases. |
+| **surge** | Maximizes sampling during high latency (lag) events. | Investigating performance regressions. |
+| **low_noise** | Aggressively reduces sampling when system is stable. | Cost-saving for stable, long-running services. |
 
+## 🛣️ Future Roadmap
 
 ### Plugin System for Custom Metrics
 
-
-
 To transform `pypss` from a library into a true stability analysis framework, we plan to introduce a plugin system. This will allow the community and large engineering teams to extend `pypss` with custom, domain-specific stability metrics.
-
-
 
 **Examples of Potential Plugins:**
 
 *   **I/O Stability**: Measure the consistency of disk read/write operations.
-
 *   **Database Roundtrip Stability**: Track the stability of database query times.
-
 *   **Network Jitter Stability**: Analyze the variance in network requests to external services.
-
 *   **Cache Hit Ratio Stability**: Ensure your cache hit rates are predictable.
-
 *   **GPU Memory Spike Stability**: For ML applications, monitor GPU memory for unexpected spikes.
-
 *   **Kafka Consumer Lag Stability**: For streaming applications, track the stability of consumer lag.
-
-
 
 **Conceptual API Sketch:**
 
@@ -568,23 +541,15 @@ class IOStabilityMetric(BaseMetric):
 
 ```
 
-
-
 ### Metric Auto-Tuning (AI/Statistical)
 
-
-
 To further enhance the accuracy and reduce manual configuration, we envision AI and statistical methods for auto-tuning `pypss` metrics:
-
-
 
 *   **Auto-tune Metric Weights**: Dynamically adjust the `w_ts`, `w_ms`, etc., based on observed historical variance and the specific characteristics of your application.
 
 *   **Bayesian Optimization for Thresholds**: Use advanced statistical techniques to automatically find optimal thresholds for alerts and scoring (e.g., `mem_spike_threshold_ratio`).
 
 *   **ML-based Pattern Detection**: In later phases, leverage machine learning to detect subtle, complex instability patterns that are hard to define with static rules.
-
-
 
 Example usage (conceptual):
 
@@ -593,8 +558,6 @@ Example usage (conceptual):
 pss = compute_pss(traces, mode="auto_tune")
 
 ```
-
-
 
 This will increase accuracy and relevance automatically, making `pypss` even smarter.
 

@@ -1,10 +1,8 @@
 from .instrumentation import (
     monitor_function,
     monitor_block,
-    global_collector,
-    get_memory_usage,
 )
-from .collectors import Collector
+from .collectors import Collector, global_collector
 from .async_ops import AsyncMonitor, start_async_monitoring, stop_async_monitoring
 from .background import AutoDumper
 

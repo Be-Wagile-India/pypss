@@ -35,9 +35,13 @@ def test_prometheus_save_logic():
         storage = prometheus.PrometheusStorage(push_gateway="localhost:9091")
 
         # Capture the specific mock instances attached to the storage
-        mock_g_pss = storage.g_pss
-        mock_g_ts = storage.g_ts
-        mock_g_ms = storage.g_ms
+        # Cast to MagicMock to satisfy mypy
+        from unittest.mock import Mock
+        from typing import cast
+
+        mock_g_pss = cast(Mock, storage.g_pss)
+        mock_g_ts = cast(Mock, storage.g_ts)
+        mock_g_ms = cast(Mock, storage.g_ms)
 
         report = {
             "pss": 88.8,

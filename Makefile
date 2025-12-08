@@ -36,7 +36,7 @@ format:
 	ruff format .
 
 type-check:
-	mypy pypss tests
+	mypy --check-untyped-defs pypss tests
 
 check: lint type-check test
 

@@ -291,10 +291,10 @@ class TestCollectorMethods:
 
         # File
         f = tmp_path / "empty.jsonl"
-        c = FileFIFOCollector(str(f))
-        c._flush_batch([])  # Should return early
+        fc = FileFIFOCollector(str(f))
+        fc._flush_batch([])  # Should return early
         assert not f.exists()
-        c.shutdown()
+        fc.shutdown()
 
     def test_file_corrupt_json(self, tmp_path):
         f = tmp_path / "corrupt.jsonl"

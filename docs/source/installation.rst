@@ -35,7 +35,7 @@ PyPSS has optional dependencies for specific features. Install them as needed:
 
        pip install "pypss[dashboard]"
 
-*   **LLM Diagnosis**: To use OpenAI/Anthropic for root cause analysis.
+*   **LLM Diagnosis**: To use OpenAI/Anthropic/Ollama for root cause analysis.
 
     .. code-block:: bash
 
@@ -52,3 +52,9 @@ PyPSS has optional dependencies for specific features. Install them as needed:
     .. code-block:: bash
 
        pip install "pypss[distributed]"
+
+*   **Monitoring**: To use Prometheus metrics exporter (PushGateway or Pull Mode).
+
+    .. code-block:: bash
+
+       pip install "pypss[monitoring]"

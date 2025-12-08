@@ -1,6 +1,6 @@
 import time
 import click
-import ijson
+import ijson  # type: ignore
 from ..core import compute_pss_from_traces, generate_advisor_report
 from ..core.llm_advisor import get_llm_diagnosis
 from .reporting import render_report_json, render_report_text
@@ -369,10 +369,8 @@ def board(trace_file):
     try:
         # check if modules are available (optional check, as subprocess would fail too but clearer here)
 
-        import nicegui  # noqa: F401
-
-        import plotly  # noqa: F401
-
+        import nicegui  # type: ignore # noqa: F401
+        import plotly  # type: ignore # noqa: F401
         import pandas  # noqa: F401
 
     except ImportError:

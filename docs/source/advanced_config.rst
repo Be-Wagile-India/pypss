@@ -35,6 +35,14 @@ Core Settings ``[pypss]``
      - Sensitivity coefficients for scoring algorithms.
      - (Various)
 
+   * - ``adaptive_sampler_mode``
+     - Mode for dynamic sampling: ``balanced``, ``high_load``, ``error_triggered``, ``surge``, ``low_noise``.
+     - ``balanced``
+
+   * - ``adaptive_sampler_high_qps_threshold``
+     - Trace throughput (QPS) threshold for triggering ``high_load`` mode.
+     - ``1000.0``
+
 UI Configuration ``[pypss.ui]``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
