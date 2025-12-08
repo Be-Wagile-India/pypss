@@ -46,6 +46,44 @@ Or the context manager:
    with monitor_block("critical_section"):
        ...
 
+Distributed Trace Collection
+----------------------------
+
+To support large-scale microservices, ETL pipelines, and multi-process applications, PyPSS offers distributed trace collectors. Instead of storing traces in memory locally, these collectors send traces to a centralized or external location.
+
+**Key Features:**
+*   **Pluggable Collector Backend**: A simple interface to allow users to create their own custom collectors.
+*   **Built-in Remote Collectors**:
+    *   **Redis-backed collector** for high-throughput, low-latency trace ingestion.
+    *   **gRPC trace ingestion** for efficient, cross-language observability.
+    *   **File-based FIFO collector** for simple, durable multi-process communication.
+
+**Usage Examples:**
+
+To use a distributed collector, you need to set the `global_collector` instance early in your application's lifecycle.
+
+.. code-block:: python
+
+   from pypss.instrumentation.collectors import set_global_collector
+   from pypss.instrumentation.collectors import RedisCollector, GRPCCollector, FileFIFOCollector
+
+   # --- Redis-backed Collector ---
+   # Requires: pip install pypss[distributed]
+   # set_global_collector(RedisCollector("redis://localhost:6379/0"))
+
+   # --- gRPC Collector (server needs to be running) ---
+   # Requires: pip install pypss[distributed]
+   # set_global_collector(GRPCCollector("localhost:50051"))
+
+   # --- File-based FIFO Collector ---
+   # set_global_collector(FileFIFOCollector("/tmp/pypss_traces"))
+
+   # Example: Using RedisCollector
+   set_global_collector(RedisCollector("redis://localhost:6379/0"))
+
+   # Now, any instrumented code will send traces to the configured distributed collector
+   # ... (your instrumented code) ...
+
 CLI Usage
 ---------
 

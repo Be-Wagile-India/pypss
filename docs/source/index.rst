@@ -11,6 +11,7 @@ Welcome to pypss's documentation!
    usage
    collectors
    integrations
+   async_ops
    advanced_config
    alerts
    api

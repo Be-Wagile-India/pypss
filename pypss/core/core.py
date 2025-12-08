@@ -3,7 +3,7 @@ import math
 import statistics
 import array
 from collections import Counter
-from typing import Iterable, Dict, Union
+from typing import Iterable, Dict, Union, Optional
 from ..utils import (
     calculate_cv,
     calculate_entropy,
@@ -174,22 +174,45 @@ def _calculate_branching_entropy_score(branch_data: Union[list, Counter]) -> flo
 
 
 def _calculate_concurrency_chaos_score(
-    wait_times: Union[list, array.array], conf
+    wait_times: Union[list, array.array],
+    conf,
+    system_metrics: Optional[Dict[str, list]] = None,
 ) -> float:
     cc_score = 1.0
+
+    # Base Score: Wait Time Variance (Standard)
     if not wait_times or len(wait_times) < 2:
-        return cc_score
-
-    mean_wait = sum(wait_times) / len(wait_times)
-
-    if (
-        mean_wait > conf.concurrency_wait_threshold
-    ):  # Use a configurable threshold instead of hardcoded 0.001
-        cc_cv = calculate_cv(wait_times)
-        cc_score = exponential_decay_score(cc_cv, conf.alpha)
+        pass  # Keep 1.0 if no data
     else:
-        cc_score = 1.0
-    return cc_score
+        mean_wait = sum(wait_times) / len(wait_times)
+        if mean_wait > conf.concurrency_wait_threshold:
+            cc_cv = calculate_cv(wait_times)
+            cc_score = exponential_decay_score(cc_cv, conf.alpha)
+
+    # Advanced Score: System Metrics (Event Loop Health)
+    if system_metrics:
+        # 1. Loop Lag Penalty
+        lags = system_metrics.get("lag", [])
+        if lags:
+            mean_lag = sum(lags) / len(lags)
+            # If mean lag > 10ms, penalize
+            # Example: 100ms lag => heavy penalty
+            if mean_lag > 0.01:
+                lag_penalty = min(1.0, mean_lag * 5.0)  # 0.2s lag => 0 score modifier
+                cc_score *= 1.0 - lag_penalty
+
+        # 2. Task Churn Penalty (Stability of parallelism)
+        # High churn rate (spikes) might indicate instability
+        # Not implementing strict penalty yet without baseline
+
+        # 3. Active Task Saturation
+        active_tasks = system_metrics.get("active_tasks", [])
+        if active_tasks:
+            pass
+            # If we have massive task spikes, minor penalty?
+            # Let's keep it simple for now: Lag is the best proxy for chaos.
+
+    return max(0.0, cc_score)
 
 
 def compute_pss_from_traces(traces: Iterable[Dict]) -> dict:
@@ -212,8 +235,23 @@ def compute_pss_from_traces(traces: Iterable[Dict]) -> dict:
     errors = array.array("b")  # signed char is sufficient for 0/1
     branch_tags_counter: Counter[str] = Counter()
 
+    # System Metrics (for advanced scoring)
+    system_metrics: Dict[str, list] = {"lag": [], "active_tasks": [], "churn_rate": []}
+
     count = 0
     for t in traces:
+        # Check for system/meta traces first
+        if t.get("system_metric"):
+            meta = t.get("metadata", {})
+            if "lag" in meta:
+                system_metrics["lag"].append(meta["lag"])
+            if "active_tasks" in meta:
+                system_metrics["active_tasks"].append(meta["active_tasks"])
+            if "churn_rate" in meta:
+                system_metrics["churn_rate"].append(meta["churn_rate"])
+            # System traces don't contribute to regular latencies/errors count
+            continue
+
         count += 1
         # Use float() to handle potential Decimal from ijson
         latencies.append(float(t.get("duration", 0)))
@@ -225,7 +263,7 @@ def compute_pss_from_traces(traces: Iterable[Dict]) -> dict:
         if tag is not None and isinstance(tag, str):
             branch_tags_counter[tag] += 1
 
-    if count == 0:
+    if count == 0 and not system_metrics["lag"]:
         return {
             "pss": 0,
             "breakdown": {
@@ -244,7 +282,9 @@ def compute_pss_from_traces(traces: Iterable[Dict]) -> dict:
     ms_score = _calculate_memory_stability_score(memory_samples, conf)
     ev_score = _calculate_error_volatility_score(errors, conf)
     be_score = _calculate_branching_entropy_score(branch_tags_counter)
-    cc_score = _calculate_concurrency_chaos_score(wait_times, conf)
+
+    # CC Score now accepts system metrics
+    cc_score = _calculate_concurrency_chaos_score(wait_times, conf, system_metrics)
 
     # Final PSS
     pss_raw = (

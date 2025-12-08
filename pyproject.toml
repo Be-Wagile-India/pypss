@@ -134,3 +134,10 @@ module = [
     "openai.*"
 ]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-vv --tb=long"
+filterwarnings = [
+    "ignore:coroutine 'AsyncMockMixin._execute_mock_call' was never awaited:RuntimeWarning"
+]
+

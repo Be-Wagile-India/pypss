@@ -4,26 +4,21 @@ from .instrumentation import (
     global_collector,
     get_memory_usage,
 )
-from .collectors import (
-    Collector,
-    BaseCollector,
-    MemoryCollector,
-    RedisCollector,
-    FileFIFOCollector,
-    GRPCCollector,
-)
+from .collectors import Collector
+from .async_ops import AsyncMonitor, start_async_monitoring, stop_async_monitoring
 from .background import AutoDumper
+
+# Alias for consistent naming
+monitor_async = AsyncMonitor
 
 __all__ = [
     "monitor_function",
     "monitor_block",
+    "monitor_async",
     "global_collector",
-    "get_memory_usage",
     "Collector",
-    "BaseCollector",
-    "MemoryCollector",
-    "RedisCollector",
-    "FileFIFOCollector",
-    "GRPCCollector",
+    "start_async_monitoring",
+    "stop_async_monitoring",
+    "get_memory_usage",
     "AutoDumper",
 ]

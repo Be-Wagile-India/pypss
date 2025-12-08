@@ -44,36 +44,10 @@ def cross_platform_file_lock(file_obj, lock_type: str = "exclusive"):
         try:
             import msvcrt
 
-            # Windows locking requires a byte count.
-            # We lock the first byte as a convention for the "whole file".
-            # msvcrt.locking raises OSError if the region is already locked (for LK_NBLCK)
-            # or blocks (for LK_RLCK).
-
-            # Note: msvcrt doesn't support shared locks in the same way fcntl does,
-            # so we treat both as exclusive for safety.
-
-            # Seek to start to lock the first byte
             file_obj.seek(0)
-
-            # If file is empty, we can't lock byte 0.
-            # We can try to write a dummy byte if needed, but that changes file content.
-            # A common workaround is to lock a region *past* the end of file?
-            # msvcrt.locking docs say "Locks bytes...".
-
-            # Simple approach: Lock 1 byte.
-            # If file is empty, this might fail with "Permission denied" or similar on some Py versions.
-            # But let's assume we are locking a protocol file.
-
-            # Using 1 byte instead of 2GB to avoid "locks beyond EOF" errors if OS enforces it.
-            # (Though _locking documentation usually allows locking beyond EOF).
-            # The issue seen might be specific to how msvcrt maps to OS calls.
-
             try:
                 msvcrt.locking(file_obj.fileno(), msvcrt.LK_RLCK, 1)
             except OSError:
-                # If locking fails (e.g. empty file), we proceed without lock
-                # This is a tradeoff: correctness vs crashing.
-                # Ideally we'd use a separate lockfile.
                 pass
 
             try:
@@ -434,3 +408,10 @@ class GRPCCollector(BaseCollector):
     def clear(self):
         # Not applicable for remote collector
         pass
+
+
+# Global collector instance
+global_collector = MemoryCollector()
+
+# Global collector instance
+global_collector = MemoryCollector()
