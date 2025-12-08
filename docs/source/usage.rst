@@ -37,6 +37,24 @@ AsyncIO Support
        await asyncio.sleep(0.1)
        return "data"
 
+Event Loop Monitoring
+"""""""""""""""""""""
+
+For deeper insights into async applications, you can enable background monitoring of the asyncio event loop. This tracks **Loop Lag** (jitter) and contributes to the **Concurrency Chaos** score.
+
+.. code-block:: python
+
+   from pypss.instrumentation import start_async_monitoring, monitor_async
+
+   # 1. Start the background monitor (tracks lag & task churn)
+   # Ideally call this at startup
+   start_async_monitoring()
+
+   async def main():
+       # 2. Use the async context manager for fine-grained tracing
+       async with monitor_async("my_async_block", branch_tag="io_wait"):
+           await some_io_operation()
+
 Or the context manager:
 
 .. code-block:: python
@@ -52,8 +70,10 @@ Distributed Trace Collection
 To support large-scale microservices, ETL pipelines, and multi-process applications, PyPSS offers distributed trace collectors. Instead of storing traces in memory locally, these collectors send traces to a centralized or external location.
 
 **Key Features:**
+
 *   **Pluggable Collector Backend**: A simple interface to allow users to create their own custom collectors.
 *   **Built-in Remote Collectors**:
+
     *   **Redis-backed collector** for high-throughput, low-latency trace ingestion.
     *   **gRPC trace ingestion** for efficient, cross-language observability.
     *   **File-based FIFO collector** for simple, durable multi-process communication.
@@ -94,6 +114,19 @@ Analyze a trace file:
    pypss analyze --trace-file traces.json
 
 **Scalability:** The ``analyze`` command uses streaming JSON parsing (via ``ijson``) and O(1) memory algorithms. It can process multi-gigabyte trace files with minimal RAM usage.
+
+AI Diagnosis
+------------
+
+Ask an AI model (OpenAI or Ollama) to diagnose root causes of instability from your traces:
+
+.. code-block:: bash
+
+   # Use OpenAI (requires OPENAI_API_KEY env var)
+   pypss diagnose --trace-file traces.json
+
+   # Use local Ollama model
+   pypss diagnose --trace-file traces.json --provider ollama
 
 Interactive Dashboard
 ---------------------

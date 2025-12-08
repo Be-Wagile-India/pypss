@@ -2,6 +2,7 @@
 import random
 import time
 import os
+from typing import Optional, List, Any
 from pypss.instrumentation import (
     monitor_function,
     monitor_block,
@@ -11,7 +12,7 @@ from pypss.instrumentation import (
 from pypss.core import compute_pss_from_traces
 
 # Simulate some memory usage
-_memory_hog = []
+_memory_hog: List[Any] = []
 
 
 @monitor_function("auth_check", module_name="auth_service")
@@ -115,8 +116,8 @@ def run_service_simulation(
     num_requests: int = 100,
     trace_file: str = "traces.json",
     continuous: bool = False,
-    dump_interval: float = None,
-    rotate_interval: float = None,
+    dump_interval: Optional[float] = None,
+    rotate_interval: Optional[float] = None,
 ):
     """
     Runs a simulation of the web service and saves the traces.

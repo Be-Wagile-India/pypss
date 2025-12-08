@@ -7,9 +7,17 @@ import time
 import atexit
 import sys
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional
+from typing import (
+    List,
+    Dict,
+    Optional,
+    Callable,
+    Generator,
+    Deque,
+)  # Add Deque
 from types import ModuleType
 from contextlib import contextmanager
+import io  # Add io
 
 try:
     import redis
@@ -22,7 +30,7 @@ try:
     import grpc
 
     grpc_module: Optional[ModuleType] = grpc
-    from ..protos import trace_pb2, trace_pb2_grpc
+    from ..protos import trace_pb2, trace_pb2_grpc  # type: ignore[attr-defined, no-redef] # mypy struggles with generated protobuf code
 
     trace_pb2_module: Optional[ModuleType] = trace_pb2
     trace_pb2_grpc_module: Optional[ModuleType] = trace_pb2_grpc
@@ -35,7 +43,9 @@ from ..utils import GLOBAL_CONFIG
 
 
 @contextmanager
-def cross_platform_file_lock(file_obj, lock_type: str = "exclusive"):
+def cross_platform_file_lock(
+    file_obj: io.IOBase, lock_type: str = "exclusive"
+) -> Generator[None, None, None]:  # Explicitly hint generator return as Generator
     """
     Context manager for cross-platform file locking.
     Uses msvcrt on Windows and fcntl on Unix-like systems.
@@ -100,6 +110,20 @@ class BaseCollector(ABC):
         """
         pass
 
+    @abstractmethod
+    def register_observer(self, observer: Callable[[Dict], None]):
+        """
+        Registers a callback to be notified when a new trace is added.
+        """
+        pass
+
+    @abstractmethod
+    def unregister_observer(self, observer: Callable[[Dict], None]):
+        """
+        Unregisters a callback.
+        """
+        pass
+
 
 class MemoryCollector(BaseCollector):
     """
@@ -120,10 +144,21 @@ class MemoryCollector(BaseCollector):
         # Calculate shard size, ensuring at least 1 per shard
         shard_maxlen = max(1, max_traces // self.num_shards)
 
-        self._shards = [
+        self._shards: List[Deque[Dict]] = [  # Added type hint for _shards
             collections.deque(maxlen=shard_maxlen) for _ in range(self.num_shards)
         ]
         self._locks = [threading.Lock() for _ in range(self.num_shards)]
+        self._observers: List[Callable[[Dict], None]] = []
+
+    def register_observer(self, observer: Callable[[Dict], None]):
+        """Registers a callback to be notified when a new trace is added."""
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def unregister_observer(self, observer: Callable[[Dict], None]):
+        """Unregisters a callback."""
+        if observer in self._observers:
+            self._observers.remove(observer)
 
     def add_trace(self, trace: Dict):
         """
@@ -134,11 +169,19 @@ class MemoryCollector(BaseCollector):
         with self._locks[shard_idx]:
             self._shards[shard_idx].append(trace)
 
+        # Notify observers
+        for observer in self._observers:
+            try:
+                observer(trace)
+            except Exception:
+                # Log the exception to prevent one observer from breaking others
+                pass
+
     def get_traces(self) -> List[Dict]:
         """
         Returns a snapshot of the current traces, aggregated from all shards.
         """
-        all_traces = []
+        all_traces: List[Dict] = []  # Added type hint for all_traces
         for i in range(self.num_shards):
             with self._locks[i]:
                 all_traces.extend(self._shards[i])
@@ -181,10 +224,18 @@ class ThreadedBatchCollector(BaseCollector):
         )
         self._worker_thread.start()
         atexit.register(self.shutdown)
+        self._observers: List[Callable[[Dict], None]] = []  # Initialize observers list
 
     def add_trace(self, trace: Dict):
         try:
             self._queue.put_nowait(trace)
+            # Notify observers after successfully adding to queue
+            for observer in self._observers:
+                try:
+                    observer(trace)
+                except Exception:
+                    # Log the exception to prevent one observer from breaking others
+                    pass
         except queue.Full:
             # Drop trace if queue is full to preserve application stability (load shedding)
             pass
@@ -235,6 +286,16 @@ class ThreadedBatchCollector(BaseCollector):
         if self._worker_thread.is_alive():
             self._stop_event.set()
             self._worker_thread.join(timeout=2.0)
+
+    def register_observer(self, observer: Callable[[Dict], None]):
+        """Registers a callback to be notified when a new trace is added."""
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def unregister_observer(self, observer: Callable[[Dict], None]):
+        """Unregisters a callback."""
+        if observer in self._observers:
+            self._observers.remove(observer)
 
     @abstractmethod
     def _flush_batch(self, batch: List[Dict]):
@@ -375,8 +436,17 @@ class GRPCCollector(BaseCollector):
 
         assert trace_pb2_grpc_module is not None  # mypy: ensure module is not None
         self.stub = trace_pb2_grpc_module.TraceServiceStub(self.channel)
+        self._observers: List[Callable[[Dict], None]] = []  # Initialize observers list
 
     def add_trace(self, trace: Dict):
+        # Notify observers first
+        for observer in self._observers:
+            try:
+                observer(trace)
+            except Exception:
+                # Log the exception to prevent one observer from breaking others
+                pass
+
         try:
             assert trace_pb2_module is not None  # mypy: ensure module is not None
             msg = trace_pb2_module.TraceMessage(
@@ -408,6 +478,16 @@ class GRPCCollector(BaseCollector):
     def clear(self):
         # Not applicable for remote collector
         pass
+
+    def register_observer(self, observer: Callable[[Dict], None]):
+        """Registers a callback to be notified when a new trace is added."""
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def unregister_observer(self, observer: Callable[[Dict], None]):
+        """Unregisters a callback."""
+        if observer in self._observers:
+            self._observers.remove(observer)
 
 
 # Global collector instance

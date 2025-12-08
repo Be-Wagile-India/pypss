@@ -1,6 +1,7 @@
 import time
 from celery.signals import task_prerun, task_postrun
-from ..instrumentation import global_collector, get_memory_usage
+from ..instrumentation import global_collector
+from ..utils.trace_utils import get_memory_usage
 from ..utils.config import GLOBAL_CONFIG
 
 # Store start times in a global dict keyed by task_id (Celery workers are single-threaded or process-based, so this is safe-ish per process)

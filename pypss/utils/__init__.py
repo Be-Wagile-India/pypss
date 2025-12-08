@@ -4,7 +4,7 @@ from .utils import (
     exponential_decay_score,
     normalize_score,
 )
-from .config import GLOBAL_CONFIG, PSSConfig
+from .config import GLOBAL_CONFIG, PSSConfig, SamplingStrategy
 
 __all__ = [
     "calculate_cv",
@@ -13,4 +13,5 @@ __all__ = [
     "normalize_score",
     "GLOBAL_CONFIG",
     "PSSConfig",
+    "SamplingStrategy",
 ]

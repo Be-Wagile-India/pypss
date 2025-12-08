@@ -13,7 +13,7 @@ class TestRunner:
         def target_func():
             return 1
 
-        module.target_func = target_func
+        setattr(module, "target_func", target_func)
         sys.modules[mod_name] = module
 
         targets = {mod_name: ["target_func"]}
@@ -25,7 +25,7 @@ class TestRunner:
         assert instrumentor.instrumented_count == 1
 
         # Check if patched
-        patched_func = module.target_func
+        patched_func = getattr(module, "target_func")
         assert getattr(patched_func, "_is_pypss_monitored", False)
 
         # Clean up
@@ -34,7 +34,7 @@ class TestRunner:
     def test_auto_instrumentor_skip_non_routines(self):
         mod_name = "dummy_module_vars"
         module = types.ModuleType(mod_name)
-        module.some_var = 123
+        setattr(module, "some_var", 123)
         sys.modules[mod_name] = module
 
         targets = {mod_name: ["some_var"]}

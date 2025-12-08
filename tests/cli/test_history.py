@@ -325,9 +325,12 @@ def test_board_command_subprocess_fail(runner, tmp_path):
         assert "Dashboard crashed with exit code 1" in result.output
 
 
-def test_main_command_pass_coverage():
+def test_main_command_pass_coverage(runner):
     # This is to cover the 'pass' statement in the main() group function
-    assert main.callback() is None
+    # Using the runner to properly invoke the main CLI group with --help
+    result = runner.invoke(main, ["--help"])
+    assert result.exit_code == 0
+    assert "pypss - Python Program Stability Score CLI" in result.output
 
 
 # New tests for additional coverage targets

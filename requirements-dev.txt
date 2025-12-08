@@ -12,6 +12,13 @@ mypy>=1.7.0
 ruff>=0.1.0
 types-PyYAML>=6.0.0
 types-toml>=0.10.0
+types-requests>=2.30.0
+types-grpcio
+types-psutil
+types-protobuf
+celery-types
+types-redis
+types-setuptools
 
 # Tools
 bump2version>=1.0.1

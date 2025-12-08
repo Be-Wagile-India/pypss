@@ -1,13 +1,16 @@
 import time
 from rq.job import Job
-from ..instrumentation import global_collector, get_memory_usage
+from ..instrumentation import global_collector
+from ..utils.trace_utils import get_memory_usage
 from ..utils.config import GLOBAL_CONFIG
 
 
 class PSSJob(Job):
     """
     RQ Job subclass that traces execution stability.
-    Usage:
+
+    Usage::
+
         from pypss.integrations.rq import PSSJob
         # When enqueueing:
         q.enqueue(func, job_class=PSSJob)

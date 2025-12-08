@@ -1,6 +1,6 @@
 from datetime import datetime
-import plotly.express as px
-import plotly.graph_objects as go
+import plotly.express as px  # type: ignore
+import plotly.graph_objects as go  # type: ignore
 import pandas as pd
 
 
@@ -66,7 +66,7 @@ def create_trend_chart(traces):
     # Aggregate stats per bin
     grouped = (
         df.groupby("bin", observed=False)["duration"]
-        .quantile([0.50, 0.90, 0.99])
+        .quantile([0.50, 0.90, 0.99])  # type: ignore
         .unstack()
     )
 

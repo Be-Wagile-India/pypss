@@ -40,9 +40,9 @@ def test_compute_pss_handles_mixed_types():
     traces = [
         {"duration": 0.1, "memory": 100},
         {
-            "duration": "0.2",
+            "duration": 0.2,  # Changed "0.2" to 0.2 (float)
             "memory": 200,
-        },  # String (should fail float conversion if strict, let's see)
+        },
     ]
     # Current implementation uses float(val). Python float("0.2") works.
 

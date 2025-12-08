@@ -101,8 +101,27 @@ Designed for minimal overhead and safe integration into production environments.
 
 ```bash
 pip install pypss
-# For distributed collectors (Redis, gRPC)
-pip install pypss[distributed]
+```
+
+### Optional Features
+
+Install only what you need to keep your environment light:
+
+```bash
+# Distributed Collectors (Redis, gRPC, etc.)
+pip install "pypss[distributed]"
+
+# Web Dashboard
+pip install "pypss[dashboard]"
+
+# AI Diagnosis (OpenAI/Ollama)
+pip install "pypss[llm]"
+
+# Prometheus Monitoring
+pip install "pypss[monitoring]"
+
+# OpenTelemetry Integration
+pip install "pypss[otel]"
 ```
 
 ### Development Installation
@@ -463,26 +482,6 @@ The Python Program Stability Score (PSS) is a composite metric designed to provi
 3. The final weighted average is normalized and scaled to produce the final PSS score from 0 to 100.
 
 ## 🛣️ Future Roadmap
-
-
-
-### Advanced Dashboard Visualizations
-
-
-
-To provide deeper, at-a-glance insights, we plan to enhance the interactive dashboard with more advanced visualizations:
-
-
-
-*   **Time-series for All Metrics**: Plot not just Timing Stability, but all five stability scores (TS, MS, EV, BE, CC) over time.
-
-*   **Error Cluster Heatmaps**: Visually identify periods of high error density to pinpoint systemic failures.
-
-*   **Entropy Heatmaps**: Visualize changes in code path predictability (Branching Entropy) over time.
-
-*   **Concurrency Wait-Time Distributions**: Analyze the distribution of wait times to better understand Concurrency Chaos.
-
-*   **Overall PSS Score Trend**: A top-level chart showing how the final PSS score has trended throughout the application's runtime.
 
 
 

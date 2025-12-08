@@ -39,8 +39,6 @@ def test_instrumentation_exports():
 
     assert pypss.instrumentation.Collector is not None
 
-    assert pypss.instrumentation.get_memory_usage is not None
-
 
 def test_integrations_exports():
     assert hasattr(pypss.integrations, "__all__")

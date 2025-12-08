@@ -30,11 +30,13 @@ class TestOTel:
                 reporter = OTelReporter()
 
                 # Test _observe_pss
-                pss_gen = reporter._observe_pss(None)
-                obs = next(pss_gen)
+                from unittest.mock import Mock
+
+                pss_gen = reporter._observe_pss(Mock())
+                obs = next(iter(pss_gen))
                 assert obs.value > 0
 
                 # Test breakdown callback
-                timing_gen = reporter._observe_breakdown("timing_stability")(None)
-                obs = next(timing_gen)
+                timing_gen = reporter._observe_breakdown("timing_stability")(Mock())
+                obs = next(iter(timing_gen))
                 assert obs.value > 0

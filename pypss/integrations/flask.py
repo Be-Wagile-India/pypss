@@ -1,7 +1,8 @@
 import time
 import threading
 from flask import Flask, request
-from ..instrumentation import global_collector, get_memory_usage
+from ..instrumentation import global_collector
+from ..utils.trace_utils import get_memory_usage
 from ..utils.config import GLOBAL_CONFIG
 
 # Thread-local storage for request-specific metrics
