@@ -9,6 +9,7 @@ from ..instrumentation import global_collector
 from .runner import run_with_instrumentation
 from .discovery import get_module_score_breakdown
 from ..utils.config import GLOBAL_CONFIG
+from ..plugins import load_plugins
 import json
 import sys
 import os
@@ -96,6 +97,10 @@ def history(limit, db_path, days, export):
 )
 def run(script, output, html, store_history):
     """Run a Python script with auto-instrumentation and report stability."""
+
+    # Load plugins dynamically
+    if GLOBAL_CONFIG.plugins:
+        load_plugins(GLOBAL_CONFIG.plugins)
 
     # Run the script with our magic
     run_with_instrumentation(script, os.getcwd())
@@ -208,6 +213,11 @@ def run(script, output, html, store_history):
 )
 def analyze(trace_file, output, html, fail_if_below, store_history):
     """Compute PSS from a trace file."""
+
+    # Load plugins dynamically
+    if GLOBAL_CONFIG.plugins:
+        load_plugins(GLOBAL_CONFIG.plugins)
+
     try:
         # Use streaming JSON parser to handle large files
         with open(trace_file, "rb") as f:
