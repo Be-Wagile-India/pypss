@@ -35,13 +35,34 @@ Core Settings ``[pypss]``
      - Sensitivity coefficients for scoring algorithms.
      - (Various)
 
+   * - ``plugins``
+     - List of strings specifying external python modules to load as plugins.
+     - ``[]``
+
+Adaptive Sampling ``[pypss]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Settings to control the dynamic adjustment of the sample rate.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30, 60, 10
+
+   * - Parameter
+     - Description
+     - Default
+
    * - ``adaptive_sampler_mode``
-     - Mode for dynamic sampling: ``balanced``, ``high_load``, ``error_triggered``, ``surge``, ``low_noise``.
+     - Strategy: ``balanced``, ``high_load``, ``error_triggered``, ``surge``, ``low_noise``.
      - ``balanced``
 
    * - ``adaptive_sampler_high_qps_threshold``
-     - Trace throughput (QPS) threshold for triggering ``high_load`` mode.
+     - Trace QPS threshold to trigger ``high_load`` mode.
      - ``1000.0``
+
+   * - ``adaptive_sampler_low_noise_sample_rate``
+     - Sample rate used when ``low_noise`` mode is active.
+     - ``0.01``
 
 UI Configuration ``[pypss.ui]``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -169,6 +190,18 @@ Configure alerting behavior, channels, and rule thresholds.
    alert_threshold_ev = 0.80         # Error Volatility score below this triggers an alert
    alert_threshold_be = 0.70         # Branching Entropy score below this triggers an alert
    alert_threshold_cc = 0.70         # Concurrency Chaos score below this triggers an alert
+
+Custom Metrics Configuration ``[pypss.custom_metric_weights]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Adjust the weight of specific custom plugins in the overall score.
+
+.. code-block:: toml
+
+   [pypss.custom_metric_weights]
+   IO = 0.25
+   DB = 0.20
+   MY_PLUGIN = 0.5
 
 Storage & Monitoring
 --------------------

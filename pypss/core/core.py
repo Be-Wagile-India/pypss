@@ -11,6 +11,10 @@ from ..utils import (
     normalize_score,
 )
 from ..utils import GLOBAL_CONFIG
+from ..plugins import MetricRegistry
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _calculate_timing_stability_score(
@@ -238,8 +242,17 @@ def compute_pss_from_traces(traces: Iterable[Dict]) -> dict:
     # System Metrics (for advanced scoring)
     system_metrics: Dict[str, list] = {"lag": [], "active_tasks": [], "churn_rate": []}
 
+    # Check for registered plugins
+    custom_metrics = MetricRegistry.get_all()
+    materialized_traces = []
+    should_materialize = bool(custom_metrics)
+    # logger.debug(f"DEBUG CORE: MetricRegistry.get_all() called. Registry keys: {list(custom_metrics.keys())}")
+
     count = 0
     for t in traces:
+        if should_materialize:
+            materialized_traces.append(t)
+
         # Check for system/meta traces first
         if t.get("system_metric"):
             meta = t.get("metadata", {})
@@ -295,20 +308,45 @@ def compute_pss_from_traces(traces: Iterable[Dict]) -> dict:
         + conf.w_cc * cc_score
     )
 
-    # Normalize if weights don't sum to 1
     total_weight = conf.w_ts + conf.w_ms + conf.w_ev + conf.w_be + conf.w_cc
+
+    # Custom Metrics Integration
+    custom_scores = {}
+    for code, metric in custom_metrics.items():
+        try:
+            score = metric.compute(materialized_traces)
+            # Ensure score is 0.0-1.0
+            score = max(0.0, min(1.0, score))
+            custom_scores[code] = round(score, 2)
+
+            # Determine weight: override from config or default
+            weight = conf.custom_metric_weights.get(code, metric.default_weight)
+
+            pss_raw += weight * score
+            total_weight += weight
+        except Exception as e:
+            logger.error(f"Error computing custom metric {code}: {e}")
+            # Prevent plugin failure from crashing core calculation
+            # We could log this but core.py usually doesn't log much.
+            custom_scores[code] = 0.0
+
+    # Normalize if weights don't sum to 1
     if total_weight > 0:
         pss_raw /= total_weight
 
     pss_final = round(normalize_score(pss_raw) * 100)
 
+    breakdown = {
+        "timing_stability": round(ts_score, 2),
+        "memory_stability": round(ms_score, 2),
+        "error_volatility": round(ev_score, 2),
+        "branching_entropy": round(be_score, 2),
+        "concurrency_chaos": round(cc_score, 2),
+    }
+    # Add custom scores to breakdown (using code as key, e.g., 'IO')
+    breakdown.update(custom_scores)
+
     return {
         "pss": pss_final,
-        "breakdown": {
-            "timing_stability": round(ts_score, 2),
-            "memory_stability": round(ms_score, 2),
-            "error_volatility": round(ev_score, 2),
-            "branching_entropy": round(be_score, 2),
-            "concurrency_chaos": round(cc_score, 2),
-        },
+        "breakdown": breakdown,
     }

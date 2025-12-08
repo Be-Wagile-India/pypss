@@ -38,6 +38,7 @@ class PSSConfig:
     w_ev: float = 0.20  # Error Volatility
     w_be: float = 0.15  # Branching Entropy
     w_cc: float = 0.15  # Concurrency Chaos
+    custom_metric_weights: Dict[str, float] = field(default_factory=dict)
 
     # Thresholds / Sensitivity
     alpha: float = 2.0  # Timing CV sensitivity
@@ -119,6 +120,10 @@ class PSSConfig:
     )
     adaptive_sampler_high_qps_threshold: float = 1000.0
     adaptive_sampler_low_noise_sample_rate: float = 0.01
+
+    # Plugin Custom Metrics
+    thread_starvation_sensitivity: float = 100.0
+    plugins: List[str] = field(default_factory=list)
 
     # Context-aware Sampling
     error_sample_rate: float = 1.0
