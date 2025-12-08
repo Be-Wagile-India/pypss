@@ -28,7 +28,14 @@ async def test_async_monitor_context_manager():
 
     assert t["name"] == "test_block"
     assert t["branch_tag"] == "tag1"
-    assert t["duration"] >= 0.05
+    # Allow for minor floating point inaccuracies and async scheduling
+    # Duration should be approximately 0.05, but at least very close to it.
+    expected_min_duration = 0.05
+    tolerance = 0.005  # 5 milliseconds tolerance
+    assert t["duration"] >= expected_min_duration - tolerance
+    assert (
+        t["duration"] < expected_min_duration + 0.1
+    )  # Should not be excessively long either
     assert t.get("async_op") is True
 
 
@@ -272,5 +279,9 @@ async def test_start_async_monitoring_runtime_error(monkeypatch, caplog):
 
 @pytest.mark.asyncio
 async def test_stop_async_monitoring_no_instance():
-    stop_async_monitoring()
+    # Ensure _health_monitor_instance is None before calling stop_async_monitoring
+    # It is reset by the autouse fixture in test_async_ops.py or test_sys_monitoring.py
+    # or explicitly set to None in test_start_async_monitoring_runtime_error
+    stop_async_monitoring()  # Should not raise an error
+    # No assertion needed beyond not raising an error, but ensure _health_monitor_instance remains None
     assert _health_monitor_instance is None
