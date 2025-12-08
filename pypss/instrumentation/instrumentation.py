@@ -4,11 +4,15 @@ import psutil
 import os
 import random
 import inspect
-from .collectors import Collector
+from .collectors import global_collector
 from ..utils import GLOBAL_CONFIG
 
-# Global collector instance
-global_collector = Collector()
+# Import async context for integration
+try:
+    from .async_ops import _current_trace_context, AsyncTraceContext
+except ImportError:
+    _current_trace_context = None  # type: ignore
+    AsyncTraceContext = None  # type: ignore
 
 # Memoize the process handle
 _process = psutil.Process(os.getpid())
@@ -29,6 +33,7 @@ def _finalize_trace(
     start_mem,
     error_info,
     is_async=False,
+    yield_count=0,
 ):
     """Helper to calculate metrics and record the trace."""
     end_wall = time.time()
@@ -76,6 +81,11 @@ def _finalize_trace(
         "branch_tag": branch_tag,
         "timestamp": start_wall,
     }
+
+    if is_async:
+        trace["async_op"] = True
+        trace["yield_count"] = yield_count
+
     global_collector.add_trace(trace)
 
 
@@ -99,6 +109,18 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                 error_occurred = False
                 exception_type = None
                 exception_message = None
+                yield_count = 0
+
+                # Setup Async Context for Yield Counting (if available)
+                token = None
+                if _current_trace_context is not None:
+                    ctx = AsyncTraceContext(
+                        name=name or func.__name__,
+                        module=module_name or getattr(func, "__module__", "unknown"),
+                        branch_tag=branch_tag,
+                        start_wall=start_wall,
+                    )
+                    token = _current_trace_context.set(ctx)
 
                 try:
                     result = await func(*args, **kwargs)
@@ -109,6 +131,15 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                     exception_message = str(e)
                     raise e
                 finally:
+                    # Retrieve yield count and reset context
+                    if token is not None:
+                        try:
+                            final_ctx = _current_trace_context.get()
+                            if final_ctx:
+                                yield_count = final_ctx.yield_count
+                        finally:
+                            _current_trace_context.reset(token)
+
                     _finalize_trace(
                         func,
                         name,
@@ -119,6 +150,7 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                         start_mem,
                         (error_occurred, exception_type, exception_message),
                         is_async=True,
+                        yield_count=yield_count,
                     )
 
             return wrapper
