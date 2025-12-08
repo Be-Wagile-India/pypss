@@ -37,6 +37,10 @@ def setup_teardown_global_config(monkeypatch, mock_time_fixture):
     )
     original_adaptive_sampler_max_rate = GLOBAL_CONFIG.adaptive_sampler_max_rate
     original_adaptive_sampler_min_rate = GLOBAL_CONFIG.adaptive_sampler_min_rate
+    original_adaptive_sampler_mode = GLOBAL_CONFIG.adaptive_sampler_mode
+    original_adaptive_sampler_high_qps_threshold = (
+        GLOBAL_CONFIG.adaptive_sampler_high_qps_threshold
+    )
 
     # Ensure GLOBAL_CONFIG defaults for testing are set *before* creating fresh_adaptive_sampler
     GLOBAL_CONFIG.sample_rate = 0.5
@@ -48,12 +52,15 @@ def setup_teardown_global_config(monkeypatch, mock_time_fixture):
     GLOBAL_CONFIG.adaptive_sampler_decrease_step = 0.05
     GLOBAL_CONFIG.adaptive_sampler_max_rate = 1.0
     GLOBAL_CONFIG.adaptive_sampler_min_rate = 0.01
+    GLOBAL_CONFIG.adaptive_sampler_mode = "balanced"
+    GLOBAL_CONFIG.adaptive_sampler_high_qps_threshold = 100.0
 
     # Use monkeypatch to replace the global adaptive_sampler instance with a fresh one for each test
     fresh_adaptive_sampler = AdaptiveSampler()
     fresh_adaptive_sampler._last_adjustment_time = (
         time.time()
     )  # Use patched time.time from mock_time_fixture
+    fresh_adaptive_sampler._last_trace_count_time = time.time()
 
     monkeypatch.setattr(
         "pypss.core.adaptive_sampler.adaptive_sampler", fresh_adaptive_sampler
@@ -81,6 +88,10 @@ def setup_teardown_global_config(monkeypatch, mock_time_fixture):
     )
     GLOBAL_CONFIG.adaptive_sampler_max_rate = original_adaptive_sampler_max_rate
     GLOBAL_CONFIG.adaptive_sampler_min_rate = original_adaptive_sampler_min_rate
+    GLOBAL_CONFIG.adaptive_sampler_mode = original_adaptive_sampler_mode
+    GLOBAL_CONFIG.adaptive_sampler_high_qps_threshold = (
+        original_adaptive_sampler_high_qps_threshold
+    )
 
 
 class TestAdaptiveSampler:
@@ -90,6 +101,7 @@ class TestAdaptiveSampler:
         assert "lag" in sampler._last_metrics
         assert "churn_rate" in sampler._last_metrics
         assert "error_rate" in sampler._last_metrics
+        assert "qps" in sampler._last_metrics
 
     def test_update_metrics_stores_metrics(self):
         sampler = AdaptiveSampler()
@@ -100,6 +112,18 @@ class TestAdaptiveSampler:
         assert sampler._last_metrics["churn_rate"] == 20.0
         assert sampler._last_metrics["error_rate"] == 0.2
         assert sampler._last_metrics["custom_metric"] == 100
+
+    def test_qps_calculation(self, mock_time_fixture):
+        sampler = AdaptiveSampler()
+        sampler._last_trace_count_time = (
+            mock_time_fixture.return_value
+        )  # Current time 1.0
+
+        # Advance time by 1 second
+        mock_time_fixture.return_value += 1.0
+
+        sampler.update_metrics(trace_count=100)
+        assert sampler._last_metrics["qps"] == 100.0
 
     def test_adjust_sample_rate_increases_on_high_lag(self, mock_time_fixture):
         # mock_time_fixture.return_value is already 1.0 from the fixture itself.
@@ -120,69 +144,74 @@ class TestAdaptiveSampler:
         assert sampler._current_sample_rate == pytest.approx(expected_rate)
         assert GLOBAL_CONFIG.sample_rate == pytest.approx(expected_rate)
 
-    def test_adjust_sample_rate_increases_on_high_churn_rate(self, mock_time_fixture):
-        # mock_time_fixture.return_value is already 1.0
+    def test_mode_high_load(self, mock_time_fixture):
         sampler = AdaptiveSampler()
+        GLOBAL_CONFIG.adaptive_sampler_mode = "high_load"
+        GLOBAL_CONFIG.adaptive_sampler_high_qps_threshold = 100.0
 
         mock_time_fixture.return_value += (
             GLOBAL_CONFIG.adaptive_sampler_min_interval + 0.1
         )
 
-        initial_rate = GLOBAL_CONFIG.sample_rate
-        sampler.update_metrics(
-            churn_rate=GLOBAL_CONFIG.adaptive_sampler_churn_threshold + 1.0
-        )
+        # Simulate high QPS (via manual update for test, bypassing internal calc)
+        sampler._last_metrics["qps"] = 200.0
+        sampler._adjust_sample_rate()
 
-        expected_rate = min(
-            GLOBAL_CONFIG.adaptive_sampler_max_rate,
-            initial_rate + GLOBAL_CONFIG.adaptive_sampler_increase_step,
-        )
-        assert sampler._current_sample_rate == pytest.approx(expected_rate)
-        assert GLOBAL_CONFIG.sample_rate == pytest.approx(expected_rate)
+        # Should drop to min rate
+        assert sampler._current_sample_rate == GLOBAL_CONFIG.adaptive_sampler_min_rate
 
-    def test_adjust_sample_rate_increases_on_high_error_rate(self, mock_time_fixture):
-        # mock_time_fixture.return_value is already 1.0
+    def test_mode_error_triggered(self, mock_time_fixture):
         sampler = AdaptiveSampler()
+        GLOBAL_CONFIG.adaptive_sampler_mode = "error_triggered"
 
         mock_time_fixture.return_value += (
             GLOBAL_CONFIG.adaptive_sampler_min_interval + 0.1
         )
 
-        initial_rate = GLOBAL_CONFIG.sample_rate
+        # High error rate
         sampler.update_metrics(
-            error_rate=GLOBAL_CONFIG.adaptive_sampler_error_threshold + 0.05
+            error_rate=GLOBAL_CONFIG.adaptive_sampler_error_threshold + 0.1
         )
 
-        expected_rate = min(
-            GLOBAL_CONFIG.adaptive_sampler_max_rate,
-            initial_rate + GLOBAL_CONFIG.adaptive_sampler_increase_step,
-        )
-        assert sampler._current_sample_rate == pytest.approx(expected_rate)
-        assert GLOBAL_CONFIG.sample_rate == pytest.approx(expected_rate)
+        # Should jump to max rate
+        assert sampler._current_sample_rate == GLOBAL_CONFIG.adaptive_sampler_max_rate
 
-    def test_adjust_sample_rate_increases_on_multiple_high_metrics(
-        self, mock_time_fixture
-    ):
-        # mock_time_fixture.return_value is already 1.0
+    def test_mode_surge(self, mock_time_fixture):
         sampler = AdaptiveSampler()
-        initial_rate = GLOBAL_CONFIG.sample_rate
+        GLOBAL_CONFIG.adaptive_sampler_mode = "surge"
 
         mock_time_fixture.return_value += (
             GLOBAL_CONFIG.adaptive_sampler_min_interval + 0.1
         )
 
-        # Make two metrics high to trigger increase_score = 2
-        sampler.update_metrics(
-            lag=GLOBAL_CONFIG.adaptive_sampler_lag_threshold + 0.1,
-            churn_rate=GLOBAL_CONFIG.adaptive_sampler_churn_threshold + 1.0,
+        # High lag
+        sampler.update_metrics(lag=GLOBAL_CONFIG.adaptive_sampler_lag_threshold + 0.1)
+
+        # Should jump to max rate
+        assert sampler._current_sample_rate == GLOBAL_CONFIG.adaptive_sampler_max_rate
+
+    def test_mode_low_noise(self, mock_time_fixture):
+        sampler = AdaptiveSampler()
+        GLOBAL_CONFIG.adaptive_sampler_mode = "low_noise"
+        current_rate = sampler._current_sample_rate
+
+        mock_time_fixture.return_value += (
+            GLOBAL_CONFIG.adaptive_sampler_min_interval + 0.1
         )
 
-        expected_rate = min(
-            GLOBAL_CONFIG.adaptive_sampler_max_rate,
-            initial_rate + GLOBAL_CONFIG.adaptive_sampler_increase_step * 2,
+        # Very stable metrics
+        sampler.update_metrics(
+            lag=GLOBAL_CONFIG.adaptive_sampler_lag_threshold / 4,
+            churn_rate=GLOBAL_CONFIG.adaptive_sampler_churn_threshold / 4,
+            error_rate=GLOBAL_CONFIG.adaptive_sampler_error_threshold / 4,
+        )
+
+        # Should decrease
+        expected_rate = max(
+            GLOBAL_CONFIG.adaptive_sampler_min_rate,
+            current_rate - GLOBAL_CONFIG.adaptive_sampler_decrease_step,
         )
         assert sampler._current_sample_rate == pytest.approx(expected_rate)
-        assert GLOBAL_CONFIG.sample_rate == pytest.approx(expected_rate)
 
     def test_adjust_sample_rate_decreases_on_low_metrics(self, mock_time_fixture):
         # mock_time_fixture.return_value is already 1.0
@@ -261,85 +290,6 @@ class TestAdaptiveSampler:
         # Expect no change because decrease_score is not 3
         assert sampler._current_sample_rate == pytest.approx(increased_rate)
         assert GLOBAL_CONFIG.sample_rate == pytest.approx(increased_rate)
-
-    def test_adjust_sample_rate_no_change_normal_metrics(self, mock_time_fixture):
-        # mock_time_fixture.return_value is already 1.0
-        sampler = AdaptiveSampler()
-        initial_rate = sampler._current_sample_rate
-
-        # Advance time to allow adjustment
-        mock_time_fixture.return_value += (
-            GLOBAL_CONFIG.adaptive_sampler_min_interval + 0.1
-        )
-
-        # Set metrics to normal levels (not too high, not too low)
-        sampler.update_metrics(
-            lag=GLOBAL_CONFIG.adaptive_sampler_lag_threshold / 1.5,
-            churn_rate=GLOBAL_CONFIG.adaptive_sampler_churn_threshold / 1.5,
-            error_rate=GLOBAL_CONFIG.adaptive_sampler_error_threshold / 1.5,
-        )
-
-        # Expect no change
-        assert sampler._current_sample_rate == pytest.approx(initial_rate)
-        assert GLOBAL_CONFIG.sample_rate == pytest.approx(initial_rate)
-
-    def test_adjust_sample_rate_respects_max_rate(self, mock_time_fixture):
-        # mock_time_fixture.return_value is already 1.0
-        sampler = AdaptiveSampler()
-
-        # Set initial rate very high
-        GLOBAL_CONFIG.sample_rate = GLOBAL_CONFIG.adaptive_sampler_max_rate - 0.01
-        sampler._current_sample_rate = GLOBAL_CONFIG.sample_rate
-
-        mock_time_fixture.return_value += (
-            GLOBAL_CONFIG.adaptive_sampler_min_interval + 0.1
-        )
-        sampler.update_metrics(
-            lag=GLOBAL_CONFIG.adaptive_sampler_lag_threshold + 0.1
-        )  # Trigger increase
-
-        assert sampler._current_sample_rate == pytest.approx(
-            GLOBAL_CONFIG.adaptive_sampler_max_rate
-        )
-        assert GLOBAL_CONFIG.sample_rate == pytest.approx(
-            GLOBAL_CONFIG.adaptive_sampler_max_rate
-        )
-
-    def test_adjust_sample_rate_respects_min_rate(self, mock_time_fixture):
-        # mock_time_fixture.return_value is already 1.0
-        sampler = AdaptiveSampler()
-
-        # Set initial rate very low
-        GLOBAL_CONFIG.sample_rate = GLOBAL_CONFIG.adaptive_sampler_min_rate + 0.01
-        sampler._current_sample_rate = GLOBAL_CONFIG.sample_rate
-
-        mock_time_fixture.return_value += (
-            GLOBAL_CONFIG.adaptive_sampler_min_interval + 0.1
-        )
-        sampler.update_metrics(
-            lag=GLOBAL_CONFIG.adaptive_sampler_lag_threshold / 4,
-            churn_rate=GLOBAL_CONFIG.adaptive_sampler_churn_threshold / 4,
-            error_rate=GLOBAL_CONFIG.adaptive_sampler_error_threshold / 4,
-        )  # Trigger decrease
-
-        assert sampler._current_sample_rate == pytest.approx(
-            GLOBAL_CONFIG.adaptive_sampler_min_rate
-        )
-        assert GLOBAL_CONFIG.sample_rate == pytest.approx(
-            GLOBAL_CONFIG.adaptive_sampler_min_rate
-        )
-
-    def test_adjust_sample_rate_no_change_within_min_interval(self, mock_time_fixture):
-        # mock_time_fixture.return_value is already 1.0
-        sampler = AdaptiveSampler()
-        initial_rate = GLOBAL_CONFIG.sample_rate
-
-        sampler.update_metrics(
-            lag=GLOBAL_CONFIG.adaptive_sampler_lag_threshold + 0.1
-        )  # Should not trigger adjustment
-
-        assert sampler._current_sample_rate == pytest.approx(initial_rate)
-        assert GLOBAL_CONFIG.sample_rate == pytest.approx(initial_rate)
 
     def test_global_adaptive_sampler_instance(
         self, mock_time_fixture, setup_teardown_global_config

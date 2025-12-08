@@ -114,6 +114,11 @@ class PSSConfig:
     adaptive_sampler_decrease_step: float = 0.05
     adaptive_sampler_max_rate: float = 1.0
     adaptive_sampler_min_rate: float = 0.01
+    adaptive_sampler_mode: str = (
+        "balanced"  # balanced, high_load, error_triggered, surge, low_noise
+    )
+    adaptive_sampler_high_qps_threshold: float = 1000.0
+    adaptive_sampler_low_noise_sample_rate: float = 0.01
 
     # Context-aware Sampling
     error_sample_rate: float = 1.0

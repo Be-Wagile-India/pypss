@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - Unreleased
 
 ### 🚀 New Features
+- **Adaptive Sampling Modes:** Introduced intelligent sampling strategies (`balanced`, `high_load`, `error_triggered`, `surge`, `low_noise`) to dynamically optimize overhead based on system load and stability.
 - **AI Diagnosis CLI:** Added `diagnose` command to the CLI. Allows users to send trace data to LLM providers (OpenAI or Ollama) for automated root cause analysis.
 - **Monitoring Integration:** Added formal support for Prometheus metrics (PushGateway and Pull mode) via `[monitoring]` optional dependency.
 
@@ -18,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 📚 Documentation
 - **Installation Guide:** Updated with comprehensive details on optional dependencies (`[distributed]`, `[monitoring]`, `[llm]`).
 - **CLI Usage:** Added documentation for the new `diagnose` command.
-- **Advanced Config:** Detailed Prometheus configuration options.
+- **Advanced Config:** Detailed Prometheus and Adaptive Sampling configuration options.
 
 ---
 

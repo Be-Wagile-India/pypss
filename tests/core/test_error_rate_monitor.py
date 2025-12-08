@@ -122,7 +122,9 @@ class TestErrorRateMonitor:
 
         monitor._calculate_and_update_error_rate()
 
-        mock_adaptive_sampler.update_metrics.assert_called_once_with(error_rate=0.0)
+        mock_adaptive_sampler.update_metrics.assert_called_once_with(
+            error_rate=0.0, trace_count=5
+        )
 
     def test_error_rate_calculation_some_errors(self, monkeypatch):
         mock_adaptive_sampler = mock.Mock(spec=adaptive_sampler)
@@ -145,7 +147,7 @@ class TestErrorRateMonitor:
         monitor._calculate_and_update_error_rate()
 
         mock_adaptive_sampler.update_metrics.assert_called_once_with(
-            error_rate=0.4
+            error_rate=0.4, trace_count=5
         )  # 2 errors out of 5 traces
 
     def test_error_rate_calculation_all_errors(self, monkeypatch):
@@ -166,7 +168,7 @@ class TestErrorRateMonitor:
         monitor._calculate_and_update_error_rate()
 
         mock_adaptive_sampler.update_metrics.assert_called_once_with(
-            error_rate=1.0
+            error_rate=1.0, trace_count=5
         )  # 5 errors out of 5 traces (due to window_size)
 
     def test_error_rate_monitor_thread_integration(self, monkeypatch):
@@ -229,7 +231,9 @@ class TestErrorRateMonitor:
         monitor._calculate_and_update_error_rate()
 
         # Assert that adaptive_sampler was updated with the correct error rate (2 errors out of 5)
-        mock_adaptive_sampler.update_metrics.assert_called_once_with(error_rate=0.4)
+        mock_adaptive_sampler.update_metrics.assert_called_once_with(
+            error_rate=0.4, trace_count=5
+        )
 
         # Ensure unregister is called on stop
         monitor.stop()

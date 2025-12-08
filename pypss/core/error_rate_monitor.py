@@ -27,6 +27,7 @@ class ErrorRateMonitor:
             window_size  # Number of recent traces to consider for error rate
         )
         self._error_history: Deque[bool] = deque(maxlen=window_size)
+        self._traces_since_last_interval: int = 0
         self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
         # Register as an observer with the provided collector
@@ -35,6 +36,7 @@ class ErrorRateMonitor:
     def _on_new_trace(self, trace: Dict):
         """Callback method invoked by the global_collector when a new trace is added."""
         self._error_history.append(trace.get("error", False))
+        self._traces_since_last_interval += 1
 
     def start(self):
         if self._thread and self._thread.is_alive():
@@ -75,7 +77,10 @@ class ErrorRateMonitor:
             error_count = sum(1 for is_error in self._error_history if is_error)
             error_rate = error_count / total_traces
 
-        adaptive_sampler.update_metrics(error_rate=error_rate)
+        adaptive_sampler.update_metrics(
+            error_rate=error_rate, trace_count=self._traces_since_last_interval
+        )
+        self._traces_since_last_interval = 0
 
         logger.debug(f"Calculated error rate: {error_rate:.2f}")
 
