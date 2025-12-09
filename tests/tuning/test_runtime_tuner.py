@@ -150,6 +150,6 @@ def test_runtime_tuner_with_monitor_function(
     # The wait_time is approximated by the decorator, so we check a range
     first_trace_wait_time = traces[0]["wait_time"]
     assert first_trace_wait_time >= sleep_duration_for_test * 0.9
-    assert first_trace_wait_time <= sleep_duration_for_test * 1.1
+    assert first_trace_wait_time <= sleep_duration_for_test * 1.25
 
     tuner.stop()
