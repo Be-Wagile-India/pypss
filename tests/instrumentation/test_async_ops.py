@@ -129,6 +129,10 @@ async def test_async_monitor_memory_tracking(monkeypatch):
     collector = pypss.get_global_collector()
     collector.clear()
 
+    # Explicitly set sample rates to ensure traces are collected
+    monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)
+    monkeypatch.setattr(GLOBAL_CONFIG, "error_sample_rate", 1.0)
+
     monkeypatch.setattr(GLOBAL_CONFIG, "w_ms", 1.0)
 
     # Simplified mock for memory_info.rss to directly return values
