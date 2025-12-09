@@ -75,7 +75,14 @@ class TestInstrumentation:
         assert traces[0]["error"] is True
         assert traces[0]["exception_type"] == "ValueError"
 
-    def test_monitor_block_context_manager(self):
+    def test_monitor_block_context_manager(
+        self, monkeypatch
+    ):  # Add monkeypatch as argument
+        monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)  # Ensure 100% sampling
+        monkeypatch.setattr(
+            GLOBAL_CONFIG, "error_sample_rate", 1.0
+        )  # Ensure errors are not sampled out
+
         with monitor_block("block_A", branch_tag="B"):
             time.sleep(0.001)
 
