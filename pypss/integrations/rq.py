@@ -1,6 +1,7 @@
+from __future__ import annotations
 import time
 from rq.job import Job
-from ..instrumentation import global_collector
+import pypss
 from ..utils.trace_utils import get_memory_usage
 from ..utils.config import GLOBAL_CONFIG
 
@@ -47,4 +48,6 @@ class PSSJob(Job):
                 "error": error,
                 "timestamp": start_wall,
             }
-            global_collector.add_trace(trace)
+            collector = pypss.get_global_collector()
+            if collector:
+                collector.add_trace(trace)

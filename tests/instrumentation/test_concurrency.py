@@ -1,11 +1,14 @@
 import time
-from pypss.instrumentation import monitor_function, global_collector
+import pypss
+from pypss.instrumentation import monitor_function
 from pypss.utils.config import GLOBAL_CONFIG
 
 
 class TestConcurrencyMetrics:
     def test_wait_time_detection(self):
-        global_collector.clear()
+        pypss.init()
+        collector = pypss.get_global_collector()
+        collector.clear()
         GLOBAL_CONFIG.sample_rate = 1.0
 
         @monitor_function("sleepy")
@@ -15,7 +18,7 @@ class TestConcurrencyMetrics:
 
         sleepy_func()
 
-        traces = global_collector.get_traces()
+        traces = collector.get_traces()
         assert len(traces) == 1
         t = traces[0]
 
@@ -30,7 +33,9 @@ class TestConcurrencyMetrics:
         assert t["wait_time"] >= 0.05
 
     def test_cpu_bound_metrics(self):
-        global_collector.clear()
+        pypss.init()
+        collector = pypss.get_global_collector()
+        collector.clear()
         GLOBAL_CONFIG.sample_rate = 1.0
 
         @monitor_function("busy")
@@ -42,7 +47,7 @@ class TestConcurrencyMetrics:
 
         busy_func()
 
-        traces = global_collector.get_traces()
+        traces = collector.get_traces()
         assert len(traces) == 1
         t = traces[0]
 

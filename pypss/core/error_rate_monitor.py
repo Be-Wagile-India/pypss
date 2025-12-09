@@ -3,7 +3,9 @@ import logging
 from collections import deque
 from typing import Deque, Optional, Dict  # Corrected import
 
-from pypss.instrumentation.collectors import global_collector
+# from pypss.instrumentation.collectors import global_collector # REMOVE THIS
+import pypss  # ADD THIS
+
 from pypss.core.adaptive_sampler import adaptive_sampler
 
 from pypss.instrumentation.collectors import (
@@ -85,5 +87,17 @@ class ErrorRateMonitor:
         logger.debug(f"Calculated error rate: {error_rate:.2f}")
 
 
-# Global instance
-error_rate_monitor = ErrorRateMonitor(global_collector)
+# Placeholder for the global instance. It must be initialized via pypss.init().
+error_rate_monitor: Optional[ErrorRateMonitor] = None
+
+
+def _initialize_error_rate_monitor():
+    """Initializes the global error rate monitor based on the global_collector."""
+    global error_rate_monitor
+    # Ensure global_collector is initialized
+    _collector = (
+        pypss.get_global_collector()
+    )  # This will raise RuntimeError if not initialized
+
+    error_rate_monitor = ErrorRateMonitor(collector=_collector)
+    error_rate_monitor.start()

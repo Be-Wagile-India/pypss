@@ -1,13 +1,16 @@
 import time
 import click
 import ijson  # type: ignore
+import pypss
 from ..core import compute_pss_from_traces, generate_advisor_report
 from ..core.llm_advisor import get_llm_diagnosis
 from .reporting import render_report_json, render_report_text
 from .html_report import render_report_html
-from ..instrumentation import global_collector
 from .runner import run_with_instrumentation
 from .discovery import get_module_score_breakdown
+from .tuning import tune
+from .utils import load_traces  # Import load_traces from utils
+from ..ml.detector import PatternDetector  # Import PatternDetector
 from ..utils.config import GLOBAL_CONFIG
 from ..plugins import load_plugins
 import json
@@ -19,6 +22,103 @@ import os
 def main():
     """pypss - Python Program Stability Score CLI"""
     pass
+
+
+main.add_command(tune)
+
+
+@main.command()
+@click.option(
+    "--baseline-file",
+    type=click.Path(exists=True),
+    required=True,
+    help="Path to the JSON trace file containing baseline (normal) behavior.",
+)
+@click.option(
+    "--target-file",
+    type=click.Path(exists=True),
+    required=True,
+    help="Path to the JSON trace file containing traces to detect anomalies in.",
+)
+@click.option(
+    "--contamination",
+    type=float,
+    default=0.1,
+    help="The proportion of outliers in the baseline dataset. Used by IsolationForest.",
+)
+@click.option(
+    "--random-state",
+    type=int,
+    default=42,
+    help="Random seed for reproducibility of ML model training.",
+)
+def ml_detect(baseline_file, target_file, contamination, random_state):
+    """
+    Detects anomalous patterns in target traces using a Machine Learning model
+    trained on baseline traces.
+    """
+    pypss.init()  # Ensure pypss components are initialized
+
+    click.echo(f"📊 Loading baseline traces from {baseline_file}...")
+    baseline_traces = load_traces(baseline_file)
+    if not baseline_traces:
+        click.echo(
+            "⚠️  No traces found in baseline file. Cannot train ML model.", err=True
+        )
+        sys.exit(1)
+    click.echo(f"   Loaded {len(baseline_traces)} baseline traces.")
+
+    click.echo("🔍 Initializing and fitting PatternDetector model...")
+    try:
+        detector = PatternDetector(
+            contamination=contamination, random_state=random_state
+        )
+        detector.fit(baseline_traces)
+        click.echo("   Model fitted successfully to baseline traces.")
+    except ImportError as e:
+        click.echo(f"Error: {e}", err=True)
+        click.echo(
+            "Please install scikit-learn to use ML features: pip install scikit-learn",
+            err=True,
+        )
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"Error fitting ML model: {e}", err=True)
+        sys.exit(1)
+
+    click.echo(
+        f"\n🔬 Loading target traces from {target_file} for anomaly detection..."
+    )
+    target_traces = load_traces(target_file)
+    if not target_traces:
+        click.echo("⚠️  No traces found in target file. Nothing to analyze.", err=True)
+        sys.exit(0)
+    click.echo(f"   Loaded {len(target_traces)} target traces.")
+
+    click.echo("\n🔎 Predicting anomalies...")
+    predictions = detector.predict_anomalies(target_traces)
+    scores = detector.anomaly_score(target_traces)
+
+    anomalies_found = False
+    for i, (is_anomaly, score) in enumerate(zip(predictions, scores)):
+        trace_name = target_traces[i].get("name", f"Trace #{i}")
+        if is_anomaly:
+            anomalies_found = True
+            click.echo(f"  ❌ Anomaly detected in '{trace_name}' (Score: {score:.2f})")
+        # else:
+        # click.echo(f"  ✅ Normal: '{trace_name}' (Score: {score:.2f})")
+
+    if not anomalies_found:
+        click.echo("✅ No significant anomalies detected in target traces.")
+    else:
+        click.echo("\nSummary: Anomalies were detected.")
+
+    # Optionally, you might want to save the model or the results.
+    # Not implemented in this basic CLI integration.
+
+
+# Add the new command to the main group
+main.add_command(ml_detect)
 
 
 @main.command()
@@ -106,7 +206,12 @@ def run(script, output, html, store_history):
     run_with_instrumentation(script, os.getcwd())
 
     # Collect results
-    traces = global_collector.get_traces()
+    collector = pypss.get_global_collector()
+    if not collector:
+        click.echo("\n⚠️  PyPSS collector not initialized. Did pypss.init() run?")
+        return
+
+    traces = collector.get_traces()
     if not traces:
         click.echo("\n⚠️  No traces collected. Did the application run long enough?")
         return

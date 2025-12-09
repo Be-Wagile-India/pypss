@@ -1,6 +1,6 @@
 import time
 from celery.signals import task_prerun, task_postrun
-from ..instrumentation import global_collector
+import pypss
 from ..utils.trace_utils import get_memory_usage
 from ..utils.config import GLOBAL_CONFIG
 
@@ -64,4 +64,6 @@ def _on_task_postrun(
         "timestamp": metrics["start_wall"],
     }
 
-    global_collector.add_trace(trace)
+    collector = pypss.get_global_collector()
+    if collector:
+        collector.add_trace(trace)

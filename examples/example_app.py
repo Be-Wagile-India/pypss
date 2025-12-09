@@ -7,6 +7,7 @@ from pypss import (
     global_collector,
     compute_pss_from_traces,
     render_report_text,
+    init,  # Import the init function
 )
 
 
@@ -29,6 +30,9 @@ def unstable_operation():
 
 
 def main():
+    # Initialize pypss components
+    init()  # Call init() at the beginning of the application
+
     print("Running stable operations...")
     for _ in range(20):
         stable_operation()

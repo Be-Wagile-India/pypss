@@ -42,6 +42,18 @@ except ImportError:
 from ..utils import GLOBAL_CONFIG
 
 
+# Placeholder for the global collector instance. It must be initialized via pypss.init().
+global_collector: Optional["BaseCollector"] = None
+
+
+def _initialize_global_collector():
+    """Initializes the global collector instance based on the current GLOBAL_CONFIG."""
+    global global_collector
+    # For now, always initialize as MemoryCollector.
+    # Future work might involve selecting collector based on GLOBAL_CONFIG.collector_backend
+    global_collector = MemoryCollector()
+
+
 @contextmanager
 def cross_platform_file_lock(
     file_obj: io.IOBase, lock_type: str = "exclusive"

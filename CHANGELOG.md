@@ -8,17 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - Unreleased
 
 ### 🚀 New Features
+- **Metric Auto-Tuning:** Added `tune` CLI command to automatically calibrate PSS weights and thresholds (`alpha`, `beta`, `gamma`) based on statistical analysis of baseline traces and synthetic fault injection. **Now uses Bayesian Optimization for more efficient tuning of metric weights and thresholds.**
 - **Adaptive Sampling Modes:** Introduced intelligent sampling strategies (`balanced`, `high_load`, `error_triggered`, `surge`, `low_noise`) to dynamically optimize overhead based on system load and stability.
 - **AI Diagnosis CLI:** Added `diagnose` command to the CLI. Allows users to send trace data to LLM providers (OpenAI or Ollama) for automated root cause analysis.
 - **Monitoring Integration:** Added formal support for Prometheus metrics (PushGateway and Pull mode) via `[monitoring]` optional dependency.
+- **ML-based Pattern Detection:** Added `ml-detect` CLI command to train an anomaly detection model (Isolation Forest) on baseline traces and identify unusual patterns in new traces.
 
 ### 🛡️ Engineering & Quality
 - **Type Safety:** Achieved full `mypy` compliance. Added missing type stubs (`types-grpcio`, `types-redis`, etc.) and fixed numerous type errors.
-- **Dependencies:** Updated `pyproject.toml` and `requirements` files to explicitly list all optional dependencies and type stubs.
+- **Dependencies:** Updated `pyproject.toml` and `requirements` files to explicitly list all optional dependencies and type stubs. Added `scikit-learn` and `scikit-optimize` for ML and Bayesian Optimization.
 
 ### 📚 Documentation
 - **Installation Guide:** Updated with comprehensive details on optional dependencies (`[distributed]`, `[monitoring]`, `[llm]`).
-- **CLI Usage:** Added documentation for the new `diagnose` command.
+- **CLI Usage:** Added documentation for the new `diagnose` and `ml-detect` commands.
 - **Advanced Config:** Detailed Prometheus and Adaptive Sampling configuration options.
 
 ---

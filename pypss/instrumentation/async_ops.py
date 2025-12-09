@@ -9,7 +9,8 @@ import random
 
 from pypss.utils.config import GLOBAL_CONFIG, _get_effective_sample_rate
 from pypss.core.adaptive_sampler import adaptive_sampler
-from pypss.core.error_rate_monitor import error_rate_monitor
+
+# from pypss.core.error_rate_monitor import error_rate_monitor # REMOVE THIS
 from pypss.utils.trace_utils import finalize_trace
 
 logger = logging.getLogger(__name__)
@@ -396,7 +397,6 @@ def start_async_monitoring(enable_sys_monitoring: bool = True):
     try:
         asyncio.get_running_loop()
         _health_monitor_instance.start()
-        error_rate_monitor.start()  # NEW
     except RuntimeError:
         logger.warning("PyPSS: start_async_monitoring called outside of event loop.")
 
@@ -406,4 +406,3 @@ def stop_async_monitoring():
     if _health_monitor_instance:
         _health_monitor_instance.stop()
     _teardown_sys_monitoring()  # Call teardown for sys.monitoring
-    error_rate_monitor.stop()  # NEW

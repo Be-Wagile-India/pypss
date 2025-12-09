@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import pypss
 
 
 class TestOTel:
@@ -21,11 +22,12 @@ class TestOTel:
         with patch("pypss.integrations.otel.OTEL_AVAILABLE", True):
             with patch("pypss.integrations.otel.metrics"):
                 from pypss.integrations.otel import OTelReporter
-                from pypss.instrumentation import global_collector
 
                 # Setup data
-                global_collector.clear()
-                global_collector.add_trace({"duration": 0.1, "error": False})
+                pypss.init()
+                collector = pypss.get_global_collector()
+                collector.clear()
+                collector.add_trace({"duration": 0.1, "error": False})
 
                 reporter = OTelReporter()
 

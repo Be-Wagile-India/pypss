@@ -33,6 +33,14 @@ Instrumentation
    :undoc-members:
    :show-inheritance:
 
+ML
+--
+
+.. automodule:: pypss.ml.detector
+   :members: PatternDetector
+   :undoc-members:
+   :show-inheritance:
+
 CLI & Reporting
 ---------------
 

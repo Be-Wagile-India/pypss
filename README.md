@@ -76,6 +76,8 @@ Python systems often fail not because they are slow — but because they are uns
 - **Concurrency Chaos (CC)**: *(Experimental)* Quantifies thread contention and locking overhead.
 - **Alerting Engine**: Proactively monitors and notifies on stability changes with configurable rules and channels.
 - **Adaptive Sampling**: Intelligent sampling modes (`balanced`, `high_load`, `error_triggered`, `surge`, `low_noise`) to optimize overhead.
+- **Metric Auto-Tuning**: Automatically calibrates PSS metric weights and thresholds using Bayesian Optimization for optimal fault detection.
+- **ML-based Pattern Detection**: Detects subtle, complex instability patterns using machine learning (e.g., anomaly detection).
 - **Plugin System**: Extend PyPSS with custom metrics like `IOStability`, `DatabaseStability`, `KafkaLag`, `GPUSpikes`, etc.
 
 ### Developer Experience
@@ -532,27 +534,7 @@ adaptive_sampler_high_qps_threshold = 1000.0
 | **surge** | Maximizes sampling during high latency (lag) events. | Investigating performance regressions. |
 | **low_noise** | Aggressively reduces sampling when system is stable. | Cost-saving for stable, long-running services. |
 
-## 🛣️ Future Roadmap
 
-### Metric Auto-Tuning (AI/Statistical)
-
-To further enhance the accuracy and reduce manual configuration, we envision AI and statistical methods for auto-tuning `pypss` metrics:
-
-*   **Auto-tune Metric Weights**: Dynamically adjust the `w_ts`, `w_ms`, etc., based on observed historical variance and the specific characteristics of your application.
-
-*   **Bayesian Optimization for Thresholds**: Use advanced statistical techniques to automatically find optimal thresholds for alerts and scoring (e.g., `mem_spike_threshold_ratio`).
-
-*   **ML-based Pattern Detection**: In later phases, leverage machine learning to detect subtle, complex instability patterns that are hard to define with static rules.
-
-Example usage (conceptual):
-
-```python
-
-pss = compute_pss(traces, mode="auto_tune")
-
-```
-
-This will increase accuracy and relevance automatically, making `pypss` even smarter.
 
 ## 🛠️ Development
 

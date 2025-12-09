@@ -4,7 +4,7 @@ import os
 import random
 from typing import Dict, Any, Optional
 
-from pypss.instrumentation.collectors import global_collector
+import pypss  # Import the pypss package
 
 # Memoize the process handle
 _process = psutil.Process(os.getpid())
@@ -80,4 +80,5 @@ def finalize_trace(
     if metadata:  # NEW: Merge metadata into trace
         trace.update(metadata)
 
-    global_collector.add_trace(trace)
+    # Use the getter to ensure the collector is initialized
+    pypss.get_global_collector().add_trace(trace)

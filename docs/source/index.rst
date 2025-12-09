@@ -14,6 +14,7 @@ Welcome to pypss's documentation!
    plugins
    async_ops
    advanced_config
+   ml_detection
    alerts
    api
 
