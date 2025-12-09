@@ -1,6 +1,7 @@
 import timeit
 
-from pypss.instrumentation import monitor_function, global_collector
+import pypss
+from pypss.instrumentation import monitor_function
 from pypss.utils import GLOBAL_CONFIG
 
 
@@ -18,13 +19,16 @@ def run_benchmark(iterations=100_000):
     print(f"🚀 Running Benchmark: {iterations:,} iterations")
     print("=" * 60)
 
+    pypss.init()  # Initialize pypss
+    collector = pypss.get_global_collector()  # Get the global collector
+
     # 1. Baseline
     t0 = timeit.timeit(workload, number=iterations)
     baseline_ops = iterations / t0
     print(f"Baseline (No Instr):  {t0:.4f}s | {baseline_ops:,.0f} ops/sec | 0.00 µs/op")
 
     # 2. Instrumented (100% Sampling)
-    global_collector.clear()
+    collector.clear()
     GLOBAL_CONFIG.sample_rate = 1.0
     t1 = timeit.timeit(instrumented_workload, number=iterations)
     instr_ops = iterations / t1
@@ -35,7 +39,7 @@ def run_benchmark(iterations=100_000):
     )
 
     # 3. Instrumented (1% Sampling)
-    global_collector.clear()
+    collector.clear()
     GLOBAL_CONFIG.sample_rate = 0.01
     t2 = timeit.timeit(instrumented_workload, number=iterations)
     sampled_ops = iterations / t2
@@ -53,7 +57,7 @@ def run_benchmark(iterations=100_000):
         )
 
     # Check collector size (should be capped by ring buffer)
-    traces = len(global_collector.get_traces())
+    traces = len(collector.get_traces())
     print(
         f"Collector Trace Count: {traces} (Ring Buffer Size: {GLOBAL_CONFIG.max_traces})"
     )

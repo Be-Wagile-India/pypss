@@ -3,8 +3,11 @@ import time
 from unittest import mock
 import logging
 
-from pypss.core.error_rate_monitor import ErrorRateMonitor, error_rate_monitor
-from pypss.instrumentation.collectors import global_collector, FileFIFOCollector
+import pypss  # Import pypss
+from pypss.core.error_rate_monitor import (
+    ErrorRateMonitor,
+)  # Only import the class, not the global instance
+from pypss.instrumentation.collectors import FileFIFOCollector
 from pypss.core.adaptive_sampler import adaptive_sampler
 from pypss.utils.config import GLOBAL_CONFIG
 
@@ -13,70 +16,59 @@ from pypss.utils.config import GLOBAL_CONFIG
 def setup_teardown_global_state(monkeypatch):
     """Fixture to reset GLOBAL_CONFIG and global monitor instances before and after each test."""
 
-    # Store original values from global error_rate_monitor
-    original_erm_interval = error_rate_monitor.interval
-    original_erm_window_size = error_rate_monitor.window_size
-    original_erm_collector = error_rate_monitor.collector  # Store original collector
+    # Call pypss.init() to ensure global_collector and error_rate_monitor are initialized
+    pypss.init()
 
-    # Create a fresh ErrorRateMonitor instance for testing
-    fresh_error_rate_monitor = ErrorRateMonitor(
-        collector=global_collector, interval=0.1, window_size=10
-    )
+    # Now pypss.get_global_collector() and pypss.get_error_rate_monitor() are guaranteed to be initialized.
 
-    # Use monkeypatch to replace the global error_rate_monitor instance
-    monkeypatch.setattr(
-        "pypss.core.error_rate_monitor.error_rate_monitor", fresh_error_rate_monitor
-    )
+    # Store original values from global error_rate_monitor (which is now initialized)
+    _erm = pypss.get_error_rate_monitor()  # Use the getter
+    assert _erm is not None
+    original_erm_interval = _erm.interval
+    original_erm_window_size = _erm.window_size
 
-    # Reset global collector
-    global_collector.clear()
+    # Reset global collector (which is now pypss.get_global_collector())
+    _collector = pypss.get_global_collector()
+    _collector.clear()
 
     # Reset global adaptive_sampler (as it's updated by ErrorRateMonitor)
-    adaptive_sampler._current_sample_rate = (
-        GLOBAL_CONFIG.sample_rate
-    )  # Assuming sample_rate is default
-    adaptive_sampler._last_metrics = {
-        "lag": 0.0,
-        "churn_rate": 0.0,
-        "error_rate": 0.0,
-    }
+    # Mock this as well to prevent interaction between tests
+    mock_adaptive_sampler = mock.Mock(spec=adaptive_sampler)
+    monkeypatch.setattr(
+        "pypss.core.adaptive_sampler.adaptive_sampler", mock_adaptive_sampler
+    )
 
     yield  # Run the test
 
     # Restore original values for global error_rate_monitor
-    error_rate_monitor.interval = original_erm_interval
-    error_rate_monitor.window_size = original_erm_window_size
-    error_rate_monitor.collector = original_erm_collector  # Restore original collector
+    _erm = pypss.get_error_rate_monitor()  # Use the getter
+    _erm.interval = original_erm_interval
+    _erm.window_size = original_erm_window_size
 
-    # Stop and clear global error_rate_monitor (the original one)
-    # The monkeypatched one's stop method should be called by the test if it starts it
-    # We still want to stop any potentially running original global instance
-    if error_rate_monitor._thread and error_rate_monitor._thread.is_alive():
-        error_rate_monitor.stop()  # This calls unregister_observer, sets stop_event, joins thread
+    # Stop and clear global error_rate_monitor
+    if _erm._thread and _erm._thread.is_alive():
+        _erm.stop()
 
     # Clear global collector
-    global_collector.clear()
+    pypss.get_global_collector().clear()
 
-    # Reset global adaptive_sampler
-    adaptive_sampler._current_sample_rate = GLOBAL_CONFIG.sample_rate
-    adaptive_sampler._last_metrics = {
-        "lag": 0.0,
-        "churn_rate": 0.0,
-        "error_rate": 0.0,
-    }
+    # Reset global adaptive_sampler (no need to restore mock_adaptive_sampler state, just mock it fresh each time)
 
 
 class TestErrorRateMonitor:
     def test_initialization(self):
-        monitor = ErrorRateMonitor(collector=global_collector)  # Pass global_collector
-        assert monitor.interval == 5.0  # Default if not set by config
+        # Now we can assume global_collector is initialized by the fixture
+        assert pypss.get_global_collector() is not None
+        monitor = ErrorRateMonitor(collector=pypss.get_global_collector())
+        assert monitor.interval == GLOBAL_CONFIG.adaptive_sampler_min_interval
         assert monitor.window_size == 100  # Default if not set by config
         assert not monitor._error_history
         assert monitor._thread is None
         assert not monitor._stop_event.is_set()
 
     def test_start_stop(self):
-        monitor = ErrorRateMonitor(collector=global_collector)  # Pass global_collector
+        assert pypss.get_global_collector() is not None
+        monitor = ErrorRateMonitor(collector=pypss.get_global_collector())
         monitor.start()
         assert monitor._thread is not None
         assert monitor._thread.is_alive()
@@ -87,7 +79,8 @@ class TestErrorRateMonitor:
         assert monitor._stop_event.is_set()
 
     def test_start_already_running(self, caplog):
-        monitor = ErrorRateMonitor(collector=global_collector)  # Pass global_collector
+        assert pypss.get_global_collector() is not None
+        monitor = ErrorRateMonitor(collector=pypss.get_global_collector())
         monitor.start()
         assert monitor._thread is not None
         thread_id_1 = monitor._thread.ident
@@ -105,20 +98,20 @@ class TestErrorRateMonitor:
         monitor.stop()
 
     def test_error_rate_calculation_no_errors(self, monkeypatch):
-        # Mock adaptive_sampler to check if update_metrics is called
         mock_adaptive_sampler = mock.Mock(spec=adaptive_sampler)
         monkeypatch.setattr(
             "pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler
         )
-
         monitor = ErrorRateMonitor(
-            collector=global_collector, interval=0.01, window_size=5
-        )  # Pass global_collector
+            collector=pypss.get_global_collector(), interval=0.01, window_size=5
+        )
 
         # Add traces to global_collector to trigger _on_new_trace callback
-        global_collector.clear()  # Ensure clean state before adding
+        pypss.get_global_collector().clear()  # Ensure clean state before adding
         for _ in range(5):
-            global_collector.add_trace({"error": False})  # Add 5 non-error traces
+            pypss.get_global_collector().add_trace(
+                {"error": False}
+            )  # Add 5 non-error traces
 
         monitor._calculate_and_update_error_rate()
 
@@ -132,17 +125,18 @@ class TestErrorRateMonitor:
             "pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler
         )
 
+        assert pypss.get_global_collector() is not None
         monitor = ErrorRateMonitor(
-            collector=global_collector, interval=0.01, window_size=5
-        )  # Pass global_collector
+            collector=pypss.get_global_collector(), interval=0.01, window_size=5
+        )
 
         # Add traces to global_collector to trigger _on_new_trace callback
         # Use the actual global_collector, which will notify the monitor
-        global_collector.clear()  # Ensure clean state before adding
+        pypss.get_global_collector().clear()  # Ensure clean state before adding
         for _ in range(3):
-            global_collector.add_trace({"error": False})
+            pypss.get_global_collector().add_trace({"error": False})
         for _ in range(2):
-            global_collector.add_trace({"error": True})
+            pypss.get_global_collector().add_trace({"error": True})
 
         monitor._calculate_and_update_error_rate()
 
@@ -156,14 +150,15 @@ class TestErrorRateMonitor:
             "pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler
         )
 
+        assert pypss.get_global_collector() is not None
         monitor = ErrorRateMonitor(
-            collector=global_collector, interval=0.01, window_size=5
-        )  # Pass global_collector
+            collector=pypss.get_global_collector(), interval=0.01, window_size=5
+        )
 
         # Add traces to global_collector to trigger _on_new_trace callback
-        global_collector.clear()  # Ensure clean state before adding
+        pypss.get_global_collector().clear()  # Ensure clean state before adding
         for _ in range(5):  # Add 5 errors to fill the window
-            global_collector.add_trace({"error": True})
+            pypss.get_global_collector().add_trace({"error": True})
 
         monitor._calculate_and_update_error_rate()
 
@@ -178,8 +173,9 @@ class TestErrorRateMonitor:
             ErrorRateMonitor, "_calculate_and_update_error_rate", mock_calc_update
         )
 
+        assert pypss.get_global_collector() is not None
         monitor = ErrorRateMonitor(
-            collector=global_collector, interval=0.05, window_size=10
+            collector=pypss.get_global_collector(), interval=0.05, window_size=10
         )  # Pass global_collector; Small interval for quick test
         monitor.start()
 

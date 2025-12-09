@@ -1,22 +1,42 @@
 import pytest
 import time
-from pypss.instrumentation import monitor_function, monitor_block, global_collector
-from pypss.utils.config import GLOBAL_CONFIG  # Import GLOBAL_CONFIG
 import inspect
-from unittest.mock import MagicMock
 import random
+from unittest.mock import MagicMock
+
+import pypss  # Import pypss
+from pypss.instrumentation import monitor_function, monitor_block
+from pypss.utils.config import GLOBAL_CONFIG
 
 
-# Reset collector before each test (simple way for now)
 @pytest.fixture(autouse=True)
-def clean_collector():
-    global_collector.clear()
+def setup_teardown_pypss_init():
+    """
+    Fixture to initialize pypss components before each test and clean up after.
+    This ensures global_collector and other components are properly set up.
+    """
+    pypss.init()
+    # Explicitly clear global_collector after init()
+    # We retrieve the collector via the getter
+    pypss.get_global_collector().clear()
+
     yield
-    global_collector.clear()
+
+    # Teardown: Stop runtime tuner and error rate monitor if they were started
+    pypss.get_runtime_tuner().stop()
+    pypss.get_error_rate_monitor().stop()
+    pypss.get_global_collector().clear()  # Clear collector after each test
 
 
 class TestInstrumentation:
-    def test_monitor_function_decorator(self):
+    def test_monitor_function_decorator(
+        self, monkeypatch
+    ):  # Add monkeypatch as argument
+        monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)  # Ensure 100% sampling
+        monkeypatch.setattr(
+            GLOBAL_CONFIG, "error_sample_rate", 1.0
+        )  # Ensure errors are not sampled out
+
         @monitor_function("test_func", branch_tag="A")
         def sample_func(x):
             return x * 2
@@ -26,7 +46,7 @@ class TestInstrumentation:
         assert res == 20
 
         # Check traces
-        traces = global_collector.get_traces()
+        traces = pypss.get_global_collector().get_traces()
         assert len(traces) == 1
         t = traces[0]
         assert t["name"] == "test_func"
@@ -35,7 +55,14 @@ class TestInstrumentation:
         assert "memory" in t
         assert t["error"] is False
 
-    def test_monitor_function_exception(self):
+    def test_monitor_function_exception(self, monkeypatch):
+        monkeypatch.setattr(
+            GLOBAL_CONFIG, "sample_rate", 1.0
+        )  # Explicitly set sample rate
+        monkeypatch.setattr(
+            GLOBAL_CONFIG, "error_sample_rate", 1.0
+        )  # Explicitly set error sample rate
+
         @monitor_function("error_func")
         def fail_func():
             raise ValueError("Boom")
@@ -43,24 +70,29 @@ class TestInstrumentation:
         with pytest.raises(ValueError):
             fail_func()
 
-        traces = global_collector.get_traces()
+        traces = pypss.get_global_collector().get_traces()
         assert len(traces) == 1
         assert traces[0]["error"] is True
         assert traces[0]["exception_type"] == "ValueError"
 
-    def test_monitor_block_context_manager(self):
+    def test_monitor_block_context_manager(
+        self, monkeypatch
+    ):  # Add monkeypatch as argument
+        monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)  # Ensure 100% sampling
+        monkeypatch.setattr(
+            GLOBAL_CONFIG, "error_sample_rate", 1.0
+        )  # Ensure errors are not sampled out
+
         with monitor_block("block_A", branch_tag="B"):
             time.sleep(0.001)
 
-        traces = global_collector.get_traces()
+        traces = pypss.get_global_collector().get_traces()
         assert len(traces) == 1
         assert traces[0]["name"] == "block_A"
         assert traces[0]["branch_tag"] == "B"
         assert traces[0]["error"] is False
 
     def test_sampling_decorator(self):
-        from pypss.utils import GLOBAL_CONFIG
-
         # 1. Disable sampling (0%)
         orig_rate = GLOBAL_CONFIG.sample_rate
         GLOBAL_CONFIG.sample_rate = 0.0
@@ -72,13 +104,13 @@ class TestInstrumentation:
         for _ in range(10):
             func()
 
-        traces = global_collector.get_traces()
+        traces = pypss.get_global_collector().get_traces()
         assert len(traces) == 0
 
         # 2. Enable sampling (100%)
         GLOBAL_CONFIG.sample_rate = 1.0
         func()
-        assert len(global_collector.get_traces()) == 1
+        assert len(pypss.get_global_collector().get_traces()) == 1
 
         GLOBAL_CONFIG.sample_rate = orig_rate
 
@@ -128,7 +160,7 @@ class TestInstrumentation:
         with monitor_block("skipped_block"):
             time.sleep(0.001)
 
-        traces = global_collector.get_traces()
+        traces = pypss.get_global_collector().get_traces()
         assert len(traces) == 0
 
     def test_monitor_block_error_sampling_override_skip(self, monkeypatch):
@@ -149,7 +181,7 @@ class TestInstrumentation:
             with monitor_block("error_skipped_block"):
                 raise CustomError("Error in block")
 
-        traces = global_collector.get_traces()
+        traces = pypss.get_global_collector().get_traces()
         # Even though an error occurred, the error sampling rate should cause it to be skipped.
         assert len(traces) == 0
 
@@ -173,5 +205,5 @@ class TestInstrumentation:
         # as it's sampled out.
         func_with_error()
 
-        traces = global_collector.get_traces()
+        traces = pypss.get_global_collector().get_traces()
         assert len(traces) == 0  # Verify that no trace was collected.

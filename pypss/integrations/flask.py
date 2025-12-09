@@ -1,7 +1,7 @@
 import time
 import threading
 from flask import Flask, request
-from ..instrumentation import global_collector
+import pypss
 from ..utils.trace_utils import get_memory_usage
 from ..utils.config import GLOBAL_CONFIG
 
@@ -44,7 +44,9 @@ def init_pypss_flask_app(app: Flask):
             "timestamp": getattr(_request_metrics, "start_wall", end_wall),
         }
 
-        global_collector.add_trace(trace)
+        collector = pypss.get_global_collector()
+        if collector:
+            collector.add_trace(trace)
 
         # Add headers
         response.headers[GLOBAL_CONFIG.integration_flask_header_latency] = (

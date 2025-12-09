@@ -1,7 +1,7 @@
 import time
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
-from ..instrumentation import global_collector
+import pypss
 from ..utils.trace_utils import get_memory_usage
 from ..utils.config import GLOBAL_CONFIG
 
@@ -50,7 +50,9 @@ class PSSMiddleware(BaseHTTPMiddleware):
             }
 
             # Add to global collector for aggregate reporting
-            global_collector.add_trace(trace)
+            collector = pypss.get_global_collector()
+            if collector:
+                collector.add_trace(trace)
 
             # Compute single-request score (micro-PSS)
             # Note: PSS is statistical, so score of 1 request is usually 100 unless error/slow

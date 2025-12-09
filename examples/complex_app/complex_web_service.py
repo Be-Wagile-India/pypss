@@ -3,10 +3,10 @@ import random
 import time
 import os
 from typing import Optional, List, Any
+import pypss
 from pypss.instrumentation import (
     monitor_function,
     monitor_block,
-    global_collector,
     AutoDumper,
 )
 from pypss.core import compute_pss_from_traces
@@ -125,7 +125,9 @@ def run_service_simulation(
     global _memory_hog
     _memory_hog = []  # Clear memory hog for each simulation run
 
-    global_collector.clear()  # Ensure a clean start
+    # Get the global collector (ensure pypss.init() is called by the test fixture)
+    collector = pypss.get_global_collector()
+    collector.clear()  # Ensure a clean start
 
     # --- Removed: Resume from existing traces logic ---
 
@@ -133,7 +135,7 @@ def run_service_simulation(
     if dump_interval:
         print(f"Auto-dumping traces every {dump_interval}s to {trace_file}")
         dumper = AutoDumper(
-            global_collector,
+            collector,  # Use the retrieved collector
             trace_file,
             interval=dump_interval,
             rotate_interval=rotate_interval,
@@ -174,7 +176,7 @@ def run_service_simulation(
             print("Stopping auto-dumper...")
             dumper.stop()
 
-    traces = global_collector.get_traces()
+    traces = collector.get_traces()  # Use the retrieved collector
     # Final write if not using dumper, or just to be sure
     if not dumper:
         with open(trace_file, "w") as f:

@@ -72,7 +72,9 @@ def run_with_instrumentation(target_script: str, root_dir: str):
     3. Runs the target script.
     """
     from ..utils import GLOBAL_CONFIG
+    import pypss  # Import pypss to access pypss.init()
 
+    pypss.init()  # Initialize PyPSS components
     logging.basicConfig(level=logging.INFO)
     logging.info(f"Initial max_traces: {GLOBAL_CONFIG.max_traces}")
 

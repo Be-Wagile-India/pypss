@@ -1,6 +1,6 @@
 import time
 from typing import Optional
-from ..instrumentation import global_collector
+import pypss
 
 
 def report_kafka_lag(
@@ -28,4 +28,6 @@ def report_kafka_lag(
             "group_id": group_id or "unknown",
         },
     }
-    global_collector.add_trace(trace)
+    collector = pypss.get_global_collector()
+    if collector:
+        collector.add_trace(trace)

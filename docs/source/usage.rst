@@ -107,6 +107,14 @@ To use a distributed collector, you need to set the `global_collector` instance 
 CLI Usage
 ---------
 
+PyPSS provides several powerful command-line tools:
+
+*   **`pypss analyze`**: Analyze trace files from production logs or test runs.
+*   **`pypss history`**: View and manage historical PSS trends.
+*   **`pypss tune`**: Auto-tune PSS configuration parameters for optimal fault detection.
+*   **`pypss ml-detect`**: Detect anomalous patterns using machine learning.
+*   **`pypss board`**: Launch an interactive stability dashboard.
+
 Analyze a trace file:
 
 .. code-block:: bash
@@ -127,6 +135,84 @@ Ask an AI model (OpenAI or Ollama) to diagnose root causes of instability from y
 
    # Use local Ollama model
    pypss diagnose --trace-file traces.json --provider ollama
+
+Metric Auto-Tuning
+------------------
+
+PyPSS can automatically tune its internal parameters (like metric weights and thresholds) to maximize its effectiveness in distinguishing between healthy and faulty application behavior. This process uses advanced **Bayesian Optimization** to efficiently find the best configuration.
+
+.. code-block:: bash
+
+    pypss tune --help
+
+    Usage: pypss tune [OPTIONS]
+
+      Auto-tune PyPSS configuration based on baseline traces.
+
+      This command analyzes your 'healthy' traces, generates synthetic 'faulty'
+      traces (latency spikes, memory leaks, error bursts), and finds the best
+      parameters to maximize the score difference between them.
+
+    Options:
+      --baseline PATH         Path to the JSON trace file containing baseline
+                              (healthy) behavior.  [required]
+      --output PATH           Path to save the optimized configuration.  [default:
+                              pypss_tuned.toml]
+      --iterations INTEGER    Number of optimization iterations.  [default: 50]
+      --help                  Show this message and exit.
+
+**Example:**
+
+.. code-block:: bash
+
+    # 1. Run your application under normal conditions to get a baseline trace
+    pypss run app.py --output baseline_traces.json
+
+    # 2. Run the tuning process
+    pypss tune --baseline baseline_traces.json --output my_tuned_config.toml
+
+    # 3. Use the tuned configuration in your pyproject.toml or pypss.toml
+    # [tool.pypss]
+    # include_config = "my_tuned_config.toml"
+
+
+ML-based Pattern Detection
+--------------------------
+
+Detect subtle, complex instability patterns using machine learning. This feature trains an anomaly detection model on your healthy baseline traces and then uses it to identify unusual behavior in new, unseen traces.
+
+.. code-block:: bash
+
+    pypss ml-detect --help
+
+    Usage: pypss ml-detect [OPTIONS]
+
+      Detects anomalous patterns in target traces using a Machine Learning model
+      trained on baseline traces.
+
+    Options:
+      --baseline-file PATH      Path to the JSON trace file containing baseline
+                                (normal) behavior.  [required]
+      --target-file PATH        Path to the JSON trace file containing traces to
+                                detect anomalies in.  [required]
+      --contamination FLOAT     The proportion of outliers in the baseline dataset.
+                                Used by IsolationForest.  [default: 0.1]
+      --random-state INTEGER    Random seed for reproducibility of ML model
+                                training.  [default: 42]
+      --help                    Show this message and exit.
+
+**Example:**
+
+.. code-block:: bash
+
+    # 1. Generate healthy baseline traces
+    pypss run app.py --output healthy_traces.json
+
+    # 2. Generate new traces from a potentially problematic run
+    pypss run app.py --output new_run_traces.json
+
+    # 3. Detect anomalies in the new traces
+    pypss ml-detect --baseline-file healthy_traces.json --target-file new_run_traces.json
 
 Interactive Dashboard
 ---------------------

@@ -21,6 +21,10 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns: list[str] = []
 
+# -- Options for sphinx_autodoc_typehints ------------------------------------
+typehints_use_igeneric = False
+autodoc_type_aliases = {"Redis": "redis.Redis"}
+
 # -- Options for HTML output -------------------------------------------------
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]

@@ -3,9 +3,9 @@ from click.testing import CliRunner
 from unittest.mock import patch, MagicMock
 import json
 import time
+import pypss
 from pypss.cli.cli import main
 from pypss.storage.sqlite import SQLiteStorage
-from pypss.instrumentation import global_collector
 
 
 @pytest.fixture
@@ -37,21 +37,30 @@ def test_run_command_stores_history(runner, tmp_path):
     script = tmp_path / "dummy.py"
     script.write_text("print('hello')")
 
-    # Pre-seed collector so that `run` command proceeds
-    global_collector.clear()
-    global_collector.add_trace({"name": "dummy", "duration": 0.1})
+    # Mock get_global_collector and its methods
+    with patch("pypss.cli.cli.pypss.get_global_collector") as mock_get_collector:
+        mock_collector = MagicMock()
+        mock_get_collector.return_value = mock_collector
+        mock_collector.get_traces.return_value = [{"name": "dummy", "duration": 0.1}]
 
-    # We patch get_storage_backend where it is defined
-    with patch("pypss.storage.get_storage_backend") as mock_get_backend:
-        mock_storage = MagicMock()
-        mock_get_backend.return_value = mock_storage
-        mock_storage.get_history.return_value = []  # Fix: return empty list for history
+        # Mock compute_pss_from_traces to return a valid report
+        with patch("pypss.cli.cli.compute_pss_from_traces") as mock_compute_pss:
+            mock_compute_pss.return_value = {
+                "pss": 90.0,
+                "breakdown": {"timing_stability": 1.0},
+            }
 
-        result = runner.invoke(main, ["run", str(script), "--store-history"])
+            # We patch get_storage_backend where it is defined
+            with patch("pypss.storage.get_storage_backend") as mock_get_backend:
+                mock_storage = MagicMock()
+                mock_get_backend.return_value = mock_storage
+                mock_storage.get_history.return_value = []  # Fix: return empty list for history
 
-        assert result.exit_code == 0
-        assert "PSS Score stored in history" in result.output
-        mock_storage.save.assert_called_once()
+                result = runner.invoke(main, ["run", str(script), "--store-history"])
+
+                assert result.exit_code == 0
+                assert "PSS Score stored in history" in result.output
+                mock_storage.save.assert_called_once()
 
 
 def test_analyze_command_stores_history(runner, tmp_path):
@@ -180,43 +189,63 @@ def test_history_command_days_filter(runner, tmp_path):
 def test_run_command_html_output(runner, tmp_path):
     script = tmp_path / "dummy.py"
     script.write_text("print('hello')")
-    global_collector.clear()
-    global_collector.add_trace({"name": "dummy", "duration": 0.1})
 
-    with patch("pypss.cli.cli.generate_advisor_report") as mock_advisor:
-        mock_advisor.return_value = MagicMock(diagnosis="AI DIAGNOSIS")
-        with patch("pypss.cli.cli.render_report_html") as mock_render_html:
-            mock_render_html.return_value = "<html>AI DIAGNOSIS</html>"
-            result = runner.invoke(
-                main,
-                [
-                    "run",
-                    str(script),
-                    "--output",
-                    str(tmp_path / "report.html"),
-                    "--html",
-                ],
-            )
-            assert result.exit_code == 0
-            assert (tmp_path / "report.html").exists()
-            assert "AI DIAGNOSIS" in (tmp_path / "report.html").read_text()
+    with patch("pypss.cli.cli.pypss.get_global_collector") as mock_get_collector:
+        mock_collector = MagicMock()
+        mock_get_collector.return_value = mock_collector
+        mock_collector.get_traces.return_value = [{"name": "dummy", "duration": 0.1}]
+
+        with patch("pypss.cli.cli.compute_pss_from_traces") as mock_compute_pss:
+            mock_compute_pss.return_value = {
+                "pss": 90.0,
+                "breakdown": {"timing_stability": 1.0},
+            }
+
+            with patch("pypss.cli.cli.generate_advisor_report") as mock_advisor:
+                mock_advisor.return_value = MagicMock(diagnosis="AI DIAGNOSIS")
+                with patch("pypss.cli.cli.render_report_html") as mock_render_html:
+                    mock_render_html.return_value = "<html>AI DIAGNOSIS</html>"
+                    result = runner.invoke(
+                        main,
+                        [
+                            "run",
+                            str(script),
+                            "--output",
+                            str(tmp_path / "report.html"),
+                            "--html",
+                        ],
+                    )
+                    assert result.exit_code == 0
+                    assert (tmp_path / "report.html").exists()
+                    assert "AI DIAGNOSIS" in (tmp_path / "report.html").read_text()
 
 
 def test_run_command_store_history_failure(runner, tmp_path):
     script = tmp_path / "dummy.py"
     script.write_text("print('hello')")
-    global_collector.clear()
-    global_collector.add_trace({"name": "dummy", "duration": 0.1})
 
-    with patch("pypss.storage.get_storage_backend") as mock_get_backend:
-        mock_storage = MagicMock()
-        mock_get_backend.return_value = mock_storage
-        mock_storage.get_history.return_value = []
-        mock_storage.save.side_effect = Exception("DB Write Error")
+    with patch("pypss.cli.cli.pypss.get_global_collector") as mock_get_collector:
+        mock_collector = MagicMock()
+        mock_get_collector.return_value = mock_collector
+        mock_collector.get_traces.return_value = [{"name": "dummy", "duration": 0.1}]
 
-        result = runner.invoke(main, ["run", str(script), "--store-history"])
-        assert result.exit_code == 0  # Command itself doesn't fail, just the storage
-        assert "Failed to store history" in result.output
+        with patch("pypss.cli.cli.compute_pss_from_traces") as mock_compute_pss:
+            mock_compute_pss.return_value = {
+                "pss": 90.0,
+                "breakdown": {"timing_stability": 1.0},
+            }
+
+            with patch("pypss.storage.get_storage_backend") as mock_get_backend:
+                mock_storage = MagicMock()
+                mock_get_backend.return_value = mock_storage
+                mock_storage.get_history.return_value = []
+                mock_storage.save.side_effect = Exception("DB Write Error")
+
+                result = runner.invoke(main, ["run", str(script), "--store-history"])
+                assert (
+                    result.exit_code == 0
+                )  # Command itself doesn't fail, just the storage
+                assert "Failed to store history" in result.output
 
 
 def test_analyze_command_html_output(runner, tmp_path):
@@ -353,7 +382,9 @@ def test_run_command_no_traces_collected(runner, tmp_path):
     script = tmp_path / "empty_script.py"
     script.write_text("print('script ran')")  # Will run, but won't generate traces
 
-    global_collector.clear()  # Ensure no traces
+    pypss.init()
+    collector = pypss.get_global_collector()
+    collector.clear()  # Ensure no traces
     result = runner.invoke(main, ["run", str(script)])
     assert result.exit_code == 0
     assert "script ran" in result.output  # Verify script ran
@@ -363,28 +394,31 @@ def test_run_command_no_traces_collected(runner, tmp_path):
 def test_run_command_module_score_indicators(runner, tmp_path):
     script = tmp_path / "dummy.py"
     script.write_text("print('hello')")
-    global_collector.clear()
-    global_collector.add_trace(
-        {"name": "dummy", "duration": 0.1}
-    )  # Pre-seed with one trace
 
-    # Force traces with different PSS scores for module
-    # Mock compute_pss_from_traces and get_module_score_breakdown
-    with patch("pypss.cli.cli.compute_pss_from_traces") as mock_compute_pss:
-        mock_compute_pss.return_value = {"pss": 80, "breakdown": {}}
-        with patch(
-            "pypss.cli.cli.get_module_score_breakdown"
-        ) as mock_get_module_scores:
-            mock_get_module_scores.return_value = {
-                "module_red": {"pss": 40},
-                "module_yellow": {"pss": 75},
-                "module_green": {"pss": 95},
-            }
-            result = runner.invoke(main, ["run", str(script)])
-            assert result.exit_code == 0
-            assert "🔴 module_red" in result.output
-            assert "🟡 module_yellow" in result.output
-            assert "🟢 module_green" in result.output
+    with patch("pypss.cli.cli.pypss.get_global_collector") as mock_get_collector:
+        mock_collector = MagicMock()
+        mock_get_collector.return_value = mock_collector
+        mock_collector.get_traces.return_value = [
+            {"name": "dummy", "duration": 0.1}
+        ]  # Pre-seed with one trace
+
+        # Force traces with different PSS scores for module
+        # Mock compute_pss_from_traces and get_module_score_breakdown
+        with patch("pypss.cli.cli.compute_pss_from_traces") as mock_compute_pss:
+            mock_compute_pss.return_value = {"pss": 80, "breakdown": {}}
+            with patch(
+                "pypss.cli.cli.get_module_score_breakdown"
+            ) as mock_get_module_scores:
+                mock_get_module_scores.return_value = {
+                    "module_red": {"pss": 40},
+                    "module_yellow": {"pss": 75},
+                    "module_green": {"pss": 95},
+                }
+                result = runner.invoke(main, ["run", str(script)])
+                assert result.exit_code == 0
+                assert "🔴 module_red" in result.output
+                assert "🟡 module_yellow" in result.output
+                assert "🟢 module_green" in result.output
 
 
 def test_analyze_command_malformed_trace_file(runner, tmp_path):

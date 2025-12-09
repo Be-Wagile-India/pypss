@@ -28,16 +28,23 @@ Core Settings ``[pypss]``
      - ``10000``
 
    * - ``w_ts``, ``w_ms``, ``w_ev``, ``w_be``, ``w_cc``
-     - Weights for the 5 stability pillars. Must sum to approx 1.0.
+     - Weights for the 5 stability pillars. Must sum to approx 1.0. **Can be auto-tuned via `pypss tune`.**
      - (Various)
 
    * - ``alpha``, ``beta``, ``gamma``, ``delta``
-     - Sensitivity coefficients for scoring algorithms.
+     - Sensitivity coefficients for scoring algorithms. **Can be auto-tuned via `pypss tune`.**
      - (Various)
 
    * - ``plugins``
      - List of strings specifying external python modules to load as plugins.
      - ``[]``
+
+Metric Auto-Tuning ``[pypss.tuning]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While the `pypss tune` command automatically optimizes configuration parameters, you can also manually set initial ranges or values. The tuning process will optimize parameters like ``alpha``, ``beta``, ``gamma``, ``mem_spike_threshold_ratio``, ``concurrency_wait_threshold``, and the individual metric weights (``w_ts``, ``w_ms``, etc.).
+
+When running ``pypss tune``, the output configuration file (e.g., `pypss_tuned.toml`) will contain the optimized values for these parameters.
 
 Adaptive Sampling ``[pypss]``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,6 +173,27 @@ Configure the AI backend for the ``diagnose`` command.
    [pypss.llm]
    openai_model = "gpt-4o"
    ollama_url = "http://localhost:11434/api/generate"
+
+ML-based Pattern Detection ``[pypss.ml]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Configure the default parameters for the `pypss ml-detect` command.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30, 60, 10
+
+   * - Parameter
+     - Description
+     - Default
+
+   * - ``contamination``
+     - The proportion of outliers expected in the baseline dataset. Used by IsolationForest.
+     - ``0.1``
+
+   * - ``random_state``
+     - Random seed for reproducibility of ML model training.
+     - ``42``
 
 Alerting Configuration ``[tool.pypss.alerts]``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

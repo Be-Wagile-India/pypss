@@ -3,12 +3,12 @@ import os
 import sys
 from unittest.mock import patch, MagicMock
 from click.testing import CliRunner
+import pypss
 
 # Ensure project root is in sys.path for module discovery
 sys.path.insert(0, os.path.abspath("."))
 
 from pypss.cli import main
-from pypss.instrumentation import global_collector
 
 
 class TestCLI:
@@ -50,8 +50,10 @@ class TestCLI:
     def test_run_command_no_traces(self, tmp_path):
         # Mock run_with_instrumentation to return no traces
         with patch("pypss.cli.cli.run_with_instrumentation"):
-            with patch("pypss.cli.cli.global_collector.get_traces") as mock_get_traces:
-                mock_get_traces.return_value = []
+            with patch("pypss.get_global_collector") as mock_get_global_collector:
+                mock_collector = MagicMock()
+                mock_get_global_collector.return_value = mock_collector
+                mock_collector.get_traces.return_value = []
                 script = tmp_path / "empty.py"
                 script.touch()
                 runner = CliRunner()
@@ -62,9 +64,13 @@ class TestCLI:
 
     def test_run_command_html_output(self, tmp_path):
         with patch("pypss.cli.cli.run_with_instrumentation"):
-            with patch("pypss.cli.cli.global_collector.get_traces") as mock_get_traces:
+            with patch("pypss.get_global_collector") as mock_get_global_collector:
                 with patch("pypss.cli.cli.render_report_html") as mock_render_html:
-                    mock_get_traces.return_value = [{"duration": 0.1, "error": False}]
+                    mock_collector = MagicMock()
+                    mock_get_global_collector.return_value = mock_collector
+                    mock_collector.get_traces.return_value = [
+                        {"duration": 0.1, "error": False}
+                    ]
                     mock_render_html.return_value = "<html>mock html</html>"
 
                     script = tmp_path / "dummy.py"
@@ -120,7 +126,9 @@ if __name__ == "__main__":
         # However, CodebaseDiscoverer looks at file system.
 
         # Important: global_collector persists across tests in same process unless cleared
-        global_collector.clear()
+        pypss.init()
+        collector = pypss.get_global_collector()
+        collector.clear()
 
         runner = CliRunner()
         # Run in the tmp_path so discovery works relatively
@@ -135,12 +143,16 @@ if __name__ == "__main__":
     def test_run_command_module_output(self, tmp_path):
         # Mocking to ensure we hit the module printing lines
         with patch("pypss.cli.cli.run_with_instrumentation"):
-            with patch("pypss.cli.cli.global_collector.get_traces") as mock_traces:
+            with patch("pypss.get_global_collector") as mock_get_global_collector:
                 with patch(
                     "pypss.cli.cli.get_module_score_breakdown"
                 ) as mock_breakdown:
                     # Setup mocks
-                    mock_traces.return_value = [{"name": "mod.func", "duration": 0.1}]
+                    mock_collector = MagicMock()
+                    mock_get_global_collector.return_value = mock_collector
+                    mock_collector.get_traces.return_value = [
+                        {"name": "mod.func", "duration": 0.1}
+                    ]
                     mock_breakdown.return_value = {
                         "mod_good": {"pss": 95},
                         "mod_ok": {"pss": 75},
@@ -166,8 +178,12 @@ if __name__ == "__main__":
     @patch("builtins.open", side_effect=OSError("Permission denied"))
     def test_run_command_output_file_write_error(self, mock_open, tmp_path):
         with patch("pypss.cli.cli.run_with_instrumentation"):
-            with patch("pypss.cli.cli.global_collector.get_traces") as mock_get_traces:
-                mock_get_traces.return_value = [{"duration": 0.1, "error": False}]
+            with patch("pypss.get_global_collector") as mock_get_global_collector:
+                mock_collector = MagicMock()
+                mock_get_global_collector.return_value = mock_collector
+                mock_collector.get_traces.return_value = [
+                    {"duration": 0.1, "error": False}
+                ]
                 script = tmp_path / "dummy.py"
                 script.touch()
                 output_file = tmp_path / "report.json"

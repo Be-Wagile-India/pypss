@@ -4,7 +4,7 @@ import os
 import json
 import shutil
 import glob
-from ..instrumentation import global_collector
+import pypss
 from ..utils.trace_utils import get_memory_usage
 from ..core import compute_pss_from_traces
 from ..utils.config import GLOBAL_CONFIG
@@ -38,7 +38,10 @@ def pytest_sessionstart(session):
     if not session.config.getoption("--pss"):
         return
 
-    global_collector.clear()
+    pypss.init()  # Ensure PyPSS is initialized
+    collector = pypss.get_global_collector()
+    if collector:  # Only clear if collector is available
+        collector.clear()
 
     # If Master (or single process), clean the temp dir
     if not is_worker(session):
@@ -89,7 +92,9 @@ def pytest_runtest_call(item):
     # but we can track it.
     # If the user runs `pytest --count=10`, we could aggregate.
     # For now, we just collect.
-    global_collector.add_trace(trace)
+    collector = pypss.get_global_collector()
+    if collector:
+        collector.add_trace(trace)
 
 
 def pytest_sessionfinish(session, exitstatus):
@@ -97,17 +102,19 @@ def pytest_sessionfinish(session, exitstatus):
         return
 
     # 1. Dump local traces to file (Worker OR Master)
-    traces = global_collector.get_traces()
-    if traces:
-        # Use PID to avoid collision
-        pid = os.getpid()
-        dump_file = os.path.join(TEMP_TRACE_DIR, f"traces_{pid}.json")
-        try:
-            with open(dump_file, "w") as f:
-                json.dump(traces, f)
-        except Exception:
-            # In rare race conditions or permission issues, just ignore
-            pass
+    collector = pypss.get_global_collector()
+    if collector:
+        traces = collector.get_traces()
+        if traces:
+            # Use PID to avoid collision
+            pid = os.getpid()
+            dump_file = os.path.join(TEMP_TRACE_DIR, f"traces_{pid}.json")
+            try:
+                with open(dump_file, "w") as f:
+                    json.dump(traces, f)
+            except Exception:
+                # In rare race conditions or permission issues, just ignore
+                pass
 
     # 2. If Worker, stop here.
     if is_worker(session):

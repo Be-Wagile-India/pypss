@@ -1,5 +1,6 @@
 import logging
 from typing import Iterable
+import pypss
 from ..utils.config import GLOBAL_CONFIG
 
 try:
@@ -20,7 +21,6 @@ except ImportError:
         pass
 
 
-from ..instrumentation import global_collector
 from ..core import compute_pss_from_traces
 
 logger = logging.getLogger(__name__)
@@ -85,8 +85,14 @@ class OTelReporter:
 
     def _compute_snapshot(self):
         # Get all traces currently in the ring buffer
-        traces = global_collector.get_traces()
-        return compute_pss_from_traces(traces)
+        collector = pypss.get_global_collector()
+        if collector:
+            traces = collector.get_traces()
+            return compute_pss_from_traces(traces)
+        return {
+            "pss": 0,
+            "breakdown": {},
+        }  # Return a default empty report if collector is None
 
     def _observe_pss(self, options: CallbackOptions) -> Iterable[Observation]:
         report = self._compute_snapshot()
