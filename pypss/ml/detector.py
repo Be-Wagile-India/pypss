@@ -53,7 +53,8 @@ class PatternDetector:
         self.model: Optional[IsolationForest] = IsolationForest(
             contamination=contamination,
             random_state=random_state,
-            n_jobs=-1,  # Use all available CPU cores
+            n_jobs=1,  # Use 1 CPU core to avoid Attribute Error in sklearn's __len__ during fit
+            n_estimators=100,
         )
         self.scaler: StandardScaler = StandardScaler()
         self.fitted = False

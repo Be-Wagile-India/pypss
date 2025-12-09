@@ -45,4 +45,3 @@ class AlertState:
 
     def record_alert(self, rule_name: str):
         self.state[rule_name] = time.time()
-        # self.save() # NO: Now saving is debounced via atexit.

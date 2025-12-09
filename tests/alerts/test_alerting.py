@@ -1,9 +1,11 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, ANY
 import json
 import urllib.error
-# import socket # To mock socket.socket for network calls - NO LONGER NEEDED
-
+from freezegun import freeze_time
+import importlib  # Add importlib
+import time  # Add import time
+import sys  # Add import sys
 
 from pypss.alerts.engine import AlertEngine
 from pypss.alerts.base import AlertChannel, Alert, AlertSeverity
@@ -16,6 +18,8 @@ from pypss.alerts.channels import (
     _shutdown_event,  # Import the event
     _shutdown_sender_thread,  # Import the shutdown function for cleanup
 )
+from pypss.alerts.state import AlertState  # Import AlertState
+import pypss.alerts.state  # For patching the module global
 from pypss.utils.config import GLOBAL_CONFIG
 
 _mock_urlopen_for_tests = None
@@ -381,3 +385,110 @@ def test_alertmanager_channel_send_batch(mock_urllib_request):  # Pass fixture
     assert len(payload) == 2
     assert payload[0]["labels"]["alertname"] == "AM Test1"
     assert payload[1]["labels"]["severity"] == "critical"
+
+
+class TestAlertState:
+    @pytest.fixture(autouse=True)
+    def setup_alert_state(self, tmp_path):
+        # Ensure a clean state file for each test
+        state_file_path = tmp_path / "test_state.json"
+        with patch("pypss.alerts.state.STATE_FILE", str(state_file_path)):
+            # Reset the singleton instance for each test
+            if "_state_instance" in pypss.alerts.state.__dict__:
+                del pypss.alerts.state.__dict__["_state_instance"]
+            yield
+            if state_file_path.exists():
+                state_file_path.unlink()
+
+    def test_alert_state_load_corrupted_file(self, tmp_path, capsys):
+        state_file_path = tmp_path / "test_state.json"
+        state_file_path.write_text("this is not valid json")
+
+        state = AlertState()
+        assert state.state == {}
+        # No error message expected on stderr for loading malformed JSON
+
+    def test_alert_state_save_io_error(self, tmp_path, capsys):
+        state_file_path = tmp_path / "test_state.json"
+        state = AlertState()
+        state.state = {"rule1": 12345.0}
+
+        with patch("json.dump", side_effect=IOError("Disk full")):
+            state.save()
+            captured = capsys.readouterr()
+            assert (
+                f"⚠️ Failed to save alert state to {state_file_path}: Disk full"
+                in captured.err
+            )
+
+    @freeze_time("2023-01-01 10:00:00")
+    def test_alert_state_should_alert_cooldown(self):
+        # Use freezer to control time
+        state = AlertState()
+        rule_name = "test_rule"
+        cooldown = 100
+
+        # First alert, should trigger
+        assert state.should_alert(rule_name, cooldown_seconds=cooldown) is True
+        state.record_alert(rule_name)
+
+        # Still in cooldown, should not trigger
+        freeze_time("2023-01-01 10:00:50").start()
+        assert state.should_alert(rule_name, cooldown_seconds=cooldown) is False
+        freeze_time("2023-01-01 10:00:50").stop()
+
+        # Cooldown over, should trigger
+        freeze_time("2023-01-01 10:02:01").start()
+        assert state.should_alert(rule_name, cooldown_seconds=cooldown) is True
+        freeze_time("2023-01-01 10:02:01").stop()
+
+        # Test initial state (no previous record)
+        state_new = AlertState()
+        assert state_new.should_alert("new_rule", cooldown_seconds=cooldown) is True
+
+    @freeze_time("2023-01-01 10:00:00")
+    def test_alert_state_record_alert(self):
+        state = AlertState()
+        rule_name = "test_rule"
+        state.record_alert(rule_name)
+        assert state.state.get(rule_name) == time.time()
+
+        freeze_time("2023-01-01 10:01:00").start()
+        state.record_alert(rule_name)
+        assert state.state.get(rule_name) == time.time()
+        freeze_time("2023-01-01 10:01:00").stop()
+
+    def test_alert_state_atexit_registered_outside_pytest(
+        self, tmp_path, mock_atexit_register_and_unregister
+    ):
+        mock_channels_register, mock_state_register, mock_unregister = (
+            mock_atexit_register_and_unregister
+        )
+        state_file_path = tmp_path / "test_state.json"
+
+        # Temporarily remove 'pytest' from sys.modules and reload the module
+        # This forces the atexit.register logic to be re-evaluated
+        old_pytest = sys.modules.pop("pytest", None)
+        try:
+            with patch("pypss.alerts.state.STATE_FILE", str(state_file_path)):
+                # Reload the module to pick up the changes in sys.modules
+                importlib.reload(pypss.alerts.state)
+                _ = pypss.alerts.state.AlertState()
+                mock_state_register.assert_called_once_with(ANY)
+        finally:
+            if old_pytest is not None:
+                sys.modules["pytest"] = old_pytest
+        # The teardown of setup_alert_state will clean the singleton
+
+    def test_alert_state_atexit_not_registered_in_pytest(
+        self, tmp_path, mock_atexit_register_and_unregister
+    ):
+        mock_channels_register, mock_state_register, mock_unregister = (
+            mock_atexit_register_and_unregister
+        )
+        state_file_path = tmp_path / "test_state.json"
+
+        # Pytest is in sys.modules by default in tests
+        with patch("pypss.alerts.state.STATE_FILE", str(state_file_path)):
+            _ = AlertState()
+            mock_state_register.assert_not_called()

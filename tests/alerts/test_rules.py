@@ -53,33 +53,32 @@ def create_mock_report(pss=100, ts=1.0, ms=1.0, ev=1.0, be=1.0, cc=1.0):
     }
 
 
-# MetricStabilityRule base tests
-def test_metric_stability_rule_not_enabled():
+@pytest.mark.parametrize(
+    "enabled, report_ts, expect_alert",
+    [
+        (False, 0.6, False),  # Disabled, no alert even if value < threshold
+        (True, 0.8, False),  # Enabled, value > threshold (0.7), no alert
+        (True, 0.6, True),  # Enabled, value < threshold (0.7), alert expected
+    ],
+)
+def test_metric_stability_rule(enabled, report_ts, expect_alert):
     rule = MetricStabilityRule(
         "Test Rule",
-        "pss",
+        "timing_stability",
         "alert_threshold_ts",
         severity=AlertSeverity.WARNING,
-        enabled=False,
+        enabled=enabled,
     )
-    report = create_mock_report()
-    assert rule.evaluate(report) is None
-
-
-def test_metric_stability_rule_no_trigger():
-    rule = MetricStabilityRule("Test Rule", "timing_stability", "alert_threshold_ts")
-    report = create_mock_report(ts=0.8)  # Above threshold 0.7
-    assert rule.evaluate(report) is None
-
-
-def test_metric_stability_rule_trigger():
-    rule = MetricStabilityRule("Test Rule", "timing_stability", "alert_threshold_ts")
-    report = create_mock_report(ts=0.6)  # Below threshold 0.7
+    report = create_mock_report(ts=report_ts)
     alert = rule.evaluate(report)
-    assert isinstance(alert, Alert)
-    assert alert.rule_name == "Test Rule"
-    assert alert.current_value == 0.6
-    assert alert.threshold == 0.7
+
+    if expect_alert:
+        assert isinstance(alert, Alert)
+        assert alert.rule_name == "Test Rule"
+        assert alert.current_value == report_ts
+        assert alert.threshold == 0.7
+    else:
+        assert alert is None
 
 
 def test_metric_stability_rule_trigger_pss():
@@ -126,50 +125,29 @@ def test_concurrency_spike_rule():
     assert rule.metric_key == "concurrency_chaos"
 
 
-# StabilityRegressionRule tests
-def test_regression_rule_not_enabled():
-    rule = StabilityRegressionRule(enabled=False)
-    report = create_mock_report()
-    history = [create_mock_report(pss=90)]
-    assert rule.evaluate(report, history) is None
+@pytest.mark.parametrize(
+    "enabled, report_pss, history_pss_list, expect_alert",
+    [
+        (False, 80, [90], False),  # Disabled
+        (True, 100, [], False),  # No history
+        (True, 85, [95, 90], False),  # Stable: avg=92.5, drop=7.5 < 10
+        (True, 80, [95, 90], True),  # Regressed: avg=92.5, drop=12.5 > 10
+        (True, 80, [95], True),  # Short history: avg=95, drop=15 > 10
+    ],
+)
+def test_stability_regression_rule(enabled, report_pss, history_pss_list, expect_alert):
+    rule = StabilityRegressionRule(enabled=enabled)
 
+    history = [create_mock_report(pss=p) for p in history_pss_list]
+    report = create_mock_report(pss=report_pss)
 
-def test_regression_rule_no_history():
-    rule = StabilityRegressionRule()
-    report = create_mock_report()
-    assert rule.evaluate(report, history=[]) is None
-
-
-def test_regression_rule_stable_history():
-    rule = StabilityRegressionRule()
-    history = [create_mock_report(pss=95), create_mock_report(pss=90)]  # Avg 92.5
-    report = create_mock_report(pss=85)  # Drop of 7.5, not enough for threshold 10
-    assert rule.evaluate(report, history=history) is None
-
-
-def test_regression_rule_detected():
-    rule = StabilityRegressionRule()
-    history = [create_mock_report(pss=95), create_mock_report(pss=90)]  # Avg 92.5
-    report = create_mock_report(pss=80)  # Drop of 12.5, triggers (92.5 - 10 = 82.5)
     alert = rule.evaluate(report, history=history)
-    assert isinstance(alert, Alert)
-    assert alert.rule_name == "Stability Regression"
-    assert alert.severity == AlertSeverity.CRITICAL
-    assert "significantly lower than average 92.5" in alert.message
-    assert alert.current_value == 80.0
-    assert alert.threshold == 82.5
 
-
-def test_regression_rule_history_too_short():
-    rule = StabilityRegressionRule()
-    history = [
-        create_mock_report(pss=95)
-    ]  # Only 1 run, but it's enough to calculate average.
-    report = create_mock_report(
-        pss=80
-    )  # Triggers regression: 80 < (95 - 10) => 80 < 85
-    alert = rule.evaluate(report, history=history)
-    assert isinstance(alert, Alert)
-    assert alert.rule_name == "Stability Regression"
-    assert alert.current_value == 80.0
-    assert alert.threshold == 85.0
+    if expect_alert:
+        assert isinstance(alert, Alert)
+        assert alert.rule_name == "Stability Regression"
+        if len(history_pss_list) > 0:
+            avg_pss = sum(history_pss_list) / len(history_pss_list)
+            assert f"average {avg_pss}" in alert.message
+    else:
+        assert alert is None

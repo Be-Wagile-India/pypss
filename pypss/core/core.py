@@ -276,7 +276,7 @@ def compute_pss_from_traces(traces: Iterable[Dict]) -> dict:
         if tag is not None and isinstance(tag, str):
             branch_tags_counter[tag] += 1
 
-    if count == 0 and not system_metrics["lag"]:
+    if count == 0 and not system_metrics["lag"] and not custom_metrics:
         return {
             "pss": 0,
             "breakdown": {

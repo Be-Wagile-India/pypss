@@ -11,10 +11,19 @@ class SQLiteStorage(StorageBackend):
     def __init__(self, db_path: str = "pypss_history.db", retention_days: int = 90):
         self.db_path = db_path
         self.retention_days = retention_days
+        self._conn: Optional[sqlite3.Connection] = None  # Store connection for :memory:
         self._init_db()
 
+    def _get_conn(self):
+        if self.db_path == ":memory:":
+            if self._conn is None:
+                self._conn = sqlite3.connect(self.db_path)
+            return self._conn
+        else:
+            return sqlite3.connect(self.db_path)
+
     def _init_db(self):
-        with sqlite3.connect(self.db_path) as conn:
+        with self._get_conn() as conn:
             cursor = conn.cursor()
 
             # Meta table for versioning
@@ -66,7 +75,7 @@ class SQLiteStorage(StorageBackend):
             return
 
         cutoff = time.time() - (_days_to_prune * 86400)
-        with sqlite3.connect(self.db_path) as conn:
+        with self._get_conn() as conn:
             conn.execute("DELETE FROM pss_history WHERE timestamp < ?", (cutoff,))
             conn.commit()
 
@@ -82,7 +91,7 @@ class SQLiteStorage(StorageBackend):
         # Extract sub-scores safely
         breakdown = report.get("breakdown", {})
 
-        with sqlite3.connect(self.db_path) as conn:
+        with self._get_conn() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 """
@@ -116,7 +125,7 @@ class SQLiteStorage(StorageBackend):
         query += " ORDER BY timestamp DESC LIMIT ?"
         params.append(limit)
 
-        with sqlite3.connect(self.db_path) as conn:
+        with self._get_conn() as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute(query, tuple(params))

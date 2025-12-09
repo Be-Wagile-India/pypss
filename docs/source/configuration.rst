@@ -1,15 +1,18 @@
-Advanced Configuration
-======================
+.. _configuration:
+
+###########
+Configuration
+###########
 
 The Python Program Stability Score (PSS) is highly configurable via a centralized ``pypss.toml`` file in your project root. This allows you to tune everything from scoring algorithms to UI colors without touching the code.
 
 Configuration File Structure
-----------------------------
+============================
 
-The ``pypss.toml`` file uses sections to organize settings.
+The ``pypss.toml`` file (or ``[tool.pypss]`` section in ``pyproject.toml``) uses sections to organize settings.
 
-Core Settings ``[pypss]``
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Core Settings ``[tool.pypss]``
+-----------------------------
 
 .. list-table::
    :header-rows: 1
@@ -39,15 +42,15 @@ Core Settings ``[pypss]``
      - List of strings specifying external python modules to load as plugins.
      - ``[]``
 
-Metric Auto-Tuning ``[pypss.tuning]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Metric Auto-Tuning ``[tool.pypss.tuning]``
+----------------------------------------
 
 While the `pypss tune` command automatically optimizes configuration parameters, you can also manually set initial ranges or values. The tuning process will optimize parameters like ``alpha``, ``beta``, ``gamma``, ``mem_spike_threshold_ratio``, ``concurrency_wait_threshold``, and the individual metric weights (``w_ts``, ``w_ms``, etc.).
 
 When running ``pypss tune``, the output configuration file (e.g., `pypss_tuned.toml`) will contain the optimized values for these parameters.
 
-Adaptive Sampling ``[pypss]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adaptive Sampling ``[tool.pypss.adaptive_sampling]``
+----------------------------------
 
 Settings to control the dynamic adjustment of the sample rate.
 
@@ -71,111 +74,111 @@ Settings to control the dynamic adjustment of the sample rate.
      - Sample rate used when ``low_noise`` mode is active.
      - ``0.01``
 
-UI Configuration ``[pypss.ui]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+UI Configuration ``[tool.pypss.ui]``
+------------------------------------
 
 Customize the dashboard appearance and behavior.
 
 .. code-block:: toml
 
-   [pypss.ui]
+   [tool.pypss.ui]
    port = 8080
    title = "My Stability Dashboard"
 
-   [pypss.ui.theme]
+   [tool.pypss.ui.theme]
    primary = "#4285F4"
    secondary = "#607D8B"
    # ... other colors
 
-Dashboard Logic ``[pypss.dashboard]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dashboard Logic ``[tool.pypss.dashboard]``
+------------------------------------------
 
 Thresholds for visual indicators on the dashboard.
 
 .. code-block:: toml
 
-   [pypss.dashboard]
+   [tool.pypss.dashboard]
    critical_pss_threshold = 60.0
    warning_error_rate = 0.05
 
-Background Dumpers ``[pypss.background]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Background Dumpers ``[tool.pypss.background]``
+---------------------------------------------
 
 Control how trace data is persisted to disk.
 
 .. code-block:: toml
 
-   [pypss.background]
+   [tool.pypss.background]
    dump_interval = 60
    archive_dir = "archive"
 
-Scoring Tuning ``[pypss.score]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Scoring Tuning ``[tool.pypss.score]``
+------------------------------------
 
 Fine-tune the mathematical models.
 
 .. code-block:: toml
 
-   [pypss.score]
+   [tool.pypss.score]
    latency_tail_percentile = 94
    memory_epsilon = 1e-9
    error_vmr_multiplier = 0.5
    error_spike_impact_multiplier = 0.5
    consecutive_error_decay_multiplier = 2.0
 
-Collector Performance ``[pypss.collector]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Collector Performance ``[tool.pypss.collector]``
+-------------------------------------------------
 
 Optimize the in-memory collector for high-concurrency workloads.
 
 .. code-block:: toml
 
-   [pypss.collector]
+   [tool.pypss.collector]
    max_traces_sharding_threshold = 1000
    shard_count = 16
 
-Advisor Thresholds ``[pypss.advisor]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Advisor Thresholds ``[tool.pypss.advisor]``
+------------------------------------------
 
 Configure when the AI Advisor triggers specific warnings.
 
 .. code-block:: toml
 
-   [pypss.advisor]
+   [tool.pypss.advisor]
    threshold_excellent = 90
    metric_score_critical = 0.6
    # ...
 
-Integrations ``[pypss.integration.*]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Integrations ``[tool.pypss.integration.*]``
+--------------------------------------------
 
 Configure prefixes and headers for various integrations.
 
 .. code-block:: toml
 
-   [pypss.integration.celery]
+   [tool.pypss.integration.celery]
    trace_prefix = "celery:"
 
-   [pypss.integration.flask]
+   [tool.pypss.integration.flask]
    trace_prefix = "flask:"
    header_latency = "X-PSS-Latency"
 
-   [pypss.integration.otel]
+   [tool.pypss.integration.otel]
    metric_prefix = "pypss."
 
-LLM Advisor ``[pypss.llm]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LLM Advisor ``[tool.pypss.llm]``
+---------------------------------
 
 Configure the AI backend for the ``diagnose`` command.
 
 .. code-block:: toml
 
-   [pypss.llm]
+   [tool.pypss.llm]
    openai_model = "gpt-4o"
    ollama_url = "http://localhost:11434/api/generate"
 
-ML-based Pattern Detection ``[pypss.ml]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ML-based Pattern Detection ``[tool.pypss.ml]``
+----------------------------------------------
 
 Configure the default parameters for the `pypss ml-detect` command.
 
@@ -196,13 +199,13 @@ Configure the default parameters for the `pypss ml-detect` command.
      - ``42``
 
 Alerting Configuration ``[tool.pypss.alerts]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------
 
 Configure alerting behavior, channels, and rule thresholds.
 
 .. code-block:: toml
 
-   [tool.pypss]
+   [tool.pypss.alerts]
    alerts_enabled = true             # Enable or disable the alerting engine
    alerts_cooldown_seconds = 3600    # Cooldown period (in seconds) for suppressing duplicate alerts
 
@@ -219,14 +222,14 @@ Configure alerting behavior, channels, and rule thresholds.
    alert_threshold_be = 0.70         # Branching Entropy score below this triggers an alert
    alert_threshold_cc = 0.70         # Concurrency Chaos score below this triggers an alert
 
-Custom Metrics Configuration ``[pypss.custom_metric_weights]``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Custom Metrics Configuration ``[tool.pypss.custom_metric_weights]``
+------------------------------------------------------------------
 
 Adjust the weight of specific custom plugins in the overall score.
 
 .. code-block:: toml
 
-   [pypss.custom_metric_weights]
+   [tool.pypss.custom_metric_weights]
    IO = 0.25
    DB = 0.20
    MY_PLUGIN = 0.5
@@ -278,7 +281,7 @@ PyPSS supports two modes for Prometheus integration:
 
 **How it works:**
 
-When you run ``pypss run ... --store-history`` (Push Mode) or initialize the app (Pull Mode), PyPSS exposes/pushes the following metrics:
+When you run ``pypss run ... --store-history`` (Push Mode) or initialize the app (Pull Mode), PyPSS exposes/puses the following metrics:
 
 *   ``pypss_score``: The overall PSS score (0-100).
 *   ``pypss_ts``: Timing Stability score.

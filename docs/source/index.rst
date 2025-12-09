@@ -8,14 +8,20 @@ Welcome to pypss's documentation!
    :caption: Contents:
 
    installation
-   usage
-   collectors
-   integrations
+   quick_start
+   features
+   benchmarks
+   reports
+   dashboard
+   cli_usage
+   history_regression
+   configuration
+   metrics_explained
    plugins
-   async_ops
-   advanced_config
+   adaptive_sampling
+   integrations
    ml_detection
-   alerts
+   alerting
    api
 
 Indices and tables

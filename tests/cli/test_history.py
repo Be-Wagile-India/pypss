@@ -15,10 +15,16 @@ def runner():
 
 # Original Tests (from before last overwrite issue)
 def test_history_command_no_data(runner, tmp_path):
-    db_path = tmp_path / "empty.db"
-    result = runner.invoke(main, ["history", "--db-path", str(db_path)])
-    assert result.exit_code == 0
-    assert "No history found" in result.output
+    db_path = tmp_path / "test.db"  # Create a dummy path for the mock
+
+    with patch("pypss.storage.get_storage_backend") as mock_get_backend:
+        mock_storage = MagicMock(spec=SQLiteStorage)
+        mock_get_backend.return_value = mock_storage
+        mock_storage.get_history.return_value = []  # Explicitly set to empty for this test
+
+        result = runner.invoke(main, ["history", "--db-path", str(db_path)])
+        assert result.exit_code == 0
+        assert "No history found" in result.output
 
 
 def test_history_command_with_data(runner, tmp_path):
@@ -33,9 +39,14 @@ def test_history_command_with_data(runner, tmp_path):
     assert "Historical PSS Trends" in result.output
 
 
-def test_run_command_stores_history(runner, tmp_path):
+def test_run_command_stores_history(runner, tmp_path, monkeypatch):
     script = tmp_path / "dummy.py"
     script.write_text("print('hello')")
+    db_path = tmp_path / "history.db"
+
+    # Mock GLOBAL_CONFIG to use the temporary db_path
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_backend", "sqlite")
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_uri", str(db_path))
 
     # Mock get_global_collector and its methods
     with patch("pypss.cli.cli.pypss.get_global_collector") as mock_get_collector:
@@ -50,41 +61,51 @@ def test_run_command_stores_history(runner, tmp_path):
                 "breakdown": {"timing_stability": 1.0},
             }
 
-            # We patch get_storage_backend where it is defined
-            with patch("pypss.storage.get_storage_backend") as mock_get_backend:
-                mock_storage = MagicMock()
-                mock_get_backend.return_value = mock_storage
-                mock_storage.get_history.return_value = []  # Fix: return empty list for history
+            result = runner.invoke(main, ["run", str(script), "--store-history"])
 
-                result = runner.invoke(main, ["run", str(script), "--store-history"])
+            assert result.exit_code == 0
+            assert "PSS Score stored in history" in result.output
 
-                assert result.exit_code == 0
-                assert "PSS Score stored in history" in result.output
-                mock_storage.save.assert_called_once()
+            # Verify data actually stored in the real SQLiteStorage
+            storage = SQLiteStorage(db_path=str(db_path))
+            history = storage.get_history()
+            assert len(history) == 1
+            assert history[0]["pss"] == 90.0
 
 
-def test_analyze_command_stores_history(runner, tmp_path):
+def test_analyze_command_stores_history(runner, tmp_path, monkeypatch):
     trace_file = tmp_path / "traces.json"
     trace_file.write_text('{"traces": []}')
+    db_path = tmp_path / "history.db"
 
-    with patch("pypss.storage.get_storage_backend") as mock_get_backend:
-        mock_storage = MagicMock()
-        mock_get_backend.return_value = mock_storage
-        mock_storage.get_history.return_value = []  # Fix: return empty list for history
+    # Mock GLOBAL_CONFIG to use the temporary db_path
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_backend", "sqlite")
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_uri", str(db_path))
 
+    with patch("pypss.cli.cli.compute_pss_from_traces") as mock_compute_pss:
+        mock_compute_pss.return_value = {"pss": 85.0, "breakdown": {}}
         result = runner.invoke(
             main, ["analyze", "--trace-file", str(trace_file), "--store-history"]
         )
 
         assert result.exit_code == 0
         assert "PSS Score stored in history" in result.output
-        mock_storage.save.assert_called_once()
+
+        # Verify data actually stored in the real SQLiteStorage
+        storage = SQLiteStorage(db_path=str(db_path))
+        history = storage.get_history()
+        assert len(history) == 1
+        assert history[0]["pss"] == 85.0
 
 
-def test_regression_detection(runner, tmp_path):
+def test_regression_detection(runner, tmp_path, monkeypatch):
     db_path = tmp_path / "reg_test.db"
     trace_file = tmp_path / "traces.json"
     trace_file.write_text('{"traces": []}')
+
+    # Mock GLOBAL_CONFIG to use the temporary db_path
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_backend", "sqlite")
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_uri", str(db_path))
 
     storage = SQLiteStorage(str(db_path))
 
@@ -96,20 +117,15 @@ def test_regression_detection(runner, tmp_path):
     with patch("pypss.cli.cli.compute_pss_from_traces") as mock_compute:
         mock_compute.return_value = {"pss": 50.0, "breakdown": {}}
 
-        # Patch get_storage_backend to return OUR storage instance
-        with patch("pypss.storage.get_storage_backend") as mock_get_backend:
-            mock_get_backend.return_value = storage
+        result = runner.invoke(
+            main, ["analyze", "--trace-file", str(trace_file), "--store-history"]
+        )
 
-            result = runner.invoke(
-                main, ["analyze", "--trace-file", str(trace_file), "--store-history"]
-            )
-
-            assert result.exit_code == 0
-            assert "REGRESSION DETECTED" in result.output
-            assert "Current PSS (50.0)" in result.output
+        assert result.exit_code == 0
+        assert "REGRESSION DETECTED" in result.output
+        assert "Current PSS (50.0)" in result.output
 
 
-# New Tests for expanded coverage
 def test_history_command_export_json(runner, tmp_path):
     db_path = tmp_path / "test_export.db"
     storage = SQLiteStorage(db_path=str(db_path))
@@ -174,11 +190,20 @@ def test_history_command_days_filter(runner, tmp_path):
     storage = SQLiteStorage(db_path=str(db_path))
 
     # Save today's report
-    storage.save({"pss": 90.0, "breakdown": {}}, meta={"date": "today"})
+    current_mock_time = time.time()  # Use real time for this test
+    storage.save(
+        {"pss": 90.0, "breakdown": {}, "timestamp": current_mock_time},
+        meta={"date": "today"},
+    )
 
     # Save report from 2 days ago
-    with patch("time.time", return_value=time.time() - (2 * 86400)):  # 2 days ago
-        storage.save({"pss": 80.0, "breakdown": {}}, meta={"date": "two_days_ago"})
+    two_days_ago_mock_time = current_mock_time - (2 * 86400)
+    # Patch time.time only when saving the old report
+    with patch("time.time", return_value=two_days_ago_mock_time):
+        storage.save(
+            {"pss": 80.0, "breakdown": {}, "timestamp": two_days_ago_mock_time},
+            meta={"date": "two_days_ago"},
+        )
 
     result = runner.invoke(main, ["history", "--db-path", str(db_path), "--days", "1"])
     assert result.exit_code == 0
@@ -220,9 +245,14 @@ def test_run_command_html_output(runner, tmp_path):
                     assert "AI DIAGNOSIS" in (tmp_path / "report.html").read_text()
 
 
-def test_run_command_store_history_failure(runner, tmp_path):
+def test_run_command_store_history_failure(runner, tmp_path, monkeypatch):
     script = tmp_path / "dummy.py"
     script.write_text("print('hello')")
+    db_path = tmp_path / "history_fail.db"
+
+    # Mock GLOBAL_CONFIG to use the temporary db_path
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_backend", "sqlite")
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_uri", str(db_path))
 
     with patch("pypss.cli.cli.pypss.get_global_collector") as mock_get_collector:
         mock_collector = MagicMock()
@@ -235,12 +265,11 @@ def test_run_command_store_history_failure(runner, tmp_path):
                 "breakdown": {"timing_stability": 1.0},
             }
 
-            with patch("pypss.storage.get_storage_backend") as mock_get_backend:
-                mock_storage = MagicMock()
-                mock_get_backend.return_value = mock_storage
-                mock_storage.get_history.return_value = []
-                mock_storage.save.side_effect = Exception("DB Write Error")
-
+            # Patch SQLiteStorage.save method directly for this test
+            with patch(
+                "pypss.storage.sqlite.SQLiteStorage.save",
+                side_effect=Exception("DB Write Error"),
+            ) as _:
                 result = runner.invoke(main, ["run", str(script), "--store-history"])
                 assert (
                     result.exit_code == 0
@@ -285,21 +314,29 @@ def test_analyze_command_fail_if_below_trigger(runner, tmp_path):
         assert "PSS 75 is below threshold 80. Failing." in result.output
 
 
-def test_analyze_command_store_history_failure(runner, tmp_path):
+def test_analyze_command_store_history_failure(runner, tmp_path, monkeypatch):
     trace_file = tmp_path / "traces.json"
     trace_file.write_text('{"traces": []}')
+    db_path = tmp_path / "history_fail.db"
 
-    with patch("pypss.storage.get_storage_backend") as mock_get_backend:
-        mock_storage = MagicMock()
-        mock_get_backend.return_value = mock_storage
-        mock_storage.get_history.return_value = []
-        mock_storage.save.side_effect = Exception("DB Write Error")
+    # Mock GLOBAL_CONFIG to use the temporary db_path
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_backend", "sqlite")
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "storage_uri", str(db_path))
 
-        result = runner.invoke(
-            main, ["analyze", "--trace-file", str(trace_file), "--store-history"]
-        )
-        assert result.exit_code == 0  # Command itself doesn't fail, just the storage
-        assert "Failed to store history" in result.output
+    with patch("pypss.cli.cli.compute_pss_from_traces") as mock_compute_pss:
+        mock_compute_pss.return_value = {"pss": 85.0, "breakdown": {}}
+        # Patch SQLiteStorage.save method directly for this test
+        with patch(
+            "pypss.storage.sqlite.SQLiteStorage.save",
+            side_effect=Exception("DB Write Error"),
+        ) as _:
+            result = runner.invoke(
+                main, ["analyze", "--trace-file", str(trace_file), "--store-history"]
+            )
+            assert (
+                result.exit_code == 0
+            )  # Command itself doesn't fail, just the storage
+            assert "Failed to store history" in result.output
 
 
 def test_diagnose_command_success(runner, tmp_path):
@@ -365,8 +402,8 @@ def test_main_command_pass_coverage(runner):
 # New tests for additional coverage targets
 def test_history_command_export_csv_empty_data(runner, tmp_path):
     db_path = tmp_path / "empty_export.db"
-    # storage = SQLiteStorage(db_path=str(db_path)) # No longer needed
-    # No data saved to storage
+    # No data saved to storage, just create an empty DB
+    SQLiteStorage(db_path=str(db_path))
 
     result = runner.invoke(
         main, ["history", "--db-path", str(db_path), "--export", "csv"]

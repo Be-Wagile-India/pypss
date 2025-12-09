@@ -3,6 +3,7 @@ import json
 import time
 import queue
 from unittest.mock import MagicMock, patch
+import os  # Added import os
 from pypss.instrumentation.collectors import (
     RedisCollector,
     GRPCCollector,
@@ -260,10 +261,14 @@ class TestCollectorMethods:
             ):
                 collector.add_trace({"id": 1})  # Should not raise
 
-    def test_file_clear_exceptions(self):
-        # Test exception handling in clear (e.g. file permission)
-        collector = FileFIFOCollector("/root/forbidden.jsonl")
-        # Should not raise
+    def test_file_clear_exceptions(self, tmp_path, monkeypatch):
+        # Simulate an OSError during makedirs
+        monkeypatch.setattr(
+            os, "makedirs", MagicMock(side_effect=OSError("Permission denied"))
+        )
+        # Use a path that would normally trigger makedirs
+        collector = FileFIFOCollector(str(tmp_path / "non_existent_dir" / "file.jsonl"))
+        # Should not raise, and should log the error
         collector.clear()
         collector.shutdown()
 
