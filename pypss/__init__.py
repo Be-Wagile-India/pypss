@@ -21,6 +21,24 @@ from .cli.reporting import render_report_text, render_report_json
 from .tuning.runtime import RuntimeTuner  # Import RuntimeTuner
 
 
+__all__ = [
+    "init",
+    "get_global_collector",
+    "get_error_rate_monitor",
+    "get_runtime_tuner",
+    "PSSConfig",
+    "GLOBAL_CONFIG",
+    "compute_pss_from_traces",
+    "StabilityAdvisor",
+    "generate_advisor_report",
+    "monitor_function",
+    "monitor_block",
+    "Collector",
+    "render_report_text",
+    "render_report_json",
+    "RuntimeTuner",
+]
+
 # Internal global variables, accessed via getters after pypss.init()
 _global_collector: Optional["BaseCollector"] = None
 _error_rate_monitor: Optional["ErrorRateMonitor"] = None
@@ -97,19 +115,7 @@ def init():
     atexit.register(_runtime_tuner.stop)  # Ensure tuner is stopped on exit
 
 
-__all__ = [
-    "compute_pss_from_traces",
-    "StabilityAdvisor",
-    "generate_advisor_report",
-    "monitor_function",
-    "monitor_block",
-    "Collector",
-    "PSSConfig",
-    "GLOBAL_CONFIG",
-    "render_report_text",
-    "render_report_json",
-    "init",  # Export the init function
-    "get_global_collector",  # Export getter
-    "get_error_rate_monitor",  # Export getter
-    "get_runtime_tuner",  # Export getter
-]
+# TODO: Add tests in a dedicated test file (e.g., tests/test_pypss_init_coverage.py) to cover the following:
+# - Re-initialization of pypss.init() to test atexit.unregister (line 33).
+# - Assignment of _global_collector (line 42), _error_rate_monitor (line 51), and RuntimeTuner instantiation (lines 71-73) under various initialization conditions.
+# - Edge cases for get_global_collector, get_error_rate_monitor, and get_runtime_tuner when not initialized.

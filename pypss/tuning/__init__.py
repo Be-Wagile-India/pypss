@@ -9,5 +9,12 @@ for maximum anomaly detection sensitivity.
 from .profiler import Profiler, BaselineProfile
 from .injector import FaultInjector
 from .optimizer import ConfigOptimizer
+from .runtime import RuntimeTuner
 
-__all__ = ["Profiler", "BaselineProfile", "FaultInjector", "ConfigOptimizer"]
+__all__ = [
+    "Profiler",
+    "BaselineProfile",
+    "FaultInjector",
+    "ConfigOptimizer",
+    "RuntimeTuner",
+]
