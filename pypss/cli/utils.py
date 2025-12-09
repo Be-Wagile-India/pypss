@@ -2,6 +2,20 @@ import click
 import ijson
 import sys
 from typing import List, Dict, Any
+from decimal import Decimal
+
+
+def _convert_decimals_to_floats(obj):
+    """
+    Recursively converts Decimal objects within a dictionary or list to floats.
+    """
+    if isinstance(obj, Decimal):
+        return float(obj)
+    elif isinstance(obj, dict):
+        return {k: _convert_decimals_to_floats(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [_convert_decimals_to_floats(elem) for elem in obj]
+    return obj
 
 
 def load_traces(trace_file: str) -> List[Dict[str, Any]]:
@@ -18,12 +32,16 @@ def load_traces(trace_file: str) -> List[Dict[str, Any]]:
 
             if first_char == b"{":
                 # Assume {"traces": [...]}
-                traces = list(ijson.items(f, "traces.item"))
+                raw_traces = list(ijson.items(f, "traces.item"))
             elif first_char == b"[":
                 # Assume [...]
-                traces = list(ijson.items(f, "item"))
+                raw_traces = list(ijson.items(f, "item"))
             else:
-                traces = []
+                raw_traces = []
+
+            # Convert any Decimal objects to floats
+            traces = [_convert_decimals_to_floats(trace) for trace in raw_traces]
+
     except Exception as e:
         click.echo(f"Error reading trace file: {e}", err=True)
         sys.exit(1)
