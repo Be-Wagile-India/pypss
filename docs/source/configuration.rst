@@ -222,6 +222,22 @@ Configure alerting behavior, channels, and rule thresholds.
    alert_threshold_be = 0.70         # Branching Entropy score below this triggers an alert
    alert_threshold_cc = 0.70         # Concurrency Chaos score below this triggers an alert
 
+   # Custom Alert Rules (Example)
+   [[tool.pypss.custom_alert_rules]]
+   name = "Critical Service Alert"
+   severity = "critical"
+   module_pattern = "^service_.*"
+   [[tool.pypss.custom_alert_rules.conditions]]
+   metric = "pss"
+   operator = "<"
+   value = 80.0
+
+   # Dashboard Layout (Example)
+   [[tool.pypss.dashboard_layout]]
+   type = "pss_gauge"
+   col_span = 3
+   tab = "overview"
+
 Custom Metrics Configuration ``[tool.pypss.custom_metric_weights]``
 ------------------------------------------------------------------
 
