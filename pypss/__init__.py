@@ -1,6 +1,8 @@
 import atexit
 from typing import TYPE_CHECKING, Optional
 
+__version__ = "1.0.1"
+
 if TYPE_CHECKING:
     from .core.error_rate_monitor import ErrorRateMonitor
     from .instrumentation.collectors import BaseCollector
