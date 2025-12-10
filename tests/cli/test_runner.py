@@ -1,6 +1,7 @@
 import sys
 import types
 from unittest.mock import patch
+
 from pypss.cli.runner import AutoInstrumentor, run_with_instrumentation
 
 
@@ -13,7 +14,7 @@ class TestRunner:
         def target_func():
             return 1
 
-        module.target_func = target_func
+        module.target_func = target_func  # type: ignore[attr-defined]
         sys.modules[mod_name] = module
 
         targets = {mod_name: ["target_func"]}
@@ -34,7 +35,7 @@ class TestRunner:
     def test_auto_instrumentor_skip_non_routines(self):
         mod_name = "dummy_module_vars"
         module = types.ModuleType(mod_name)
-        module.some_var = 123
+        module.some_var = 123  # type: ignore[attr-defined]
         sys.modules[mod_name] = module
 
         targets = {mod_name: ["some_var"]}
@@ -47,9 +48,7 @@ class TestRunner:
     @patch("pypss.cli.runner.runpy.run_path")
     @patch("pypss.cli.runner.CodebaseDiscoverer")
     @patch("pypss.cli.runner.AutoInstrumentor")
-    def test_run_with_instrumentation(
-        self, mock_instr, mock_disc, mock_runpy, tmp_path
-    ):
+    def test_run_with_instrumentation(self, mock_instr, mock_disc, mock_runpy, tmp_path):
         # Setup mocks
         mock_disc_instance = mock_disc.return_value
         mock_disc_instance.discover.return_value = {"mod": ["func"]}

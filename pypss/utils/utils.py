@@ -1,7 +1,7 @@
 import math
+import re
 import statistics
 from collections import Counter
-import re
 from typing import Optional
 
 
@@ -11,7 +11,7 @@ def calculate_cv(data):
         return 0.0
     mean = statistics.mean(data)
     if mean == 0:
-        return 0.0  # Avoid division by zero
+        return 0.0
     std = statistics.stdev(data)
     return std / mean
 
@@ -50,17 +50,13 @@ def parse_time_string(time_str: Optional[str]) -> Optional[float]:
     Parses a human-readable time string (e.g., "5s", "2m", "1.5h", "1d", "1w") into seconds.
     Raises ValueError for invalid formats.
     """
-    if (
-        time_str is None or time_str.lower().strip() == "none"
-    ):  # Handle "None" string from CLI
+    if time_str is None or time_str.lower().strip() == "none":
         return None
 
     time_str = time_str.lower().strip()
     match = re.fullmatch(r"(\d+(?:\.\d+)?)([smhdw])", time_str)
     if not match:
-        raise ValueError(
-            f"Invalid time string format: {time_str}. Expected format like '5s', '2m', '1.5h', '1d'."
-        )
+        raise ValueError(f"Invalid time string format: {time_str}. Expected format like '5s', '2m', '1.5h', '1d'.")
 
     value = float(match.group(1))
     unit = match.group(2)
@@ -76,5 +72,4 @@ def parse_time_string(time_str: Optional[str]) -> Optional[float]:
     elif unit == "w":
         return value * 604800
     else:
-        # This branch should ideally not be reached due to regex
         raise ValueError(f"Unknown time unit: {unit}")

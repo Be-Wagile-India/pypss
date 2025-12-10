@@ -1,11 +1,12 @@
 import sys  # Added this import
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from pypss.core.llm_advisor import (
-    get_llm_diagnosis,
-    TraceSummarizer,
     OpenAIClient,
+    TraceSummarizer,
+    get_llm_diagnosis,
 )
 
 
@@ -89,6 +90,7 @@ class TestLLMAdvisor:
 
     def test_get_llm_diagnosis_unknown_provider(self):
         diagnosis = get_llm_diagnosis([], provider="unknown")
+        assert diagnosis is not None
         assert "Unknown provider" in diagnosis
 
     def test_openai_client_import_error(self):
@@ -112,6 +114,7 @@ class TestLLMAdvisor:
 
             diagnosis = client.generate_diagnosis("context")
 
+            assert diagnosis is not None
             assert "Ollama Connection Failed" in diagnosis
 
     def test_ollama_client_api_error(self):
@@ -128,6 +131,7 @@ class TestLLMAdvisor:
 
             diagnosis = client.generate_diagnosis("context")
 
+            assert diagnosis is not None
             assert "Ollama Error: API Error" in diagnosis
 
     def test_ollama_client_success(self):
@@ -138,10 +142,9 @@ class TestLLMAdvisor:
 
             mock_response = MagicMock()
             mock_response.status_code = 200
-            mock_response.json.return_value = {
-                "response": "Ollama says metrics are bad."
-            }
+            mock_response.json.return_value = {"response": "Ollama says metrics are bad."}
             client.requests.post.return_value = mock_response
 
             diagnosis = client.generate_diagnosis("metrics...")
+            assert diagnosis is not None
             assert "Ollama says metrics are bad" in diagnosis

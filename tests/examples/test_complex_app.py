@@ -1,13 +1,25 @@
 # tests/examples/test_complex_app.py
 import os
+import sys
+
 import pytest
-from pypss.core import compute_pss_from_traces
+
+# Add the project root to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+import pypss
 from examples.complex_app.complex_web_service import run_service_simulation
+from pypss.core import compute_pss_from_traces
 
 
 @pytest.fixture(scope="module")
 def complex_app_traces():
     """Run the complex web service simulation once and return its traces."""
+    # Ensure PyPSS is initialized
+    pypss.init()
+    collector = pypss.get_global_collector()
+    collector.clear()  # Clear any residual traces from other tests if any
+
     # Use a temporary file for traces during testing
     test_output_dir = os.path.join(os.path.dirname(__file__), "temp_traces")
     os.makedirs(test_output_dir, exist_ok=True)

@@ -1,11 +1,13 @@
 # Example application using pypss
-import time
-import random
 import json
+import random
+import time
+
 from pypss import (
-    monitor_function,
-    global_collector,
     compute_pss_from_traces,
+    global_collector,
+    init,  # Import the init function
+    monitor_function,
     render_report_text,
 )
 
@@ -29,6 +31,9 @@ def unstable_operation():
 
 
 def main():
+    # Initialize pypss components
+    init()  # Call init() at the beginning of the application
+
     print("Running stable operations...")
     for _ in range(20):
         stable_operation()

@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+import pypss
+
 
 class TestOTel:
     def test_enable_otel_integration(self):
@@ -21,20 +23,23 @@ class TestOTel:
         with patch("pypss.integrations.otel.OTEL_AVAILABLE", True):
             with patch("pypss.integrations.otel.metrics"):
                 from pypss.integrations.otel import OTelReporter
-                from pypss.instrumentation import global_collector
 
                 # Setup data
-                global_collector.clear()
-                global_collector.add_trace({"duration": 0.1, "error": False})
+                pypss.init()
+                collector = pypss.get_global_collector()
+                collector.clear()
+                collector.add_trace({"duration": 0.1, "error": False})
 
                 reporter = OTelReporter()
 
                 # Test _observe_pss
-                pss_gen = reporter._observe_pss(None)
-                obs = next(pss_gen)
+                from unittest.mock import Mock
+
+                pss_gen = reporter._observe_pss(Mock())
+                obs = next(iter(pss_gen))
                 assert obs.value > 0
 
                 # Test breakdown callback
-                timing_gen = reporter._observe_breakdown("timing_stability")(None)
-                obs = next(timing_gen)
+                timing_gen = reporter._observe_breakdown("timing_stability")(Mock())
+                obs = next(iter(timing_gen))
                 assert obs.value > 0

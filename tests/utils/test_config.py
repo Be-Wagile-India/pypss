@@ -45,3 +45,25 @@ class TestConfig:
         assert config.sample_rate == 0.1
         # Invalid key should be ignored
         assert not hasattr(config, "invalid_key")
+
+    def test_save_exception_handling(self, tmp_path):
+        from unittest.mock import patch
+
+        import toml
+
+        config = PSSConfig()
+        config.sample_rate = 0.9
+
+        # Mock toml.dump to raise an exception
+        with patch.object(toml, "dump", side_effect=IOError("Disk full")):
+            # Redirect stdout to capture the print statement
+            import io
+            from contextlib import redirect_stdout
+
+            f = io.StringIO()
+            with redirect_stdout(f):
+                config.save(tmp_path / "test_config.toml")
+
+            s = f.getvalue()
+            assert "Error saving config" in s
+            assert "Disk full" in s

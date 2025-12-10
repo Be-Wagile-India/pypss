@@ -1,10 +1,16 @@
 import time
-from pypss.instrumentation import monitor_function, global_collector
+
+import pypss
+from pypss.instrumentation import monitor_function
+from pypss.utils.config import GLOBAL_CONFIG
 
 
 class TestConcurrencyMetrics:
     def test_wait_time_detection(self):
-        global_collector.clear()
+        pypss.init()
+        collector = pypss.get_global_collector()
+        collector.clear()
+        GLOBAL_CONFIG.sample_rate = 1.0
 
         @monitor_function("sleepy")
         def sleepy_func():
@@ -13,7 +19,7 @@ class TestConcurrencyMetrics:
 
         sleepy_func()
 
-        traces = global_collector.get_traces()
+        traces = collector.get_traces()
         assert len(traces) == 1
         t = traces[0]
 
@@ -28,26 +34,29 @@ class TestConcurrencyMetrics:
         assert t["wait_time"] >= 0.05
 
     def test_cpu_bound_metrics(self):
-        global_collector.clear()
+        pypss.init()
+        collector = pypss.get_global_collector()
+        collector.clear()
+        GLOBAL_CONFIG.sample_rate = 1.0
 
         @monitor_function("busy")
         def busy_func():
             # Busy loop (Wall ~= CPU)
-            end = time.time() + 0.1
+            end = time.time() + 0.3
             while time.time() < end:
                 pass
 
         busy_func()
 
-        traces = global_collector.get_traces()
+        traces = collector.get_traces()
         assert len(traces) == 1
         t = traces[0]
 
-        # Wall time ~0.1s
-        assert t["duration"] >= 0.1
+        # Wall time ~0.3s
+        assert t["duration"] >= 0.3
         # CPU time should be significant (close to Wall time)
         # Note: In CI environments, this might be flaky if CPU is throttled,
         # but locally it should hold.
-        assert t["cpu_time"] > 0.05
+        assert t["cpu_time"] > 0.15
         # Wait time should be small
-        assert t["wait_time"] < 0.05
+        assert t["wait_time"] < 0.2

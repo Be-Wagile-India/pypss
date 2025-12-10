@@ -1,112 +1,54 @@
+.. _integrations:
+
+###########
 Integrations
-============
+###########
 
-PyPSS can be integrated with various popular Python frameworks and libraries to automatically collect stability metrics.
+`pypss` provides built-in integrations for popular Python frameworks and tools:
 
-This section outlines how to set up PyPSS with different integrations.
+*   **FastAPI**: Easily instrument your FastAPI endpoints.
+*   **Flask**: Monitor Flask routes and background tasks.
+*   **Celery**: Track the stability of your Celery tasks.
+*   **RQ**: Observe the stability of your RQ jobs.
+*   **OpenTelemetry**: Export `pypss` traces to OpenTelemetry collectors.
 
-Celery
-------
+Pytest Integration
+==================
 
-To instrument Celery tasks with PyPSS, use the ``enable_celery_integration`` function.
+`pypss` includes a powerful pytest plugin to measure the stability of your test suite. It automatically wraps your tests, calculates a PSS score for each test case, and can fail the build if stability drops.
 
-.. code-block:: python
+Usage
+=====
 
-   from celery import Celery
-   from pypss.integrations.celery import enable_celery_integration
+1.  **Enable PSS monitoring**:
+    
+    .. code-block:: bash
 
-   app = Celery("my_app")
+        pytest --pss
 
-   # Initialize PyPSS integration
-   enable_celery_integration()
+2.  **Generate Stability Scores (Requires multiple runs)**:
+    To statistically measure stability (variance), you need multiple data points. Use ``pytest-repeat`` or simply run the loop:
+    
+    .. code-block:: bash
 
-   @app.task
-   def my_celery_task(arg1):
-       # Your task logic here
-       pass
+        pytest --pss --count=10
 
-FastAPI
--------
+3.  **Fail on Instability**:
+    Fail the test session if *any* individual test's PSS score drops below a threshold (e.g., 80):
+    
+    .. code-block:: bash
 
-Integrate PyPSS with FastAPI by adding ``PSSMiddleware``:
+        pytest --pss --count=10 --pss-fail-below 80
 
-.. code-block:: python
+Sample Output:
+==============
 
-   from fastapi import FastAPI
-   from pypss.integrations.fastapi import PSSMiddleware
+.. code-block:: text
 
-   app = FastAPI()
-
-   # Add PyPSS middleware
-   app.add_middleware(PSSMiddleware)
-
-   @app.get("/")
-   async def read_root():
-       return {"Hello": "World"}
-
-Flask
------
-
-Use PyPSS with Flask by initializing it with your app instance:
-
-.. code-block:: python
-
-   from flask import Flask
-   from pypss.integrations.flask import init_pypss_flask_app
-
-   app = Flask(__name__)
-
-   # Initialize PyPSS integration
-   init_pypss_flask_app(app)
-
-   @app.route("/")
-   def hello_world():
-       return "Hello, World!"
-
-OpenTelemetry (OTel)
---------------------
-
-PyPSS can export its metrics to OpenTelemetry. Ensure you have installed the `otel` optional dependencies (`pip install "pypss[otel]"`).
-
-.. code-block:: python
-
-   from pypss.integrations.otel import enable_otel_integration
-
-   # Initialize PyPSS OTel integration
-   # You can pass a specific MeterProvider if needed, otherwise uses global default.
-   enable_otel_integration()
-
-RQ (Redis Queue)
-----------------
-
-Instrument RQ jobs by using the ``PSSJob`` class:
-
-.. code-block:: python
-
-   from redis import Redis
-   from rq import Queue
-   from pypss.integrations.rq import PSSJob
-
-   q = Queue(connection=Redis(), job_class=PSSJob)
-
-   # Enqueue jobs as normal
-   # q.enqueue(my_func, args)
-
-Pytest Plugin
--------------
-
-PyPSS includes a pytest plugin to automatically capture stability metrics during your test runs.
-
-Ensure `pypss` is installed with its dev dependencies (`pip install -e .[dev]`).
-
-To run tests and generate stability reports, simply use the `--pss` flag:
-
-.. code-block:: bash
-
-   pytest --pss
-
-You can also fail the test run if the stability score drops below a certain threshold:
-
-.. code-block:: bash
-
-   pytest --pss --pss-fail-below 80
+    ======================= PyPSS Stability Report ========================
+    Test Node ID                                     | Runs | PSS | Status
+    -----------------------------------------------------------------------
+    tests/test_api.py::test_login_latency            | 10   | 98  | ✅ Stable
+    tests/test_api.py::test_flaky_endpoint           | 10   | 45  | ❌ Unstable
+    tests/test_utils.py::test_helper                 | 1    | N/A | ⚠️  Need >1 run
+    ================================================================-------

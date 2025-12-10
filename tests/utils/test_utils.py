@@ -1,4 +1,5 @@
 import math
+
 from pypss.utils import (
     calculate_cv,
     calculate_entropy,
@@ -49,9 +50,7 @@ class TestUtils:
         # exp(-alpha * 0) should be 1.0
         assert exponential_decay_score(0, alpha=1.0) == 1.0
         # exp(-1 * 1) = 1/e ~= 0.367
-        assert math.isclose(
-            exponential_decay_score(1, alpha=1.0), 0.367879, rel_tol=1e-4
-        )
+        assert math.isclose(exponential_decay_score(1, alpha=1.0), 0.367879, rel_tol=1e-4)
 
     def test_parse_time_string_valid_formats(self):
         from pypss.utils.utils import parse_time_string
@@ -79,8 +78,9 @@ class TestUtils:
         assert parse_time_string("none ") is None
 
     def test_parse_time_string_invalid_formats(self):
-        from pypss.utils.utils import parse_time_string
         import pytest
+
+        from pypss.utils.utils import parse_time_string
 
         with pytest.raises(ValueError, match="Invalid time string format"):
             parse_time_string("5x")

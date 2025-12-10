@@ -1,5 +1,5 @@
-# Human-readable & JSON reports
 import json
+
 from ..core import generate_advisor_report
 
 
@@ -17,9 +17,12 @@ def render_report_text(report):
     ]
     breakdown = report.get("breakdown", {})
     for key, value in breakdown.items():
-        lines.append(f"  - {key.replace('_', ' ').title()}: {value:.2f}")
+        if len(key) <= 3:
+            formatted_key = key.upper()
+        else:
+            formatted_key = key.replace("_", " ").title()
+        lines.append(f"  - {formatted_key}: {value:.2f}")
 
-    # Add AI Brain Analysis
     lines.append(generate_advisor_report(report))
 
     return "\n".join(lines)

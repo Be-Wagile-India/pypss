@@ -1,17 +1,18 @@
+from __future__ import annotations
+
 import time
+
 from rq.job import Job
-from ..instrumentation import global_collector, get_memory_usage
+
+import pypss
+
 from ..utils.config import GLOBAL_CONFIG
+from ..utils.trace_utils import get_memory_usage
 
 
 class PSSJob(Job):
     """
     RQ Job subclass that traces execution stability.
-    Usage:
-        from pypss.integrations.rq import PSSJob
-        # When enqueueing:
-        q.enqueue(func, job_class=PSSJob)
-        # Or configure worker to use it by default.
     """
 
     def perform(self):
@@ -44,4 +45,6 @@ class PSSJob(Job):
                 "error": error,
                 "timestamp": start_wall,
             }
-            global_collector.add_trace(trace)
+            collector = pypss.get_global_collector()
+            if collector:
+                collector.add_trace(trace)

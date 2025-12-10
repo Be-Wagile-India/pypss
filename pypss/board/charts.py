@@ -1,7 +1,8 @@
 from datetime import datetime
-import plotly.express as px
-import plotly.graph_objects as go
+
 import pandas as pd
+import plotly.express as px  # type: ignore
+import plotly.graph_objects as go  # type: ignore
 
 
 def create_stability_sunburst(df):
@@ -66,7 +67,7 @@ def create_trend_chart(traces):
     # Aggregate stats per bin
     grouped = (
         df.groupby("bin", observed=False)["duration"]
-        .quantile([0.50, 0.90, 0.99])
+        .quantile([0.50, 0.90, 0.99])  # type: ignore
         .unstack()
     )
 
@@ -79,13 +80,14 @@ def create_trend_chart(traces):
     last_update_str = ""
     if "timestamp" in df.columns:
         grouped_time = df.groupby("bin", observed=False)["timestamp"].min()
-        tick_text = [
-            datetime.fromtimestamp(ts).strftime("%H:%M:%S") for ts in grouped_time
-        ]
+        tick_text = [datetime.fromtimestamp(ts).strftime("%H:%M:%S") for ts in grouped_time]
 
         # Latest timestamp for title
         max_ts = df["timestamp"].max()
-        last_update_str = f"<br><span style='font-size:10px; color:gray'>Latest Data: {datetime.fromtimestamp(max_ts).strftime('%H:%M:%S')}</span>"
+        last_update_str = (
+            f"<br><span style='font-size:10px; color:gray'>Latest Data: "
+            f"{datetime.fromtimestamp(max_ts).strftime('%H:%M:%S')}</span>"
+        )
 
         # Reduce tick density if too many
         if len(tick_text) > 10:
@@ -158,9 +160,7 @@ def create_trend_chart(traces):
             tickvals=tick_vals,
             ticktext=tick_text,
         ),
-        yaxis=dict(
-            gridcolor=grid_color, tickfont_color=font_color, title_font_color=font_color
-        ),
+        yaxis=dict(gridcolor=grid_color, tickfont_color=font_color, title_font_color=font_color),
         hovermode="x unified",
     )
     return fig
@@ -206,5 +206,394 @@ def create_gauge_chart(score, title: str = "Stability Score"):
             "color": font_color,
             "family": "Roboto Mono, monospace",
         },  # Use Roboto Mono for charts
+    )
+    return fig
+
+
+def create_historical_chart(history_data):
+    if not history_data:
+        fig = go.Figure()
+        fig.update_layout(
+            title="No historical data available",
+            xaxis={"visible": False},
+            yaxis={"visible": False},
+            annotations=[
+                {
+                    "text": "Run with --store-history to see trends",
+                    "xref": "paper",
+                    "yref": "paper",
+                    "showarrow": False,
+                    "font": {"size": 16, "color": "#888"},
+                }
+            ],
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+        return fig
+
+    # Extract data
+    dates = [datetime.fromtimestamp(h["timestamp"]) for h in history_data]
+    pss_scores = [h["pss"] for h in history_data]
+    ts_scores = [h.get("ts", 0) * 100 for h in history_data]
+    ms_scores = [h.get("ms", 0) * 100 for h in history_data]
+    ev_scores = [h.get("ev", 0) * 100 for h in history_data]
+    be_scores = [h.get("be", 0) * 100 for h in history_data]
+    cc_scores = [h.get("cc", 0) * 100 for h in history_data]
+
+    # Prepare custom data for tooltips (all sub-scores)
+    custom_data = []
+    for i in range(len(history_data)):
+        custom_data.append([ts_scores[i], ms_scores[i], ev_scores[i], be_scores[i], cc_scores[i]])
+
+    fig = go.Figure()
+
+    # Main PSS Line (Bold)
+    fig.add_trace(
+        go.Scatter(
+            x=dates,
+            y=pss_scores,
+            customdata=custom_data,
+            mode="lines+markers",
+            name="Overall PSS",
+            line=dict(color="#4285F4", width=4),
+            marker=dict(size=8, color="#4285F4", line=dict(color="white", width=2)),
+            hovertemplate=(
+                "<b>PSS: %{y}</b><br>"
+                + "Time: %{x|%Y-%m-%d %H:%M:%S}<br><br>"
+                + "Timing: %{customdata[0]:.1f} | Memory: %{customdata[1]:.1f}<br>"
+                + "Errors: %{customdata[2]:.1f} | Entropy: %{customdata[3]:.1f}<br>"
+                + "Concurrency: %{customdata[4]:.1f}<extra></extra>"
+            ),
+        )
+    )
+
+    # Sub-scores (Thinner, dashed)
+    def add_sub_line(y_data, name, color):
+        fig.add_trace(
+            go.Scatter(
+                x=dates,
+                y=y_data,
+                mode="lines",
+                name=name,
+                line=dict(width=1.5, dash="dot", color=color),
+                hoverinfo="skip",
+            )
+        )
+
+    add_sub_line(ts_scores, "Timing", "#34A853")
+    add_sub_line(ms_scores, "Memory", "#FBBC04")
+    add_sub_line(ev_scores, "Errors", "#EA4335")
+
+    font_color = "#333333"
+    grid_color = "#e0e0e0"
+
+    fig.update_layout(
+        title=dict(text="Historical Stability Trend", font=dict(size=18)),
+        xaxis_title="Run Time",
+        yaxis_title="Score (0-100)",
+        yaxis=dict(
+            range=[0, 105],
+            gridcolor=grid_color,
+            tickfont_color=font_color,
+            title_font_color=font_color,
+        ),
+        xaxis=dict(
+            gridcolor=grid_color,
+            tickfont_color=font_color,
+            title_font_color=font_color,
+            rangeselector=dict(
+                buttons=list(
+                    [
+                        dict(count=1, label="1h", step="hour", stepmode="backward"),
+                        dict(count=1, label="1d", step="day", stepmode="backward"),
+                        dict(count=7, label="1w", step="day", stepmode="backward"),
+                        dict(step="all"),
+                    ]
+                )
+            ),
+            type="date",
+        ),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        margin=dict(l=40, r=20, t=40, b=40),
+        hovermode="x unified",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    )
+    return fig
+
+
+def plot_stability_trends(df: pd.DataFrame):
+    """
+    Plots time-series for all 5 stability metrics + Overall PSS.
+    df should be the aggregated DataFrame from TraceProcessor.
+    """
+    if df is None or df.empty:
+        return go.Figure()
+
+    fig = go.Figure()
+
+    # Scale 0-1 metrics to 0-100 for consistent plotting with PSS
+    metrics = {
+        "pss": {"name": "Overall PSS", "color": "#4285F4", "width": 4, "dash": "solid"},
+        "ts": {
+            "name": "Timing Stability",
+            "color": "#34A853",
+            "width": 2,
+            "dash": "dot",
+        },
+        "ms": {
+            "name": "Memory Stability",
+            "color": "#FBBC04",
+            "width": 2,
+            "dash": "dot",
+        },
+        "ev": {
+            "name": "Error Volatility",
+            "color": "#EA4335",
+            "width": 2,
+            "dash": "dot",
+        },
+        "be": {
+            "name": "Branching Entropy",
+            "color": "#9333EA",
+            "width": 2,
+            "dash": "dot",
+        },
+        "cc": {
+            "name": "Concurrency Chaos",
+            "color": "#06B6D4",
+            "width": 2,
+            "dash": "dot",
+        },
+    }
+
+    for col, style in metrics.items():
+        if col not in df.columns:
+            continue
+
+        # Determine if we need to scale (PSS is already 0-100, others are 0-1)
+        y_vals = df[col] if col == "pss" else df[col] * 100
+
+        fig.add_trace(
+            go.Scatter(
+                x=df.index,
+                y=y_vals,
+                mode="lines+markers",
+                name=style["name"],
+                line=dict(color=style["color"], width=style["width"], dash=style["dash"]),
+                hovertemplate=f"<b>{style['name']}: %{{y:.1f}}</b><extra></extra>",
+            )
+        )
+    font_color = "#333333"
+    grid_color = "#e0e0e0"
+
+    fig.update_layout(
+        title="Stability Metrics Over Time",
+        xaxis_title="Time",
+        yaxis_title="Score (0-100)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        margin=dict(l=40, r=20, t=40, b=40),
+        hovermode="x unified",
+        yaxis=dict(range=[0, 105], gridcolor=grid_color),
+        xaxis=dict(gridcolor=grid_color),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    )
+
+    return fig
+
+
+def plot_error_heatmap(traces: list):
+    """
+    Heatmap of Error Density: Time vs Module.
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+    # Robustly check columns exist
+    if "error" not in df.columns or "module" not in df.columns:
+        return go.Figure()
+
+    # Ensure error is boolean and handle filtering safely
+    try:
+        # Fill NAs with False to avoid errors during filtering
+        df["error"] = df["error"].fillna(False).astype(bool)
+        errors = df[df["error"]].copy()
+    except Exception:
+        return go.Figure()
+
+    if errors.empty:
+        # Return empty with message? Or just empty grid
+        fig = go.Figure()
+        fig.update_layout(
+            title="No errors detected (Great job!)",
+            xaxis={"visible": False},
+            yaxis={"visible": False},
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font_color="#333333",
+        )
+        return fig
+
+    if "timestamp" in errors.columns:
+        errors["datetime"] = pd.to_datetime(errors["timestamp"], unit="s")
+    else:
+        # Fallback if no timestamp
+        return go.Figure()
+
+    # Use Density Heatmap
+    fig = px.density_heatmap(
+        errors,
+        x="datetime",
+        y="module",
+        nbinsx=30,  # Auto-binning
+        title="Error Cluster Heatmap",
+        color_continuous_scale="Reds",
+    )
+
+    font_color = "#333333"
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig
+
+
+def plot_entropy_heatmap(traces: list):
+    """
+    Heatmap of Branching Activity/Entropy: Time vs Module.
+    Uses 'branch_tag' presence as a proxy for complex logic density.
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+    if "branch_tag" not in df.columns or "module" not in df.columns:
+        return go.Figure()
+
+    # Filter traces with branch tags
+    branches = df[df["branch_tag"].notna() & (df["branch_tag"] != "")].copy()
+    if branches.empty:
+        return go.Figure()
+
+    if "timestamp" in branches.columns:
+        branches["datetime"] = pd.to_datetime(branches["timestamp"], unit="s")
+
+    # We want to show 'Entropy' or 'Complexity'.
+    # Simply counting branch tags in a bin gives 'Branch Density'.
+    # Calculating actual entropy requires aggregation.
+    # For visual simplicity in a heatmap, Density of Branching Events is a good proxy for "Hot/Complex Paths".
+
+    fig = px.density_heatmap(
+        branches,
+        x="datetime",
+        y="module",
+        nbinsx=30,
+        title="Branching Activity Heatmap (Complexity Proxy)",
+        color_continuous_scale="Viridis",
+    )
+
+    font_color = "#333333"
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig
+
+
+def plot_concurrency_dist(traces: list):
+    """
+    Distribution of CPU Time vs Wait Time (Violin Plot).
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+    required_cols = ["cpu_time", "wait_time"]
+    if not all(col in df.columns for col in required_cols):
+        return go.Figure()
+
+    # Melt for side-by-side violin
+    melted = df.melt(value_vars=["cpu_time", "wait_time"], var_name="Metric", value_name="Seconds")
+
+    fig = px.violin(
+        melted,
+        y="Seconds",
+        x="Metric",
+        color="Metric",
+        box=True,  # Show box plot inside violin
+        points="outliers",  # Show outliers
+        title="Concurrency Distribution: CPU vs Wait Time",
+        color_discrete_map={"cpu_time": "#4285F4", "wait_time": "#FBBC04"},
+    )
+
+    font_color = "#333333"
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color=font_color,
+        showlegend=False,
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig
+
+
+def create_custom_chart(traces: list, config: dict):
+    """
+    Creates a custom chart based on user config.
+    Config keys: x_axis, y_axis, chart_type, aggregation (optional), title
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+
+    x_col = config.get("x_axis", "timestamp")
+    y_col = config.get("y_axis", "duration")
+    chart_type = config.get("chart_type", "line")
+    title = config.get("title", f"{y_col} vs {x_col}")
+
+    if x_col not in df.columns or y_col not in df.columns:
+        return go.Figure(layout=dict(title=f"Error: Columns {x_col}/{y_col} not found"))
+
+    if x_col == "timestamp":
+        df["datetime"] = pd.to_datetime(df["timestamp"], unit="s")
+        x_col = "datetime"
+
+    # Handle aggregation if needed (simple grouping by time if x is datetime)
+    if x_col == "datetime" and config.get("aggregation"):
+        df = df.set_index("datetime").sort_index()
+        agg_func = config.get("aggregation", "mean")
+        # Auto-detect window or use config
+        window = config.get("window", "1min")
+        try:
+            df = df.resample(window)[y_col].agg(agg_func).reset_index()
+        except Exception:
+            pass  # Fallback to raw
+
+    fig = go.Figure()
+
+    if chart_type == "line":
+        fig.add_trace(go.Scatter(x=df[x_col], y=df[y_col], mode="lines", name=y_col))
+    elif chart_type == "scatter":
+        fig.add_trace(go.Scatter(x=df[x_col], y=df[y_col], mode="markers", name=y_col))
+    elif chart_type == "bar":
+        fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], name=y_col))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title=x_col,
+        yaxis_title=y_col,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="#333333",
+        margin=dict(l=40, r=20, t=40, b=40),
     )
     return fig

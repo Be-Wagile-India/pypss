@@ -1,26 +1,27 @@
 import logging
 from typing import Iterable
+
+import pypss
+
 from ..utils.config import GLOBAL_CONFIG
 
 try:
     from opentelemetry import metrics
-    from opentelemetry.metrics import Observation, CallbackOptions
+    from opentelemetry.metrics import CallbackOptions, Observation
 
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
-    metrics = None  # type: ignore
+    metrics = None  # type: ignore[assignment]
 
-    # Dummy types for type hinting/usage when OTel is missing
-    class Observation:  # type: ignore
+    class Observation:  # type: ignore[no-redef]
         def __init__(self, value):
             self.value = value
 
-    class CallbackOptions:  # type: ignore
+    class CallbackOptions:  # type: ignore[no-redef]
         pass
 
 
-from ..instrumentation import global_collector
 from ..core import compute_pss_from_traces
 
 logger = logging.getLogger(__name__)
@@ -29,7 +30,6 @@ logger = logging.getLogger(__name__)
 class OTelReporter:
     """
     Integrates PyPSS with OpenTelemetry Metrics.
-    Registers Observable Gauges that calculate stability scores on-demand when scraped.
     """
 
     def __init__(self, meter_provider=None):
@@ -84,9 +84,14 @@ class OTelReporter:
         )
 
     def _compute_snapshot(self):
-        # Get all traces currently in the ring buffer
-        traces = global_collector.get_traces()
-        return compute_pss_from_traces(traces)
+        collector = pypss.get_global_collector()
+        if collector:
+            traces = collector.get_traces()
+            return compute_pss_from_traces(traces)
+        return {
+            "pss": 0,
+            "breakdown": {},
+        }
 
     def _observe_pss(self, options: CallbackOptions) -> Iterable[Observation]:
         report = self._compute_snapshot()

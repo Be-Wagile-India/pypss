@@ -22,7 +22,7 @@ install:
 	pre-commit install
 
 test:
-	pytest --cov=pypss tests/
+	PYTHONPATH=. pytest --cov=pypss tests/
 	@echo "\nRunning Benchmarks..."
 	$(MAKE) benchmark
 
@@ -36,7 +36,7 @@ format:
 	ruff format .
 
 type-check:
-	mypy pypss tests
+	mypy --check-untyped-defs pypss tests
 
 check: lint type-check test
 

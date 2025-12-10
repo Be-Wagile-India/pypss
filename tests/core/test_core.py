@@ -10,10 +10,7 @@ class TestCore:
 
     def test_compute_pss_perfect_run(self):
         # 10 traces, exact same duration, no errors, same branch
-        traces = [
-            {"duration": 0.1, "memory": 1000, "error": False, "branch_tag": "main"}
-            for _ in range(10)
-        ]
+        traces = [{"duration": 0.1, "memory": 1000, "error": False, "branch_tag": "main"} for _ in range(10)]
 
         report = compute_pss_from_traces(traces)
 

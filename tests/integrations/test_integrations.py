@@ -1,20 +1,25 @@
 import time
 from unittest.mock import MagicMock, patch
+
 import pytest
-from pypss.instrumentation import global_collector
+
+import pypss
 
 
 class TestIntegrations:
     @pytest.mark.asyncio
     async def test_fastapi_middleware_logic(self):
         try:
-            from pypss.integrations.fastapi import PSSMiddleware
             from starlette.types import ASGIApp
+
+            from pypss.integrations.fastapi import PSSMiddleware
         except ImportError:
             pytest.skip("FastAPI/Starlette not installed")
 
+        pypss.init()
+        collector = pypss.get_global_collector()
         # Clear collector
-        global_collector.clear()
+        collector.clear()
 
         # Mock App and Next
         app = MagicMock(spec=ASGIApp)
@@ -35,18 +40,21 @@ class TestIntegrations:
         assert "X-PSS-Wait" in response.headers
 
         # Verify Trace
-        traces = global_collector.get_traces()
+        traces = collector.get_traces()
         assert len(traces) == 1
         assert traces[0]["name"] == "GET /test"
 
     def test_flask_integration_logic(self):
         try:
             from flask import Flask
+
             from pypss.integrations.flask import init_pypss_flask_app
         except ImportError:
             pytest.skip("Flask not installed")
 
-        global_collector.clear()
+        pypss.init()
+        collector = pypss.get_global_collector()
+        collector.clear()
 
         app = Flask(__name__)
         init_pypss_flask_app(app)
@@ -61,7 +69,7 @@ class TestIntegrations:
 
         assert resp.headers.get("X-PSS-Latency")
 
-        traces = global_collector.get_traces()
+        traces = collector.get_traces()
         assert len(traces) == 1
         assert traces[0]["name"] == "flask:GET /test"
 
@@ -74,7 +82,9 @@ class TestIntegrations:
         except ImportError:
             pytest.skip("Celery deps missing")
 
-        global_collector.clear()
+        pypss.init()
+        collector = pypss.get_global_collector()
+        collector.clear()
 
         # Simulate Task
         task_id = "task-123"
@@ -91,8 +101,7 @@ class TestIntegrations:
         time.sleep(0.01)
         celery_int._on_task_postrun(task_id=task_id, task=task, state="SUCCESS")
 
-        # Verify Trace
-        traces = global_collector.get_traces()
+        traces = collector.get_traces()
         assert len(traces) == 1
         assert traces[0]["name"] == "celery:my_task"
         assert traces[0]["branch_tag"] == "SUCCESS"
@@ -104,7 +113,9 @@ class TestIntegrations:
         except ImportError:
             pytest.skip("RQ deps missing")
 
-        global_collector.clear()
+        pypss.init()
+        collector = pypss.get_global_collector()
+        collector.clear()
 
         # Subclass to mock perform
         class MockJob(PSSJob):
@@ -126,6 +137,6 @@ class TestIntegrations:
         job = MockJob()
         job.perform()
 
-        traces = global_collector.get_traces()
+        traces = collector.get_traces()
         assert len(traces) == 1
         assert traces[0]["name"] == "rq:test_func"

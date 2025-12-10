@@ -1,6 +1,9 @@
 import asyncio
+
 import pytest
-from pypss.instrumentation import monitor_function, global_collector
+
+import pypss
+from pypss.instrumentation import monitor_function
 
 
 # Define an async function to monitor
@@ -19,15 +22,21 @@ async def async_worker(delay):
 
 
 @pytest.mark.asyncio
-async def test_async_monitoring():
-    global_collector.clear()
+async def test_async_monitoring(monkeypatch):  # Add monkeypatch
+    pypss.init()
+    collector = pypss.get_global_collector()
+    collector.clear()
+
+    # Explicitly set sample rates to ensure traces are collected
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "sample_rate", 1.0)
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "error_sample_rate", 1.0)
 
     expected_duration = 0.1
     # Run the async task
     result = await async_task(expected_duration)
     assert result == "done"
 
-    traces = global_collector.get_traces()
+    traces = collector.get_traces()
     assert len(traces) == 1
     trace = traces[0]
 
@@ -44,8 +53,14 @@ async def test_async_monitoring():
 
 
 @pytest.mark.asyncio
-async def test_async_wait_time_metric():
-    global_collector.clear()
+async def test_async_wait_time_metric(monkeypatch):  # Add monkeypatch
+    pypss.init()
+    collector = pypss.get_global_collector()
+    collector.clear()
+
+    # Explicitly set sample rates to ensure traces are collected
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "sample_rate", 1.0)
+    monkeypatch.setattr(pypss.utils.config.GLOBAL_CONFIG, "error_sample_rate", 1.0)
 
     # Run two concurrent tasks
     # Task 1 sleeps 0.2s
@@ -54,7 +69,7 @@ async def test_async_wait_time_metric():
 
     await asyncio.gather(async_worker(0.2), async_worker(0.2))
 
-    traces = global_collector.get_traces()
+    traces = collector.get_traces()
     assert len(traces) == 2
 
     for trace in traces:

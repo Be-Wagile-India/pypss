@@ -1,4 +1,5 @@
 from typing import Dict
+
 from pypss.utils.config import GLOBAL_CONFIG
 
 HTML_TEMPLATE = """
@@ -8,9 +9,11 @@ HTML_TEMPLATE = """
     <title>{{ report_title }}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+               background: #f4f6f8; margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+                padding: 20px; margin-bottom: 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .score-large { font-size: 72px; font-weight: bold; color: #2ecc71; }
         .score-bad { color: #e74c3c; }
@@ -103,7 +106,7 @@ def render_report_html(report: Dict, advisor_text: str) -> str:
     pss = report.get("pss", 0)
     score_class = "score-bad"
     if pss >= 90:
-        score_class = ""  # Green by default CSS
+        score_class = ""
     elif pss >= 70:
         score_class = "score-med"
 
@@ -113,7 +116,6 @@ def render_report_html(report: Dict, advisor_text: str) -> str:
     html = html.replace("{{ score_class }}", score_class)
     html = html.replace("{{ advisor_report }}", advisor_text)
 
-    # Replace breakdown values
     bd = report.get("breakdown", {})
     for key, val in bd.items():
         html = html.replace(f"{{{{ breakdown.{key} }}}}", str(val))

@@ -1,9 +1,9 @@
 import pypss
+import pypss.cli
 import pypss.core
 import pypss.instrumentation
 import pypss.integrations
 import pypss.utils
-import pypss.cli
 
 
 def test_root_exports():
@@ -38,8 +38,6 @@ def test_instrumentation_exports():
     assert "Collector" in pypss.instrumentation.__all__
 
     assert pypss.instrumentation.Collector is not None
-
-    assert pypss.instrumentation.get_memory_usage is not None
 
 
 def test_integrations_exports():

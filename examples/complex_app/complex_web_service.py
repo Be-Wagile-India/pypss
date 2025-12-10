@@ -1,17 +1,19 @@
 # examples/complex_app/complex_web_service.py
+import os
 import random
 import time
-import os
-from pypss.instrumentation import (
-    monitor_function,
-    monitor_block,
-    global_collector,
-    AutoDumper,
-)
+from typing import Any, List, Optional
+
+import pypss
 from pypss.core import compute_pss_from_traces
+from pypss.instrumentation import (
+    AutoDumper,
+    monitor_block,
+    monitor_function,
+)
 
 # Simulate some memory usage
-_memory_hog = []
+_memory_hog: List[Any] = []
 
 
 @monitor_function("auth_check", module_name="auth_service")
@@ -101,7 +103,8 @@ def run_background_job():
         wait_time = random.uniform(0.1, 0.5)
         # Update wait_time for the last trace in the collector (manual context)
         # if global_collector.get_traces():
-        #     global_collector.get_traces()[-1]["wait_time"] = wait_time # Simulating custom attribute
+        #     global_collector.get_traces()[-1]["wait_time"] = wait_time
+        #     # Simulating custom attribute
         time.sleep(wait_time)
 
     # Simulate a small chance of error in background
@@ -115,8 +118,8 @@ def run_service_simulation(
     num_requests: int = 100,
     trace_file: str = "traces.json",
     continuous: bool = False,
-    dump_interval: float = None,
-    rotate_interval: float = None,
+    dump_interval: Optional[float] = None,
+    rotate_interval: Optional[float] = None,
 ):
     """
     Runs a simulation of the web service and saves the traces.
@@ -124,7 +127,9 @@ def run_service_simulation(
     global _memory_hog
     _memory_hog = []  # Clear memory hog for each simulation run
 
-    global_collector.clear()  # Ensure a clean start
+    # Get the global collector (ensure pypss.init() is called by the test fixture)
+    collector = pypss.get_global_collector()
+    collector.clear()  # Ensure a clean start
 
     # --- Removed: Resume from existing traces logic ---
 
@@ -132,7 +137,7 @@ def run_service_simulation(
     if dump_interval:
         print(f"Auto-dumping traces every {dump_interval}s to {trace_file}")
         dumper = AutoDumper(
-            global_collector,
+            collector,  # Use the retrieved collector
             trace_file,
             interval=dump_interval,
             rotate_interval=rotate_interval,
@@ -173,7 +178,7 @@ def run_service_simulation(
             print("Stopping auto-dumper...")
             dumper.stop()
 
-    traces = global_collector.get_traces()
+    traces = collector.get_traces()  # Use the retrieved collector
     # Final write if not using dumper, or just to be sure
     if not dumper:
         with open(trace_file, "w") as f:

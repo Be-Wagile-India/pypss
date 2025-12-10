@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pypss"
-version = "1.0.1"
+version = "1.3.0"
 description = "Python Program Stability Score"
 keywords = ["stability", "metrics", "observability", "python", "pss"]
 readme = "README.md"
@@ -34,6 +34,8 @@ dependencies = [
     "toml",
     "ijson>=3.2.0",
     "psutil>=5.9.0",
+    "scikit-optimize>=0.10.0", # Added for Bayesian Optimization
+    "scikit-learn>=1.0.0",    # Added for ML Pattern Detection
 ]
 
 [project.optional-dependencies]
@@ -43,9 +45,9 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "pytest-xdist>=3.3.0",
     "hypothesis>=6.80.0",
+    "freezegun>=1.2.0",
     "mypy>=1.7.0",
     "ruff>=0.1.0",
-
     "bump2version>=1.0.1",
     "types-PyYAML>=6.0.0",
     "types-toml>=0.10.0",
@@ -56,6 +58,23 @@ dev = [
     "flask>=3.0.0",
     "celery>=5.0.0",
     "rq>=1.0.0",
+    "grpcio-tools>=1.50.0",
+    "types-grpcio",
+    "types-psutil",
+    "types-protobuf",
+    "celery-types",
+    "types-redis",
+    "types-setuptools",
+]
+
+monitoring = [
+    "prometheus-client>=0.17.0",
+]
+
+distributed = [
+    "redis>=5.0.0",
+    "grpcio>=1.50.0",
+    "protobuf>=4.20.0",
 ]
 
 otel = [
@@ -108,8 +127,12 @@ skip_covered = false
 precision = 2
 
 [tool.mypy]
-exclude = ["build", "examples"]
+exclude = ["build", "examples", "pypss/protos"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pypss.protos.*"
+ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
@@ -120,6 +143,26 @@ module = [
     "flask.*",
     "starlette.*",
     "celery.*",
-    "openai.*"
+    "openai.*",
+    "ijson.*"
 ]
 ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = []
+exclude = ["pypss/protos/*.py"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pypss"]
+
+[tool.pytest.ini_options]
+addopts = "-vv --tb=long"
+filterwarnings = [
+    "ignore:coroutine 'AsyncMockMixin._execute_mock_call' was never awaited:RuntimeWarning"
+]
+

@@ -1,7 +1,7 @@
 from .cli import main
-from .reporting import render_report_text, render_report_json
-from .runner import run_with_instrumentation, AutoInstrumentor
 from .discovery import CodebaseDiscoverer, get_module_score_breakdown
+from .reporting import render_report_json, render_report_text
+from .runner import AutoInstrumentor, run_with_instrumentation
 
 __all__ = [
     "main",
