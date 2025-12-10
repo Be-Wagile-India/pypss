@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 def load_plugins(plugin_modules: list[str]):
     """
     Dynamically load plugin modules specified by name.
-    This allows external plugins to register themselves with the MetricRegistry.
     """
     for module_name in plugin_modules:
         try:

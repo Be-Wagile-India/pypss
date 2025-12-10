@@ -1,7 +1,8 @@
 import pytest  # noqa: F401
+from skopt import gp_minimize  # noqa: F401
+
 from pypss.tuning.optimizer import ConfigOptimizer
 from pypss.utils.config import PSSConfig
-from skopt import gp_minimize  # noqa: F401
 
 
 class TestOptimizerCoverage:
@@ -31,14 +32,10 @@ class TestOptimizerCoverage:
         # to trigger the penalty branch
 
         # Baseline: Perfect traces
-        baseline = [
-            {"duration": 0.1, "memory": 100, "wait_time": 0.0, "error": False}
-        ] * 10
+        baseline = [{"duration": 0.1, "memory": 100, "wait_time": 0.0, "error": False}] * 10
 
         # Faulty: Also perfect traces (so score is high, detection fails)
-        faulty = [
-            {"duration": 0.1, "memory": 100, "wait_time": 0.0, "error": False}
-        ] * 10
+        faulty = [{"duration": 0.1, "memory": 100, "wait_time": 0.0, "error": False}] * 10
 
         optimizer = ConfigOptimizer(baseline, {"latency_jitter": faulty})
 

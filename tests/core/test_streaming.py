@@ -1,4 +1,5 @@
 import pytest
+
 from pypss.core import compute_pss_from_traces
 
 

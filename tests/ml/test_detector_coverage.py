@@ -1,6 +1,8 @@
-import pytest
-import sys
 import importlib
+import sys
+
+import pytest
+
 from pypss.ml import detector
 
 

@@ -1,12 +1,14 @@
-import pytest
-from unittest.mock import MagicMock, patch
 from typing import Dict, Optional  # Add Dict, Optional
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from pypss.storage import (
-    get_storage_backend,
-    check_regression,
-    SQLiteStorage,
     PrometheusStorage,
+    SQLiteStorage,
     StorageBackend,
+    check_regression,
+    get_storage_backend,
 )
 
 

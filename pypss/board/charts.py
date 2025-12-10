@@ -1,7 +1,8 @@
 from datetime import datetime
+
+import pandas as pd
 import plotly.express as px  # type: ignore
 import plotly.graph_objects as go  # type: ignore
-import pandas as pd
 
 
 def create_stability_sunburst(df):
@@ -79,13 +80,14 @@ def create_trend_chart(traces):
     last_update_str = ""
     if "timestamp" in df.columns:
         grouped_time = df.groupby("bin", observed=False)["timestamp"].min()
-        tick_text = [
-            datetime.fromtimestamp(ts).strftime("%H:%M:%S") for ts in grouped_time
-        ]
+        tick_text = [datetime.fromtimestamp(ts).strftime("%H:%M:%S") for ts in grouped_time]
 
         # Latest timestamp for title
         max_ts = df["timestamp"].max()
-        last_update_str = f"<br><span style='font-size:10px; color:gray'>Latest Data: {datetime.fromtimestamp(max_ts).strftime('%H:%M:%S')}</span>"
+        last_update_str = (
+            f"<br><span style='font-size:10px; color:gray'>Latest Data: "
+            f"{datetime.fromtimestamp(max_ts).strftime('%H:%M:%S')}</span>"
+        )
 
         # Reduce tick density if too many
         if len(tick_text) > 10:
@@ -158,9 +160,7 @@ def create_trend_chart(traces):
             tickvals=tick_vals,
             ticktext=tick_text,
         ),
-        yaxis=dict(
-            gridcolor=grid_color, tickfont_color=font_color, title_font_color=font_color
-        ),
+        yaxis=dict(gridcolor=grid_color, tickfont_color=font_color, title_font_color=font_color),
         hovermode="x unified",
     )
     return fig
@@ -243,9 +243,7 @@ def create_historical_chart(history_data):
     # Prepare custom data for tooltips (all sub-scores)
     custom_data = []
     for i in range(len(history_data)):
-        custom_data.append(
-            [ts_scores[i], ms_scores[i], ev_scores[i], be_scores[i], cc_scores[i]]
-        )
+        custom_data.append([ts_scores[i], ms_scores[i], ev_scores[i], be_scores[i], cc_scores[i]])
 
     fig = go.Figure()
 
@@ -383,9 +381,7 @@ def plot_stability_trends(df: pd.DataFrame):
                 y=y_vals,
                 mode="lines+markers",
                 name=style["name"],
-                line=dict(
-                    color=style["color"], width=style["width"], dash=style["dash"]
-                ),
+                line=dict(color=style["color"], width=style["width"], dash=style["dash"]),
                 hovertemplate=f"<b>{style['name']}: %{{y:.1f}}</b><extra></extra>",
             )
         )
@@ -525,9 +521,7 @@ def plot_concurrency_dist(traces: list):
         return go.Figure()
 
     # Melt for side-by-side violin
-    melted = df.melt(
-        value_vars=["cpu_time", "wait_time"], var_name="Metric", value_name="Seconds"
-    )
+    melted = df.melt(value_vars=["cpu_time", "wait_time"], var_name="Metric", value_name="Seconds")
 
     fig = px.violin(
         melted,

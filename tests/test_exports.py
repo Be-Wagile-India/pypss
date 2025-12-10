@@ -1,9 +1,9 @@
 import pypss
+import pypss.cli
 import pypss.core
 import pypss.instrumentation
 import pypss.integrations
 import pypss.utils
-import pypss.cli
 
 
 def test_root_exports():

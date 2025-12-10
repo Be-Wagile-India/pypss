@@ -1,6 +1,7 @@
-import pytest
+from unittest.mock import MagicMock, patch
+
 import numpy as np
-from unittest.mock import patch, MagicMock
+import pytest
 
 
 @pytest.fixture
@@ -20,7 +21,7 @@ SKLEARN_AVAILABLE_FOR_TESTS = True
 # Mock the internal SKLEARN_AVAILABLE flag in the module under test
 with patch("pypss.ml.detector.SKLEARN_AVAILABLE", SKLEARN_AVAILABLE_FOR_TESTS):
     # This import needs to happen AFTER the patch
-    from pypss.ml.detector import PatternDetector, SKLEARN_AVAILABLE
+    from pypss.ml.detector import SKLEARN_AVAILABLE, PatternDetector
 
     if not SKLEARN_AVAILABLE:
         pytest.skip(
@@ -192,9 +193,7 @@ class TestPatternDetector:
         predictions = detector.predict_anomalies(all_traces)
         scores = detector.anomaly_score(all_traces)
 
-        assert any(predictions[len(normal_traces) :]), (
-            "No anomalous traces detected as anomalies"
-        )
+        assert any(predictions[len(normal_traces) :]), "No anomalous traces detected as anomalies"
 
         normal_scores = scores[: len(normal_traces)]
         anomalous_scores = scores[len(normal_traces) :]
@@ -212,29 +211,19 @@ class TestPatternDetector:
     def test_dummy_sklearn_behavior(self, sample_traces):
         with patch("pypss.ml.detector.SKLEARN_AVAILABLE", False):
             with (
-                patch(
-                    "pypss.ml.detector.IsolationForest", autospec=True
-                ) as MockIsolationForest,
-                patch(
-                    "pypss.ml.detector.StandardScaler", autospec=True
-                ) as MockStandardScaler,
+                patch("pypss.ml.detector.IsolationForest", autospec=True) as MockIsolationForest,
+                patch("pypss.ml.detector.StandardScaler", autospec=True) as MockStandardScaler,
             ):
                 mock_isolation_forest_instance = MockIsolationForest.return_value
                 mock_standard_scaler_instance = MockStandardScaler.return_value
 
                 mock_isolation_forest_instance.fit.return_value = None
-                mock_isolation_forest_instance.decision_function.return_value = (
-                    np.zeros(len(sample_traces))
-                )
-                mock_isolation_forest_instance.predict.return_value = np.zeros(
-                    len(sample_traces)
-                )
+                mock_isolation_forest_instance.decision_function.return_value = np.zeros(len(sample_traces))
+                mock_isolation_forest_instance.predict.return_value = np.zeros(len(sample_traces))
                 mock_standard_scaler_instance.fit_transform.side_effect = lambda X: X
                 mock_standard_scaler_instance.transform.side_effect = lambda X: X
 
-                with patch.object(
-                    PatternDetector, "__init__", lambda self, **kwargs: None
-                ):
+                with patch.object(PatternDetector, "__init__", lambda self, **kwargs: None):
                     dummy_detector = PatternDetector()
                     dummy_detector.model = mock_isolation_forest_instance
                     dummy_detector.scaler = mock_standard_scaler_instance
@@ -248,9 +237,7 @@ class TestPatternDetector:
                     assert dummy_detector.fitted
 
                     dummy_detector.fitted = False
-                    with pytest.warns(
-                        UserWarning, match="PatternDetector model not fitted"
-                    ):
+                    with pytest.warns(UserWarning, match="PatternDetector model not fitted"):
                         predictions = dummy_detector.predict_anomalies(sample_traces)
                         assert all(not p for p in predictions)
                         assert len(predictions) == len(sample_traces)
@@ -262,9 +249,7 @@ class TestPatternDetector:
                     assert len(predictions) == len(sample_traces)
 
                     dummy_detector.fitted = False
-                    with pytest.warns(
-                        UserWarning, match="PatternDetector model not fitted"
-                    ):
+                    with pytest.warns(UserWarning, match="PatternDetector model not fitted"):
                         scores = dummy_detector.anomaly_score(sample_traces)
                         assert all(s == 0.0 for s in scores)
                         assert len(scores) == len(sample_traces)

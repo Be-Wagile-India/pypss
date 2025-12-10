@@ -1,20 +1,22 @@
 import asyncio
-import sys
-import pytest
-from unittest import mock
-import time
-import random
-import psutil  # Add missing import
 import logging
+import random
+import sys
+import time
 from contextvars import ContextVar
+from unittest import mock
+
+import psutil  # Add missing import
+import pytest
+
 import pypss
-from pypss.instrumentation import monitor_async, monitor_function
 import pypss.instrumentation.async_ops as async_ops_module
+from pypss.instrumentation import monitor_async, monitor_function
 from pypss.instrumentation.async_ops import (
+    AsyncTraceContext,
+    EventLoopHealthMonitor,
     start_async_monitoring,
     stop_async_monitoring,
-    EventLoopHealthMonitor,
-    AsyncTraceContext,
 )
 from pypss.utils.config import GLOBAL_CONFIG
 
@@ -45,9 +47,7 @@ async def test_async_monitor_context_manager(
     expected_min_duration = 0.05
     tolerance = 0.005  # 5 milliseconds tolerance
     assert t["duration"] >= expected_min_duration - tolerance
-    assert (
-        t["duration"] < expected_min_duration + 0.3
-    )  # Should not be excessively long either
+    assert t["duration"] < expected_min_duration + 0.3  # Should not be excessively long either
     assert t.get("async_op") is True
 
 
@@ -141,9 +141,7 @@ async def test_async_monitor_memory_tracking(monkeypatch):
 
     mock_memory_info = mock.Mock()
     # Mock the rss property directly with a lambda that calls next() on the iterator
-    type(mock_memory_info).rss = mock.PropertyMock(
-        side_effect=lambda: next(mock_rss_iter)
-    )
+    type(mock_memory_info).rss = mock.PropertyMock(side_effect=lambda: next(mock_rss_iter))
 
     mock_process = mock.Mock()
     mock_process.memory_info.return_value = mock_memory_info
@@ -170,9 +168,7 @@ async def test_event_loop_health_monitor_start_already_running(monkeypatch, capl
     collector = pypss.get_global_collector()
     collector.clear()
     monitor = EventLoopHealthMonitor()
-    setattr(
-        monitor, "_monitor_loop", mock.AsyncMock()
-    )  # Mock the coroutine method directly
+    monitor._monitor_loop = mock.AsyncMock()  # type: ignore[method-assign]
 
     mock_loop = mock.AsyncMock()
     mock_task_instance = mock.AsyncMock()
@@ -301,9 +297,7 @@ async def test_start_async_monitoring_runtime_error(monkeypatch, caplog):
 
     with caplog.at_level(logging.WARNING):
         start_async_monitoring()
-        assert (
-            "PyPSS: start_async_monitoring called outside of event loop." in caplog.text
-        )
+        assert "PyPSS: start_async_monitoring called outside of event loop." in caplog.text
 
     assert async_ops_module._health_monitor_instance is not None
     assert not async_ops_module._health_monitor_instance._running
@@ -327,21 +321,16 @@ async def test_monitor_function_async_error_sampled_out(monkeypatch):
     collector = pypss.get_global_collector()
     collector.clear()
     monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)  # Ensure entry to function
-    monkeypatch.setattr(
-        GLOBAL_CONFIG, "error_sample_rate", 0.0
-    )  # Ensure error is sampled out
-    monkeypatch.setattr(
-        random, "random", lambda: 0.5
-    )  # random > error_sample_rate -> skip
+    monkeypatch.setattr(GLOBAL_CONFIG, "error_sample_rate", 0.0)  # Ensure error is sampled out
+    monkeypatch.setattr(random, "random", lambda: 0.5)  # random > error_sample_rate -> skip
 
     @monitor_function("async_error_sampled_out_func")
     async def async_func_with_error():
         raise CustomError("Error in async func")
 
-    # Call the async function directly, the exception will be suppressed by the decorator's finally block
-    # as it's sampled out.
-    await async_func_with_error()
-
+    # Call the async function directly, the exception will NOT be suppressed (fixed bug)
+    with pytest.raises(CustomError, match="Error in async func"):
+        await async_func_with_error()
     traces = collector.get_traces()
     assert len(traces) == 0  # Verify that no trace was collected.
 
@@ -384,9 +373,7 @@ async def test_monitor_function_async_yield_count_passed(monkeypatch):
     start_async_monitoring(enable_sys_monitoring=True)
 
     # Mock _current_trace_context.get() to return an object with a predefined yield_count
-    mock_ctx = mock.MagicMock(
-        spec_set=AsyncTraceContext
-    )  # Use spec_set for stricter mocking
+    mock_ctx = mock.MagicMock(spec_set=AsyncTraceContext)  # Use spec_set for stricter mocking
     mock_ctx.yield_count = 0  # Initialize yield_count to an integer
     # No longer hardcoding yield_count, just ensure it's a mock object that can be incremented
     mock_current_trace_context = mock.MagicMock(spec_set=ContextVar)

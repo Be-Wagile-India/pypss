@@ -1,9 +1,10 @@
 import json
 import statistics
-from typing import List, Dict, Optional
-from abc import ABC, abstractmethod  # Added import
-from ..utils.source_code import extract_function_code
+from abc import ABC, abstractmethod
+from typing import Dict, List, Optional
+
 from ..utils.config import GLOBAL_CONFIG
+from ..utils.source_code import extract_function_code
 
 
 class TraceSummarizer:
@@ -18,16 +19,11 @@ class TraceSummarizer:
         stats = {
             "count": len(traces),
             "p50_duration": statistics.median(durations),
-            "p95_duration": sorted(durations)[int(len(durations) * 0.95)]
-            if len(durations) > 1
-            else durations[0],
+            "p95_duration": sorted(durations)[int(len(durations) * 0.95)] if len(durations) > 1 else durations[0],
             "error_rate": len(errors) / len(traces),
             "avg_cpu_time": statistics.mean(t.get("cpu_time", 0) for t in traces),
             "avg_wait_time": statistics.mean(t.get("wait_time", 0) for t in traces),
-            "avg_memory_growth_mb": statistics.mean(
-                t.get("memory_diff", 0) for t in traces
-            )
-            / (1024 * 1024),
+            "avg_memory_growth_mb": statistics.mean(t.get("memory_diff", 0) for t in traces) / (1024 * 1024),
         }
 
         # Find anomalies (slowest success vs failure)
@@ -73,7 +69,7 @@ class OpenAIClient(LLMClient):
 
             self.client = OpenAI(api_key=api_key)
         except ImportError:
-            raise ImportError("Install 'openai' package to use OpenAI advisor")
+            raise ImportError("Install 'openai' package to use OpenAI advisor") from None
 
     def generate_diagnosis(self, context: str) -> Optional[str]:
         prompt = f"""
@@ -95,7 +91,7 @@ Provide concrete code recommendations.
 class OllamaClient(LLMClient):
     def __init__(self, model: Optional[str] = None):
         self.model = model or GLOBAL_CONFIG.llm_ollama_model
-        import requests  # core dep usually, but verify
+        import requests
 
         self.requests = requests
 
@@ -118,9 +114,7 @@ Point out specific lines that might be causing the issues.
             return f"Ollama Connection Failed: {e}"
 
 
-def get_llm_diagnosis(
-    traces: List[Dict], provider: str = "openai", api_key: Optional[str] = None
-) -> Optional[str]:
+def get_llm_diagnosis(traces: List[Dict], provider: str = "openai", api_key: Optional[str] = None) -> Optional[str]:
     summary = TraceSummarizer.summarize(traces)
 
     client: LLMClient

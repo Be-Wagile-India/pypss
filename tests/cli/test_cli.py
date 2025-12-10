@@ -1,10 +1,12 @@
 import json
 import os
 import sys
-from unittest.mock import patch, MagicMock
-from click.testing import CliRunner
-import pypss
+from unittest.mock import MagicMock, patch
+
 import pytest
+from click.testing import CliRunner
+
+import pypss
 
 # Ensure project root is in sys.path for module discovery
 sys.path.insert(0, os.path.abspath("."))
@@ -28,9 +30,7 @@ def mock_trace_file(tmp_path):
 
 class TestCLI:
     def test_analyze_command(self, cli_runner, mock_trace_file):
-        result = cli_runner.invoke(
-            main, ["analyze", "--trace-file", str(mock_trace_file)]
-        )
+        result = cli_runner.invoke(main, ["analyze", "--trace-file", str(mock_trace_file)])
 
         assert result.exit_code == 0
         assert "PSS:" in result.output
@@ -72,9 +72,7 @@ class TestCLI:
                 with patch("pypss.cli.cli.render_report_html") as mock_render_html:
                     mock_collector = MagicMock()
                     mock_get_global_collector.return_value = mock_collector
-                    mock_collector.get_traces.return_value = [
-                        {"duration": 0.1, "error": False}
-                    ]
+                    mock_collector.get_traces.return_value = [{"duration": 0.1, "error": False}]
                     mock_render_html.return_value = "<html>mock html</html>"
 
                     script = tmp_path / "dummy.py"
@@ -144,15 +142,11 @@ if __name__ == "__main__":
         # Mocking to ensure we hit the module printing lines
         with patch("pypss.cli.cli.run_with_instrumentation"):
             with patch("pypss.get_global_collector") as mock_get_global_collector:
-                with patch(
-                    "pypss.cli.cli.get_module_score_breakdown"
-                ) as mock_breakdown:
+                with patch("pypss.cli.cli.get_module_score_breakdown") as mock_breakdown:
                     # Setup mocks
                     mock_collector = MagicMock()
                     mock_get_global_collector.return_value = mock_collector
-                    mock_collector.get_traces.return_value = [
-                        {"name": "mod.func", "duration": 0.1}
-                    ]
+                    mock_collector.get_traces.return_value = [{"name": "mod.func", "duration": 0.1}]
                     mock_breakdown.return_value = {
                         "mod_good": {"pss": 95},
                         "mod_ok": {"pss": 75},
@@ -163,9 +157,7 @@ if __name__ == "__main__":
                     script.touch()
                     output_file = tmp_path / "report.json"
 
-                    result = cli_runner.invoke(
-                        main, ["run", str(script), "--output", str(output_file)]
-                    )
+                    result = cli_runner.invoke(main, ["run", str(script), "--output", str(output_file)])
 
                     assert result.exit_code == 0
                     assert "🟢 mod_good" in result.output
@@ -180,9 +172,7 @@ if __name__ == "__main__":
             with patch("pypss.get_global_collector") as mock_get_global_collector:
                 mock_collector = MagicMock()
                 mock_get_global_collector.return_value = mock_collector
-                mock_collector.get_traces.return_value = [
-                    {"duration": 0.1, "error": False}
-                ]
+                mock_collector.get_traces.return_value = [{"duration": 0.1, "error": False}]
                 script = tmp_path / "dummy.py"
                 script.touch()
                 output_file = tmp_path / "report.json"
@@ -204,9 +194,7 @@ if __name__ == "__main__":
         with open(trace_file, "w") as f:
             f.write("[")
 
-        result = cli_runner.invoke(
-            main, ["analyze", "--trace-file", str(trace_file)], catch_exceptions=False
-        )
+        result = cli_runner.invoke(main, ["analyze", "--trace-file", str(trace_file)], catch_exceptions=False)
 
         assert result.exit_code != 0
 
@@ -243,9 +231,7 @@ if __name__ == "__main__":
         trace_file = tmp_path / "traces.json"
         trace_file.touch()
 
-        result = cli_runner.invoke(
-            main, ["diagnose", "--trace-file", str(trace_file)], catch_exceptions=True
-        )
+        result = cli_runner.invoke(main, ["diagnose", "--trace-file", str(trace_file)], catch_exceptions=True)
 
         assert result.exit_code != 0
         assert isinstance(result.exception, SystemExit)
@@ -317,9 +303,7 @@ if __name__ == "__main__":
         }
 
     @patch("subprocess.run")
-    def test_board_command_subprocess_success(
-        self, mock_subprocess_run, cli_runner, tmp_path
-    ):
+    def test_board_command_subprocess_success(self, mock_subprocess_run, cli_runner, tmp_path):
         # Mock dependencies being present so we don't exit early
         with patch.dict(
             sys.modules,
@@ -338,9 +322,7 @@ if __name__ == "__main__":
             )
 
     @patch("subprocess.run")
-    def test_board_command_subprocess_failure(
-        self, mock_subprocess_run, cli_runner, tmp_path
-    ):
+    def test_board_command_subprocess_failure(self, mock_subprocess_run, cli_runner, tmp_path):
         # Mock dependencies being present
         with patch.dict(
             sys.modules,
@@ -358,9 +340,7 @@ if __name__ == "__main__":
             mock_subprocess_run.assert_called_once()
 
     @patch("subprocess.run")
-    def test_board_command_keyboard_interrupt(
-        self, mock_subprocess_run, cli_runner, tmp_path
-    ):
+    def test_board_command_keyboard_interrupt(self, mock_subprocess_run, cli_runner, tmp_path):
         # Mock dependencies being present
         with patch.dict(
             sys.modules,

@@ -148,6 +148,18 @@ module = [
 ]
 ignore_missing_imports = true
 
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = []
+exclude = ["pypss/protos/*.py"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pypss"]
+
 [tool.pytest.ini_options]
 addopts = "-vv --tb=long"
 filterwarnings = [

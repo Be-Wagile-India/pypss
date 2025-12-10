@@ -1,6 +1,8 @@
-import pytest
-from unittest.mock import patch, MagicMock
 import re  # Added re
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 import pypss
 
 # Import components needed for type hinting and patching targets
@@ -83,9 +85,7 @@ def test_pypss_init_full_coverage(
     mock_init_erm.assert_called_once()
 
     # Verify RuntimeTuner was instantiated correctly
-    mock_runtime_tuner_class.assert_called_once_with(
-        config=mock_global_config, collector=mock_erm_instance_global
-    )
+    mock_runtime_tuner_class.assert_called_once_with(config=mock_global_config, collector=mock_erm_instance_global)
     mock_tuner_instance.start.assert_called_once()
     mock_atexit_register_func.assert_called_once_with(mock_tuner_instance.stop)
 
@@ -113,9 +113,7 @@ def test_pypss_init_full_coverage(
     # Verify new initializations and registration for the second init call
     mock_init_gc.assert_called_once()
     mock_init_erm.assert_called_once()
-    mock_runtime_tuner_class.assert_called_once_with(
-        config=mock_global_config, collector=mock_erm_instance_global
-    )
+    mock_runtime_tuner_class.assert_called_once_with(config=mock_global_config, collector=mock_erm_instance_global)
     mock_tuner_instance.start.assert_called_once()
     mock_atexit_register_func.assert_called_once_with(mock_tuner_instance.stop)
 
@@ -133,25 +131,19 @@ def test_pypss_getters_not_initialized(reset_pypss_globals_and_atexit):
 
     with pytest.raises(
         RuntimeError,
-        match=re.escape(
-            "PyPSS global_collector not initialized. Call pypss.init() first."
-        ),
+        match=re.escape("PyPSS global_collector not initialized. Call init() first."),
     ):
         pypss.get_global_collector()
 
     with pytest.raises(
         RuntimeError,
-        match=re.escape(
-            "PyPSS error_rate_monitor not initialized. Call pypss.init() first."
-        ),
+        match=re.escape("PyPSS error_rate_monitor not initialized. Call init() first."),
     ):
         pypss.get_error_rate_monitor()
 
     with pytest.raises(
         RuntimeError,
-        match=re.escape(
-            "PyPSS runtime_tuner not initialized. Call pypss.init() first."
-        ),
+        match=re.escape("PyPSS runtime_tuner not initialized. Call init() first."),
     ):
         pypss.get_runtime_tuner()
 
@@ -197,9 +189,7 @@ def test_pypss_init_no_previous_tuner_state(
 
     mock_init_gc.assert_called_once()
     mock_init_erm.assert_called_once()
-    mock_runtime_tuner_class.assert_called_once_with(
-        config=mock_global_config, collector=mock_erm_instance
-    )
+    mock_runtime_tuner_class.assert_called_once_with(config=mock_global_config, collector=mock_erm_instance)
     mock_tuner_instance.start.assert_called_once()
     mock_atexit_register_func.assert_called_once_with(mock_tuner_instance.stop)
 

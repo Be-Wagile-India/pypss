@@ -1,19 +1,21 @@
+import logging
+from typing import Dict, Iterable
+
 import pytest
-from typing import Iterable, Dict
-from pypss.plugins import BaseMetric, MetricRegistry
+
+import pypss.core.core
 from pypss.core.core import compute_pss_from_traces
-from pypss.utils.config import GLOBAL_CONFIG
+from pypss.plugins import BaseMetric, MetricRegistry
 from pypss.plugins.metrics import (
-    IOStabilityMetric,
+    CacheStabilityMetric,
     DBStabilityMetric,
     GCStabilityMetric,
-    CacheStabilityMetric,
-    ThreadStarvationMetric,
-    NetworkStabilityMetric,
+    IOStabilityMetric,
     KafkaLagStabilityMetric,
+    NetworkStabilityMetric,
+    ThreadStarvationMetric,
 )
-import pypss.core.core
-import logging
+from pypss.utils.config import GLOBAL_CONFIG
 
 logger = logging.getLogger(__name__)
 
@@ -218,9 +220,7 @@ class TestPluginSystem:
             ),
         ],
     )
-    def test_metrics_compute(
-        self, metric_class, traces, expected_score_condition, description
-    ):
+    def test_metrics_compute(self, metric_class, traces, expected_score_condition, description):
         metric = metric_class()
         score = metric.compute(traces)
         assert expected_score_condition(score), f"Failed: {description}"
@@ -261,9 +261,7 @@ class TestPluginSystem:
             ),
         ],
     )
-    def test_metric_integration(
-        self, metric_class, traces, metric_key, clean_registry, monkeypatch
-    ):
+    def test_metric_integration(self, metric_class, traces, metric_key, clean_registry, monkeypatch):
         MetricRegistry.register(metric_class)
         # Mock MetricRegistry.get_all to ensure we get the registered metric
         monkeypatch.setattr(

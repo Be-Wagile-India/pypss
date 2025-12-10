@@ -47,8 +47,9 @@ class TestConfig:
         assert not hasattr(config, "invalid_key")
 
     def test_save_exception_handling(self, tmp_path):
-        import toml
         from unittest.mock import patch
+
+        import toml
 
         config = PSSConfig()
         config.sample_rate = 0.9

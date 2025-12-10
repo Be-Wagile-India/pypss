@@ -8,7 +8,7 @@
 [![Code Style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type Checked: Mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](http://mypy-lang.org/)
 [![Tests](https://img.shields.io/badge/tests-431%20passing-success.svg)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-91.19%25-brightgreen.svg)](htmlcov/index.html)
+[![Coverage](https://img.shields.io/badge/coverage-89.72%25-brightgreen.svg)](htmlcov/index.html)
 
 Python systems often fail not because they are slow — but because they are unstable. `pypss` gives you the first metric that measures runtime flakiness, reliability, and stability in a single score.
 

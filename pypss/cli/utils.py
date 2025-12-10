@@ -1,8 +1,9 @@
+import sys
+from decimal import Decimal
+from typing import Any, Dict, List
+
 import click
 import ijson
-import sys
-from typing import List, Dict, Any
-from decimal import Decimal
 
 
 def _convert_decimals_to_floats(obj):
@@ -23,7 +24,6 @@ def load_traces(trace_file: str) -> List[Dict[str, Any]]:
     traces = []
     try:
         with open(trace_file, "rb") as f:
-            # Peek to determine structure
             try:
                 first_char = f.read(1)
                 f.seek(0)
@@ -31,15 +31,12 @@ def load_traces(trace_file: str) -> List[Dict[str, Any]]:
                 first_char = b""
 
             if first_char == b"{":
-                # Assume {"traces": [...]}
                 raw_traces = list(ijson.items(f, "traces.item"))
             elif first_char == b"[":
-                # Assume [...]
                 raw_traces = list(ijson.items(f, "item"))
             else:
                 raw_traces = []
 
-            # Convert any Decimal objects to floats
             traces = [_convert_decimals_to_floats(trace) for trace in raw_traces]
 
     except Exception as e:

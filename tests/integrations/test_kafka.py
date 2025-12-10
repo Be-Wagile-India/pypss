@@ -1,5 +1,5 @@
-from pypss.integrations.kafka import report_kafka_lag
 import pypss
+from pypss.integrations.kafka import report_kafka_lag
 
 
 class TestKafkaIntegration:
@@ -8,9 +8,7 @@ class TestKafkaIntegration:
         collector = pypss.get_global_collector()
         collector.clear()
 
-        report_kafka_lag(
-            lag=50, topic="orders", partition=1, group_id="order_processor"
-        )
+        report_kafka_lag(lag=50, topic="orders", partition=1, group_id="order_processor")
 
         traces = collector.get_traces()
         assert len(traces) == 1

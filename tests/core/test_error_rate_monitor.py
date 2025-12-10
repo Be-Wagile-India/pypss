@@ -1,14 +1,15 @@
-import pytest
+import logging
 import time
 from unittest import mock
-import logging
+
+import pytest
 
 import pypss  # Import pypss
+from pypss.core.adaptive_sampler import adaptive_sampler
 from pypss.core.error_rate_monitor import (
     ErrorRateMonitor,
 )  # Only import the class, not the global instance
 from pypss.instrumentation.collectors import FileFIFOCollector
-from pypss.core.adaptive_sampler import adaptive_sampler
 from pypss.utils.config import GLOBAL_CONFIG
 
 
@@ -34,9 +35,7 @@ def setup_teardown_global_state(monkeypatch):
     # Reset global adaptive_sampler (as it's updated by ErrorRateMonitor)
     # Mock this as well to prevent interaction between tests
     mock_adaptive_sampler = mock.Mock(spec=adaptive_sampler)
-    monkeypatch.setattr(
-        "pypss.core.adaptive_sampler.adaptive_sampler", mock_adaptive_sampler
-    )
+    monkeypatch.setattr("pypss.core.adaptive_sampler.adaptive_sampler", mock_adaptive_sampler)
 
     yield  # Run the test
 
@@ -87,9 +86,7 @@ class TestErrorRateMonitor:
 
         with caplog.at_level(logging.INFO):
             monitor.start()
-            assert (
-                "Error Rate Monitor already running." in caplog.text
-            )  # Should log this
+            assert "Error Rate Monitor already running." in caplog.text  # Should log this
 
         assert monitor._thread is not None
         thread_id_2 = monitor._thread.ident
@@ -99,36 +96,24 @@ class TestErrorRateMonitor:
 
     def test_error_rate_calculation_no_errors(self, monkeypatch):
         mock_adaptive_sampler = mock.Mock(spec=adaptive_sampler)
-        monkeypatch.setattr(
-            "pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler
-        )
-        monitor = ErrorRateMonitor(
-            collector=pypss.get_global_collector(), interval=0.01, window_size=5
-        )
+        monkeypatch.setattr("pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler)
+        monitor = ErrorRateMonitor(collector=pypss.get_global_collector(), interval=0.01, window_size=5)
 
         # Add traces to global_collector to trigger _on_new_trace callback
         pypss.get_global_collector().clear()  # Ensure clean state before adding
         for _ in range(5):
-            pypss.get_global_collector().add_trace(
-                {"error": False}
-            )  # Add 5 non-error traces
+            pypss.get_global_collector().add_trace({"error": False})  # Add 5 non-error traces
 
         monitor._calculate_and_update_error_rate()
 
-        mock_adaptive_sampler.update_metrics.assert_called_once_with(
-            error_rate=0.0, trace_count=5
-        )
+        mock_adaptive_sampler.update_metrics.assert_called_once_with(error_rate=0.0, trace_count=5)
 
     def test_error_rate_calculation_some_errors(self, monkeypatch):
         mock_adaptive_sampler = mock.Mock(spec=adaptive_sampler)
-        monkeypatch.setattr(
-            "pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler
-        )
+        monkeypatch.setattr("pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler)
 
         assert pypss.get_global_collector() is not None
-        monitor = ErrorRateMonitor(
-            collector=pypss.get_global_collector(), interval=0.01, window_size=5
-        )
+        monitor = ErrorRateMonitor(collector=pypss.get_global_collector(), interval=0.01, window_size=5)
 
         # Add traces to global_collector to trigger _on_new_trace callback
         # Use the actual global_collector, which will notify the monitor
@@ -146,14 +131,10 @@ class TestErrorRateMonitor:
 
     def test_error_rate_calculation_all_errors(self, monkeypatch):
         mock_adaptive_sampler = mock.Mock(spec=adaptive_sampler)
-        monkeypatch.setattr(
-            "pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler
-        )
+        monkeypatch.setattr("pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler)
 
         assert pypss.get_global_collector() is not None
-        monitor = ErrorRateMonitor(
-            collector=pypss.get_global_collector(), interval=0.01, window_size=5
-        )
+        monitor = ErrorRateMonitor(collector=pypss.get_global_collector(), interval=0.01, window_size=5)
 
         # Add traces to global_collector to trigger _on_new_trace callback
         pypss.get_global_collector().clear()  # Ensure clean state before adding
@@ -169,9 +150,7 @@ class TestErrorRateMonitor:
     def test_error_rate_monitor_thread_integration(self, monkeypatch):
         # This test ensures the thread runs and calls _calculate_and_update_error_rate
         mock_calc_update = mock.Mock()
-        monkeypatch.setattr(
-            ErrorRateMonitor, "_calculate_and_update_error_rate", mock_calc_update
-        )
+        monkeypatch.setattr(ErrorRateMonitor, "_calculate_and_update_error_rate", mock_calc_update)
 
         assert pypss.get_global_collector() is not None
         monitor = ErrorRateMonitor(
@@ -186,9 +165,7 @@ class TestErrorRateMonitor:
         if monitor._thread:  # Guard against NoneType
             monitor._thread.join(timeout=1)
 
-        assert (
-            mock_calc_update.call_count >= 2
-        )  # Should have been called at least twice
+        assert mock_calc_update.call_count >= 2  # Should have been called at least twice
 
     def test_error_rate_monitor_with_threaded_batch_collector(self, monkeypatch):
         # Mock a FileFIFOCollector (which is a ThreadedBatchCollector subclass)
@@ -200,19 +177,13 @@ class TestErrorRateMonitor:
 
         # Mock adaptive_sampler as it will be updated
         mock_adaptive_sampler = mock.Mock(spec=adaptive_sampler)
-        monkeypatch.setattr(
-            "pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler
-        )
+        monkeypatch.setattr("pypss.core.error_rate_monitor.adaptive_sampler", mock_adaptive_sampler)
 
         # Create ErrorRateMonitor instance, passing the mock collector
-        monitor = ErrorRateMonitor(
-            collector=mock_file_fifo_collector, interval=0.01, window_size=5
-        )
+        monitor = ErrorRateMonitor(collector=mock_file_fifo_collector, interval=0.01, window_size=5)
 
         # Verify registration happened
-        mock_file_fifo_collector.register_observer.assert_called_once_with(
-            monitor._on_new_trace
-        )
+        mock_file_fifo_collector.register_observer.assert_called_once_with(monitor._on_new_trace)
 
         # Simulate adding traces through the mock collector
         # This will trigger monitor._on_new_trace to populate _error_history
@@ -227,12 +198,8 @@ class TestErrorRateMonitor:
         monitor._calculate_and_update_error_rate()
 
         # Assert that adaptive_sampler was updated with the correct error rate (2 errors out of 5)
-        mock_adaptive_sampler.update_metrics.assert_called_once_with(
-            error_rate=0.4, trace_count=5
-        )
+        mock_adaptive_sampler.update_metrics.assert_called_once_with(error_rate=0.4, trace_count=5)
 
         # Ensure unregister is called on stop
         monitor.stop()
-        mock_file_fifo_collector.unregister_observer.assert_called_once_with(
-            monitor._on_new_trace
-        )
+        mock_file_fifo_collector.unregister_observer.assert_called_once_with(monitor._on_new_trace)

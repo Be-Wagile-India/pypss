@@ -1,7 +1,8 @@
-from unittest.mock import MagicMock
 import json
-import time
 import shutil
+import time
+from unittest.mock import MagicMock
+
 from pypss.instrumentation.background import AutoDumper
 from pypss.instrumentation.collectors import MemoryCollector
 
@@ -27,9 +28,7 @@ class TestBackgroundCoverage:
         dumper = AutoDumper(collector, str(f))
 
         # Mock open to raise exception
-        monkeypatch.setattr(
-            "builtins.open", MagicMock(side_effect=IOError("Disk full"))
-        )
+        monkeypatch.setattr("builtins.open", MagicMock(side_effect=IOError("Disk full")))
 
         # Should not crash
         dumper.dump()
@@ -42,9 +41,7 @@ class TestBackgroundCoverage:
         dumper = AutoDumper(collector, str(f))
 
         # Mock shutil.move to fail
-        monkeypatch.setattr(
-            shutil, "move", MagicMock(side_effect=IOError("Permission denied"))
-        )
+        monkeypatch.setattr(shutil, "move", MagicMock(side_effect=IOError("Permission denied")))
 
         dumper.rotate()
         # Should log error and not crash

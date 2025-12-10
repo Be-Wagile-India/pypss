@@ -1,21 +1,24 @@
+import json
+import os
+import sys
 import time
+
 import click
-import ijson  # type: ignore
+import ijson
+
 import pypss
+
 from ..core import compute_pss_from_traces, generate_advisor_report
 from ..core.llm_advisor import get_llm_diagnosis
-from .reporting import render_report_json, render_report_text
-from .html_report import render_report_html
-from .runner import run_with_instrumentation
-from .discovery import get_module_score_breakdown
-from .tuning import tune
-from .utils import load_traces  # Import load_traces from utils
-from ..ml.detector import PatternDetector  # Import PatternDetector
-from ..utils.config import GLOBAL_CONFIG
+from ..ml.detector import PatternDetector
 from ..plugins import load_plugins
-import json
-import sys
-import os
+from ..utils.config import GLOBAL_CONFIG
+from .discovery import get_module_score_breakdown
+from .html_report import render_report_html
+from .reporting import render_report_json, render_report_text
+from .runner import run_with_instrumentation
+from .tuning import tune
+from .utils import load_traces
 
 
 @click.group()
@@ -57,22 +60,18 @@ def ml_detect(baseline_file, target_file, contamination, random_state):
     Detects anomalous patterns in target traces using a Machine Learning model
     trained on baseline traces.
     """
-    pypss.init()  # Ensure pypss components are initialized
+    pypss.init()
 
     click.echo(f"📊 Loading baseline traces from {baseline_file}...")
     baseline_traces = load_traces(baseline_file)
     if not baseline_traces:
-        click.echo(
-            "⚠️  No traces found in baseline file. Cannot train ML model.", err=True
-        )
+        click.echo("⚠️  No traces found in baseline file. Cannot train ML model.", err=True)
         sys.exit(1)
     click.echo(f"   Loaded {len(baseline_traces)} baseline traces.")
 
     click.echo("🔍 Initializing and fitting PatternDetector model...")
     try:
-        detector = PatternDetector(
-            contamination=contamination, random_state=random_state
-        )
+        detector = PatternDetector(contamination=contamination, random_state=random_state)
         detector.fit(baseline_traces)
         click.echo("   Model fitted successfully to baseline traces.")
     except ImportError as e:
@@ -86,9 +85,7 @@ def ml_detect(baseline_file, target_file, contamination, random_state):
         click.echo(f"Error fitting ML model: {e}", err=True)
         sys.exit(1)
 
-    click.echo(
-        f"\n🔬 Loading target traces from {target_file} for anomaly detection..."
-    )
+    click.echo(f"\n🔬 Loading target traces from {target_file} for anomaly detection...")
     target_traces = load_traces(target_file)
     if not target_traces:
         click.echo("⚠️  No traces found in target file. Nothing to analyze.", err=True)
@@ -100,24 +97,18 @@ def ml_detect(baseline_file, target_file, contamination, random_state):
     scores = detector.anomaly_score(target_traces)
 
     anomalies_found = False
-    for i, (is_anomaly, score) in enumerate(zip(predictions, scores)):
+    for i, (is_anomaly, score) in enumerate(zip(predictions, scores, strict=False)):
         trace_name = target_traces[i].get("name", f"Trace #{i}")
         if is_anomaly:
             anomalies_found = True
             click.echo(f"  ❌ Anomaly detected in '{trace_name}' (Score: {score:.2f})")
-        # else:
-        # click.echo(f"  ✅ Normal: '{trace_name}' (Score: {score:.2f})")
 
     if not anomalies_found:
         click.echo("✅ No significant anomalies detected in target traces.")
     else:
         click.echo("\nSummary: Anomalies were detected.")
 
-    # Optionally, you might want to save the model or the results.
-    # Not implemented in this basic CLI integration.
 
-
-# Add the new command to the main group
 main.add_command(ml_detect)
 
 
@@ -145,8 +136,6 @@ def history(limit, db_path, days, export):
         if not export:
             click.echo("No history found.")
             return
-        # If exporting and no history_data, proceed to export logic
-        # which will output headers and no rows.
 
     if export:
         if export == "json":
@@ -173,15 +162,14 @@ def history(limit, db_path, days, export):
 
     click.echo(f"\n📜 Historical PSS Trends (Last {limit} runs)")
     click.echo("=" * 60)
-    click.echo(
-        f"{'Timestamp':<20} | {'PSS':<5} | {'TS':<4} | {'MS':<4} | {'EV':<4} | {'BE':<4} | {'CC':<4}"
-    )
+    click.echo(f"{'Timestamp':<20} | {'PSS':<5} | {'TS':<4} | {'MS':<4} | {'EV':<4} | {'BE':<4} | {'CC':<4}")
     click.echo("-" * 60)
 
     for item in history_data:
         ts_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(item["timestamp"]))
         click.echo(
-            f"{ts_str:<20} | {int(item['pss']):<5} | {item['ts']:.2f} | {item['ms']:.2f} | {item['ev']:.2f} | {item['be']:.2f} | {item['cc']:.2f}"
+            f"{ts_str:<20} | {int(item['pss']):<5} | {item['ts']:.2f} | "
+            f"{item['ms']:.2f} | {item['ev']:.2f} | {item['be']:.2f} | {item['cc']:.2f}"
         )
     click.echo("=" * 60)
 
@@ -198,14 +186,11 @@ def history(limit, db_path, days, export):
 def run(script, output, html, store_history):
     """Run a Python script with auto-instrumentation and report stability."""
 
-    # Load plugins dynamically
     if GLOBAL_CONFIG.plugins:
         load_plugins(GLOBAL_CONFIG.plugins)
 
-    # Run the script with our magic
     run_with_instrumentation(script, os.getcwd())
 
-    # Collect results
     collector = pypss.get_global_collector()
     if not collector:
         click.echo("\n⚠️  PyPSS collector not initialized. Did pypss.init() run?")
@@ -216,18 +201,15 @@ def run(script, output, html, store_history):
         click.echo("\n⚠️  No traces collected. Did the application run long enough?")
         return
 
-    # 1. Overall Report
     overall_report = compute_pss_from_traces(traces)
     click.echo("\n" + render_report_text(overall_report))
 
-    # 2. Per-Module Breakdown
     click.echo("\n📦 Module Stability Breakdown")
     click.echo("===========================")
     module_scores = get_module_score_breakdown(traces)
 
     for module, score_data in module_scores.items():
         pss = score_data["pss"]
-        # Color coding for CLI
         if pss >= 90:
             indicator = "🟢"
         elif pss >= 70:
@@ -236,7 +218,6 @@ def run(script, output, html, store_history):
             indicator = "🔴"
         click.echo(f"{indicator} {module:<30} PSS: {pss}/100")
 
-    # Save if requested
     if output:
         output_dir = os.path.dirname(output)
         if output_dir:
@@ -259,7 +240,7 @@ def run(script, output, html, store_history):
 
     history_data = None
     if store_history:
-        from ..storage import get_storage_backend, check_regression
+        from ..storage import check_regression, get_storage_backend
 
         try:
             storage_config = {
@@ -268,12 +249,8 @@ def run(script, output, html, store_history):
             }
             storage = get_storage_backend(storage_config)
 
-            # Fetch history for regression checking
-            history_data = storage.get_history(
-                limit=GLOBAL_CONFIG.regression_history_limit
-            )
+            history_data = storage.get_history(limit=GLOBAL_CONFIG.regression_history_limit)
 
-            # Check regression BEFORE saving current run
             warning = check_regression(
                 overall_report,
                 storage,
@@ -288,7 +265,6 @@ def run(script, output, html, store_history):
         except Exception as e:
             click.echo(f"\n⚠️  Failed to store history: {e}")
 
-    # Alerting
     from ..alerts.engine import AlertEngine
 
     engine = AlertEngine()
@@ -319,29 +295,22 @@ def run(script, output, html, store_history):
 def analyze(trace_file, output, html, fail_if_below, store_history):
     """Compute PSS from a trace file."""
 
-    # Load plugins dynamically
     if GLOBAL_CONFIG.plugins:
         load_plugins(GLOBAL_CONFIG.plugins)
 
     try:
-        # Use streaming JSON parser to handle large files
         with open(trace_file, "rb") as f:
-            # Peek to determine structure
             try:
                 first_char = f.read(1)
                 f.seek(0)
             except Exception:
-                # Empty file
                 first_char = b""
 
             if first_char == b"{":
-                # Assume {"traces": [...]}
                 traces = ijson.items(f, "traces.item")
             elif first_char == b"[":
-                # Assume [...]
                 traces = ijson.items(f, "item")
             else:
-                # Fallback or empty
                 traces = []
 
             report = compute_pss_from_traces(traces)
@@ -370,7 +339,7 @@ def analyze(trace_file, output, html, fail_if_below, store_history):
 
     history_data = None
     if store_history:
-        from ..storage import get_storage_backend, check_regression
+        from ..storage import check_regression, get_storage_backend
 
         try:
             storage_config = {
@@ -379,12 +348,8 @@ def analyze(trace_file, output, html, fail_if_below, store_history):
             }
             storage = get_storage_backend(storage_config)
 
-            # Fetch history for regression checking
-            history_data = storage.get_history(
-                limit=GLOBAL_CONFIG.regression_history_limit
-            )
+            history_data = storage.get_history(limit=GLOBAL_CONFIG.regression_history_limit)
 
-            # Check regression BEFORE saving current run
             warning = check_regression(
                 report,
                 storage,
@@ -399,7 +364,6 @@ def analyze(trace_file, output, html, fail_if_below, store_history):
         except Exception as e:
             click.echo(f"\n⚠️  Failed to store history: {e}")
 
-    # Alerting
     from ..alerts.engine import AlertEngine
 
     engine = AlertEngine()
@@ -409,9 +373,7 @@ def analyze(trace_file, output, html, fail_if_below, store_history):
 
     if fail_if_below is not None:
         if report["pss"] < fail_if_below:
-            click.echo(
-                f"PSS {report['pss']} is below threshold {fail_if_below}. Failing."
-            )
+            click.echo(f"PSS {report['pss']} is below threshold {fail_if_below}. Failing.")
             sys.exit(1)
 
 
@@ -435,7 +397,6 @@ def diagnose(trace_file, provider, api_key):
     """
     try:
         with open(trace_file, "rb") as f:
-            # Peek to determine structure, similar to analyze command
             try:
                 first_char = f.read(1)
                 f.seek(0)
@@ -454,8 +415,6 @@ def diagnose(trace_file, provider, api_key):
 
     if not traces:
         click.echo("No traces found in the file to diagnose.")
-        # Do not exit, allow command to proceed with empty traces
-        # This is consistent with `analyze` and allows mocks to be called in tests.
 
     click.echo(f"🧠 analyzing {len(traces)} traces with {provider.upper()}...")
 
@@ -467,26 +426,18 @@ def diagnose(trace_file, provider, api_key):
 
 
 @main.command()
-@click.argument(
-    "trace_file", type=click.Path(), default=GLOBAL_CONFIG.default_trace_file
-)
+@click.argument("trace_file", type=click.Path(), default=GLOBAL_CONFIG.default_trace_file)
 def board(trace_file):
     """
-
-
     Launch the interactive Stability Dashboard.
-
-
     """
 
     import subprocess
 
     try:
-        # check if modules are available (optional check, as subprocess would fail too but clearer here)
-
         import nicegui  # type: ignore # noqa: F401
-        import plotly  # type: ignore # noqa: F401
         import pandas  # noqa: F401
+        import plotly  # type: ignore # noqa: F401
 
     except ImportError:
         click.echo("⚠️  Dashboard dependencies missing.")
@@ -495,11 +446,9 @@ def board(trace_file):
 
         sys.exit(1)
 
-    # Launch as subprocess to avoid event loop/signal conflicts between Click and NiceGUI/Uvicorn
     cmd = [sys.executable, "-m", "pypss.board.app", trace_file]
 
     try:
-        # We don't capture output so that NiceGUI's startup logs (like the URL) are visible to the user
         result = subprocess.run(cmd, check=False)
 
         if result.returncode != 0:

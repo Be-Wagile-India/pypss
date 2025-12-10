@@ -1,12 +1,13 @@
-import pytest
 import math
 
+import pytest
+
 from pypss.core.core import (
-    _calculate_timing_stability_score,
-    _calculate_memory_stability_score,
-    _calculate_error_volatility_score,
     _calculate_branching_entropy_score,
     _calculate_concurrency_chaos_score,
+    _calculate_error_volatility_score,
+    _calculate_memory_stability_score,
+    _calculate_timing_stability_score,
 )
 from pypss.utils.config import PSSConfig
 
@@ -49,9 +50,7 @@ class TestScoringAlgorithms:
             ),
         ],
     )
-    def test_timing_stability(
-        self, mock_config, latencies, expected_check, description
-    ):
+    def test_timing_stability(self, mock_config, latencies, expected_check, description):
         score = _calculate_timing_stability_score(latencies, mock_config)
         assert expected_check(score), f"Failed: {description}"
 
@@ -181,8 +180,6 @@ class TestScoringAlgorithms:
             ),
         ],
     )
-    def test_concurrency_chaos(
-        self, mock_config, wait_times, expected_check, description
-    ):
+    def test_concurrency_chaos(self, mock_config, wait_times, expected_check, description):
         score = _calculate_concurrency_chaos_score(wait_times, mock_config)
         assert expected_check(score), f"Failed: {description}"

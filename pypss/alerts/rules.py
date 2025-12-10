@@ -1,6 +1,7 @@
-from typing import Dict, Any, List, Optional
-from .base import AlertRule, Alert, AlertSeverity
+from typing import Any, Dict, List, Optional
+
 from ..utils.config import GLOBAL_CONFIG
+from .base import Alert, AlertRule, AlertSeverity
 
 
 class MetricStabilityRule(AlertRule):
@@ -17,15 +18,12 @@ class MetricStabilityRule(AlertRule):
         self.threshold_key = threshold_key
         self.severity = severity
 
-    def evaluate(
-        self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None
-    ) -> Optional[Alert]:
+    def evaluate(self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None) -> Optional[Alert]:
         if not self.enabled:
             return None
 
         if self.metric_key == "pss":
             current_val = float(report.get("pss", 0.0))
-            # Config thresholds are 0.0-1.0. PSS is 0-100. Normalize.
             if current_val > 1.0:
                 current_val /= 100.0
         else:
@@ -38,7 +36,7 @@ class MetricStabilityRule(AlertRule):
             return Alert(
                 rule_name=self.name,
                 severity=self.severity,
-                message=f"{self.name} detected. Score {current_val:.2f} is below threshold {threshold:.2f}.",
+                message=(f"{self.name} detected. Score {current_val:.2f} is below threshold {threshold:.2f}."),
                 metric_name=self.metric_key,
                 current_value=current_val,
                 threshold=threshold,
@@ -48,16 +46,12 @@ class MetricStabilityRule(AlertRule):
 
 class TimingStabilitySurgeRule(MetricStabilityRule):
     def __init__(self):
-        super().__init__(
-            "Timing Stability Surge", "timing_stability", "alert_threshold_ts"
-        )
+        super().__init__("Timing Stability Surge", "timing_stability", "alert_threshold_ts")
 
 
 class MemoryStabilitySpikeRule(MetricStabilityRule):
     def __init__(self):
-        super().__init__(
-            "Memory Stability Spike", "memory_stability", "alert_threshold_ms"
-        )
+        super().__init__("Memory Stability Spike", "memory_stability", "alert_threshold_ms")
 
 
 class ErrorBurstRule(MetricStabilityRule):
@@ -77,18 +71,14 @@ class EntropyAnomalyRule(MetricStabilityRule):
 
 class ConcurrencySpikeRule(MetricStabilityRule):
     def __init__(self):
-        super().__init__(
-            "Concurrency Variance Spike", "concurrency_chaos", "alert_threshold_cc"
-        )
+        super().__init__("Concurrency Variance Spike", "concurrency_chaos", "alert_threshold_cc")
 
 
 class StabilityRegressionRule(AlertRule):
     def __init__(self, enabled: bool = True):
         super().__init__("Stability Regression", enabled=enabled)
 
-    def evaluate(
-        self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None
-    ) -> Optional[Alert]:
+    def evaluate(self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None) -> Optional[Alert]:
         if not self.enabled or not history:
             return None
 
@@ -106,7 +96,10 @@ class StabilityRegressionRule(AlertRule):
             return Alert(
                 rule_name=self.name,
                 severity=AlertSeverity.CRITICAL,
-                message=f"Regression detected! PSS {current_pss:.1f} is significantly lower than average {avg_pss:.1f} (-{threshold_drop}).",
+                message=(
+                    f"Regression detected! PSS {current_pss:.1f} is significantly lower "
+                    f"than average {avg_pss:.1f} (-{threshold_drop})."
+                ),
                 metric_name="pss",
                 current_value=current_pss,
                 threshold=avg_pss - threshold_drop,

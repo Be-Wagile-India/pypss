@@ -1,7 +1,9 @@
-import pytest
-import sys
-import os
 import logging
+import os
+import sys
+
+import pytest
+
 from pypss.plugins import loader
 
 # Define a temporary directory for dummy modules
@@ -50,8 +52,7 @@ def test_load_plugins_import_error(caplog):
     with caplog.at_level(logging.ERROR):
         loader.load_plugins(["non_existent_module"])
         assert (
-            "Failed to load plugin module 'non_existent_module': No module named 'non_existent_module'"
-            in caplog.text
+            "Failed to load plugin module 'non_existent_module': No module named 'non_existent_module'" in caplog.text
         )
 
 
@@ -65,10 +66,7 @@ raise ValueError("Something went wrong during import!")
 
     with caplog.at_level(logging.ERROR):
         loader.load_plugins(["dummy_exception"])
-        assert (
-            "Error loading plugin module 'dummy_exception': Something went wrong during import!"
-            in caplog.text
-        )
+        assert "Error loading plugin module 'dummy_exception': Something went wrong during import!" in caplog.text
     assert "dummy_exception" not in sys.modules
 
 
@@ -102,10 +100,7 @@ raise TypeError("Multiple exception module error.")
             "Failed to load plugin module 'non_existent_multi_module': No module named 'non_existent_multi_module'"
             in caplog.text
         )
-        assert (
-            "Error loading plugin module 'dummy_multi_exception': Multiple exception module error."
-            in caplog.text
-        )
+        assert "Error loading plugin module 'dummy_multi_exception': Multiple exception module error." in caplog.text
 
     assert "dummy_multi_success" in sys.modules
     assert "non_existent_multi_module" not in sys.modules

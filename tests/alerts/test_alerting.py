@@ -1,25 +1,26 @@
-import pytest
-from unittest.mock import MagicMock, patch, ANY
-import json
-import urllib.error
-from freezegun import freeze_time
 import importlib  # Add importlib
-import time  # Add import time
+import json
 import sys  # Add import sys
+import time  # Add import time
+import urllib.error
+from unittest.mock import ANY, MagicMock, patch
 
-from pypss.alerts.engine import AlertEngine
-from pypss.alerts.base import AlertChannel, Alert, AlertSeverity
+import pytest
+from freezegun import freeze_time
+
+import pypss.alerts.state  # For patching the module global
+from pypss.alerts.base import Alert, AlertChannel, AlertSeverity
 from pypss.alerts.channels import (
-    WebhookChannel,
+    AlertmanagerChannel,
     SlackChannel,
     TeamsChannel,
-    AlertmanagerChannel,
+    WebhookChannel,
     _alert_queue,  # Import the queue
     _shutdown_event,  # Import the event
     _shutdown_sender_thread,  # Import the shutdown function for cleanup
 )
+from pypss.alerts.engine import AlertEngine
 from pypss.alerts.state import AlertState  # Import AlertState
-import pypss.alerts.state  # For patching the module global
 from pypss.utils.config import GLOBAL_CONFIG
 
 _mock_urlopen_for_tests = None
@@ -40,9 +41,7 @@ def mock_atexit_register_and_unregister():
 # Ensure the sender thread is cleanly shut down between tests
 @pytest.fixture(autouse=True)
 def cleanup_sender_thread(mock_atexit_register_and_unregister):
-    mock_channels_register, mock_state_register, mock_unregister = (
-        mock_atexit_register_and_unregister
-    )
+    mock_channels_register, mock_state_register, mock_unregister = mock_atexit_register_and_unregister
     yield
     # Ensure queue is empty and thread is shut down after each test
     while not _alert_queue.empty():
@@ -108,9 +107,7 @@ def mock_urllib_request():
 
 
 # Original test_alert_engine_triggers
-def test_alert_engine_triggers(
-    mock_config, tmp_path, mock_urllib_request
-):  # Added mock_urllib_request
+def test_alert_engine_triggers(mock_config, tmp_path, mock_urllib_request):  # Added mock_urllib_request
     mock_request_cls, mock_urlopen_func = mock_urllib_request  # Unpack fixture
     report = {
         "pss": 50,
@@ -215,7 +212,7 @@ def test_webhook_channel_send_failure(capsys, mock_urllib_request):  # Pass fixt
     channel.send(alert)
     _alert_queue.join()  # Wait for retries to finish
     captured = capsys.readouterr()
-    assert "Failed to send alert" in captured.out
+    assert "Failed to send alert" in captured.err
 
 
 def test_webhook_channel_empty_url_with_mock(mock_urllib_request):  # New test
@@ -416,10 +413,7 @@ class TestAlertState:
         with patch("json.dump", side_effect=IOError("Disk full")):
             state.save()
             captured = capsys.readouterr()
-            assert (
-                f"⚠️ Failed to save alert state to {state_file_path}: Disk full"
-                in captured.err
-            )
+            assert f"⚠️ Failed to save alert state to {state_file_path}: Disk full" in captured.err
 
     @freeze_time("2023-01-01 10:00:00")
     def test_alert_state_should_alert_cooldown(self):
@@ -458,12 +452,8 @@ class TestAlertState:
         assert state.state.get(rule_name) == time.time()
         freeze_time("2023-01-01 10:01:00").stop()
 
-    def test_alert_state_atexit_registered_outside_pytest(
-        self, tmp_path, mock_atexit_register_and_unregister
-    ):
-        mock_channels_register, mock_state_register, mock_unregister = (
-            mock_atexit_register_and_unregister
-        )
+    def test_alert_state_atexit_registered_outside_pytest(self, tmp_path, mock_atexit_register_and_unregister):
+        mock_channels_register, mock_state_register, mock_unregister = mock_atexit_register_and_unregister
         state_file_path = tmp_path / "test_state.json"
 
         # Temporarily remove 'pytest' from sys.modules and reload the module
@@ -480,12 +470,8 @@ class TestAlertState:
                 sys.modules["pytest"] = old_pytest
         # The teardown of setup_alert_state will clean the singleton
 
-    def test_alert_state_atexit_not_registered_in_pytest(
-        self, tmp_path, mock_atexit_register_and_unregister
-    ):
-        mock_channels_register, mock_state_register, mock_unregister = (
-            mock_atexit_register_and_unregister
-        )
+    def test_alert_state_atexit_not_registered_in_pytest(self, tmp_path, mock_atexit_register_and_unregister):
+        mock_channels_register, mock_state_register, mock_unregister = mock_atexit_register_and_unregister
         state_file_path = tmp_path / "test_state.json"
 
         # Pytest is in sys.modules by default in tests

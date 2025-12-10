@@ -1,14 +1,15 @@
 import pytest
-from pypss.alerts.rules import (
-    MetricStabilityRule,
-    TimingStabilitySurgeRule,
-    MemoryStabilitySpikeRule,
-    ErrorBurstRule,
-    EntropyAnomalyRule,
-    ConcurrencySpikeRule,
-    StabilityRegressionRule,
-)
+
 from pypss.alerts.base import Alert, AlertSeverity
+from pypss.alerts.rules import (
+    ConcurrencySpikeRule,
+    EntropyAnomalyRule,
+    ErrorBurstRule,
+    MemoryStabilitySpikeRule,
+    MetricStabilityRule,
+    StabilityRegressionRule,
+    TimingStabilitySurgeRule,
+)
 from pypss.utils.config import GLOBAL_CONFIG
 
 
@@ -82,9 +83,7 @@ def test_metric_stability_rule(enabled, report_ts, expect_alert):
 
 
 def test_metric_stability_rule_trigger_pss():
-    rule = MetricStabilityRule(
-        "Test Rule PSS", "pss", "alert_threshold_ts"
-    )  # Using TS threshold for PSS
+    rule = MetricStabilityRule("Test Rule PSS", "pss", "alert_threshold_ts")  # Using TS threshold for PSS
     GLOBAL_CONFIG.alert_threshold_ts = 70.0  # Set PSS threshold for this test
     report = create_mock_report(pss=65)  # Below 70
     alert = rule.evaluate(report)

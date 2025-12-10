@@ -1,8 +1,10 @@
-import pytest
 import math
-from pypss.tuning.profiler import Profiler
+
+import pytest
+
 from pypss.tuning.injector import FaultInjector
 from pypss.tuning.optimizer import ConfigOptimizer
+from pypss.tuning.profiler import Profiler
 
 
 @pytest.fixture
@@ -103,9 +105,7 @@ def test_injector_error_burst_multiple(baseline_traces):
 
 def test_injector_error_burst_size_larger_than_traces(baseline_traces):
     injector = FaultInjector(baseline_traces)
-    faulty = injector.inject_error_burst(
-        burst_size=150, burst_count=1
-    )  # 150 > 100 traces
+    faulty = injector.inject_error_burst(burst_size=150, burst_count=1)  # 150 > 100 traces
     errors = [t for t in faulty if t["error"]]
     assert len(errors) == 100  # All traces should be marked as error
 

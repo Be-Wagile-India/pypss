@@ -1,14 +1,16 @@
-import pytest
 import json
-import time
-import queue
-from unittest.mock import MagicMock, patch
 import os  # Added import os
+import queue
+import time
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from pypss.instrumentation.collectors import (
-    RedisCollector,
-    GRPCCollector,
     FileFIFOCollector,
+    GRPCCollector,
     MemoryCollector,
+    RedisCollector,
     ThreadedBatchCollector,
 )
 
@@ -28,9 +30,7 @@ class TestRedisCollector:
         mock_redis_module.from_url.return_value = mock_client
 
         # Small batch size to force flush
-        collector = RedisCollector(
-            "redis://localhost", batch_size=2, flush_interval=10.0
-        )
+        collector = RedisCollector("redis://localhost", batch_size=2, flush_interval=10.0)
 
         trace1 = {"name": "t1", "duration": 1.0}
         trace2 = {"name": "t2", "duration": 2.0}
@@ -263,9 +263,7 @@ class TestCollectorMethods:
 
     def test_file_clear_exceptions(self, tmp_path, monkeypatch):
         # Simulate an OSError during makedirs
-        monkeypatch.setattr(
-            os, "makedirs", MagicMock(side_effect=OSError("Permission denied"))
-        )
+        monkeypatch.setattr(os, "makedirs", MagicMock(side_effect=OSError("Permission denied")))
         # Use a path that would normally trigger makedirs
         collector = FileFIFOCollector(str(tmp_path / "non_existent_dir" / "file.jsonl"))
         # Should not raise, and should log the error
@@ -284,9 +282,7 @@ class TestCollectorMethods:
 
     def test_empty_batches(self, tmp_path):
         # Redis
-        with patch(
-            "pypss.instrumentation.collectors.redis_module"
-        ) as mock_redis_module:
+        with patch("pypss.instrumentation.collectors.redis_module") as mock_redis_module:
             mock_client = MagicMock()
             mock_redis_module.from_url.return_value = mock_client
             c = RedisCollector("redis://localhost")
@@ -365,6 +361,7 @@ class TestModuleImports:
         # Since we are not reloading modules anymore but patching the module-level variable,
         # we don't strictly need to reload, but to be safe and consistent with previous approach:
         import importlib
+
         import pypss.instrumentation.collectors
 
         importlib.reload(pypss.instrumentation.collectors)

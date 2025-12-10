@@ -1,7 +1,8 @@
-import pytest
-import grpc
-from unittest.mock import MagicMock, patch
 from typing import Any
+from unittest.mock import MagicMock, patch
+
+import grpc
+import pytest
 
 from pypss.protos import trace_pb2 as _trace_pb2  # type: ignore
 from pypss.protos import trace_pb2_grpc as _trace_pb2_grpc  # type: ignore
@@ -54,6 +55,7 @@ class TestTracePB2:
     def test_pure_python_descriptors(self):
         """Test the fallback path when C descriptors are not used."""
         import importlib
+
         from google.protobuf import descriptor
 
         # Check current state
@@ -83,9 +85,7 @@ class TestTracePB2:
                     glob["_TRACERESPONSE"] = MagicMock()
                     glob["_TRACESERVICE"] = MagicMock()
 
-                mock_builder.BuildMessageAndEnumDescriptors.side_effect = (
-                    side_effect_build
-                )
+                mock_builder.BuildMessageAndEnumDescriptors.side_effect = side_effect_build
 
                 # Reload trace_pb2
                 importlib.reload(trace_pb2)

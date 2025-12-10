@@ -12,8 +12,6 @@ def test_cli_main_entry_point():
     )
 
     # Check for help message or a default output, indicating it ran
-    assert (
-        result.returncode == 0 or result.returncode == 2
-    )  # Can be 0 for help or 2 for no command
+    assert result.returncode == 0 or result.returncode == 2  # Can be 0 for help or 2 for no command
     assert "Usage:" in result.stderr
     assert "[OPTIONS] COMMAND" in result.stderr

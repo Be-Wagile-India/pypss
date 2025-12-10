@@ -1,6 +1,8 @@
 import time
 from unittest.mock import MagicMock, patch
+
 import pytest
+
 import pypss
 
 
@@ -8,8 +10,9 @@ class TestIntegrations:
     @pytest.mark.asyncio
     async def test_fastapi_middleware_logic(self):
         try:
-            from pypss.integrations.fastapi import PSSMiddleware
             from starlette.types import ASGIApp
+
+            from pypss.integrations.fastapi import PSSMiddleware
         except ImportError:
             pytest.skip("FastAPI/Starlette not installed")
 
@@ -44,6 +47,7 @@ class TestIntegrations:
     def test_flask_integration_logic(self):
         try:
             from flask import Flask
+
             from pypss.integrations.flask import init_pypss_flask_app
         except ImportError:
             pytest.skip("Flask not installed")

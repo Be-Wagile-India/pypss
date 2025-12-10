@@ -1,6 +1,6 @@
+import json
 import os
 import subprocess
-import json
 import sys
 
 # Determine the project root (one level up from this script)

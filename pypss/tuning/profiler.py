@@ -1,29 +1,25 @@
 import math
 import statistics
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
 @dataclass
 class BaselineProfile:
     """Statistical profile of a baseline trace dataset."""
 
-    # Latency Metrics (Duration)
     latency_mean: float = 0.0
     latency_median: float = 0.0
     latency_p95: float = 0.0
     latency_p99: float = 0.0
     latency_stddev: float = 0.0
 
-    # Memory Metrics
     memory_mean: float = 0.0
     memory_peak: float = 0.0
     memory_variance: float = 0.0
 
-    # Error Metrics
     error_rate: float = 0.0
 
-    # Metadata
     total_traces: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,12 +66,10 @@ class Profiler:
         if not self.traces:
             return BaselineProfile()
 
-        # Extract vectors
         durations = [float(t.get("duration", 0.0)) for t in self.traces]
         memories = [float(t.get("memory", 0)) for t in self.traces]
         errors = [1 if t.get("error", False) else 0 for t in self.traces]
 
-        # Latency Stats
         latency_mean = statistics.mean(durations)
         latency_median = statistics.median(durations)
         try:
@@ -83,8 +77,6 @@ class Profiler:
         except statistics.StatisticsError:
             latency_stddev = 0.0
 
-        # Percentiles (P95, P99)
-        # Sort once
         sorted_durations = sorted(durations)
         n = len(sorted_durations)
 
@@ -103,17 +95,13 @@ class Profiler:
         latency_p95 = get_percentile(0.95)
         latency_p99 = get_percentile(0.99)
 
-        # Memory Stats
         memory_mean = statistics.mean(memories) if memories else 0.0
         memory_peak = max(memories) if memories else 0.0
         try:
-            memory_variance = (
-                statistics.variance(memories) if len(memories) > 1 else 0.0
-            )
+            memory_variance = statistics.variance(memories) if len(memories) > 1 else 0.0
         except statistics.StatisticsError:
             memory_variance = 0.0
 
-        # Error Stats
         error_rate = sum(errors) / len(errors) if errors else 0.0
 
         return BaselineProfile(

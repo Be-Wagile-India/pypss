@@ -224,15 +224,10 @@ class TestTuneCommand:
         )
 
         assert result.exit_code == 0
-        assert (
-            "Warning: Baseline has > 5% errors. Tuning might be inaccurate."
-            in result.output
-        )
+        assert "Warning: Baseline has > 5% errors. Tuning might be inaccurate." in result.output
         assert os.path.exists(output_file)
 
-    def test_tune_default_output_file(
-        self, runner, mock_traces_file, mock_profiler, mock_injector, mock_optimizer
-    ):
+    def test_tune_default_output_file(self, runner, mock_traces_file, mock_profiler, mock_injector, mock_optimizer):
         # Run without specifying --output, should default to pypss_tuned.toml in current dir
         with runner.isolated_filesystem():
             result = runner.invoke(

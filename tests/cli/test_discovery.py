@@ -1,4 +1,5 @@
 from unittest.mock import patch
+
 from pypss.cli.discovery import CodebaseDiscoverer, get_module_score_breakdown
 
 

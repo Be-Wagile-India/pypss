@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Ghanta"
+    given-names: "Saidatta Teja"
+    email: "dattateja44@gmail.com"
+title: "pypss: Python Program Stability Score"
+version: 1.0.1
+date-released: 2025-05-15
+url: "https://github.com/Be-Wagile-India/pypss"
+keywords:
+  - python
+  - stability
+  - reliability
+  - metrics
+  - observability
+license: MIT

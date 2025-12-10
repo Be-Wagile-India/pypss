@@ -1,8 +1,9 @@
-from unittest.mock import MagicMock
-import sys
 import importlib
-from pypss.integrations import otel
+import sys
+from unittest.mock import MagicMock
+
 import pypss
+from pypss.integrations import otel
 
 
 class TestOtelCoverage:
@@ -32,9 +33,7 @@ class TestOtelCoverage:
         mock_provider.get_meter.return_value = mock_meter
 
         # Need to mock metrics.get_meter
-        monkeypatch.setattr(
-            otel.metrics, "get_meter", lambda *args, **kwargs: mock_meter
-        )
+        monkeypatch.setattr(otel.metrics, "get_meter", lambda *args, **kwargs: mock_meter)
 
         reporter = otel.OTelReporter(meter_provider=mock_provider)
 

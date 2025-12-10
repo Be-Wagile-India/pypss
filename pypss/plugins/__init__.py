@@ -1,17 +1,16 @@
 from .base import BaseMetric
-from .registry import MetricRegistry
+from .loader import load_plugins
 from .metrics import (
-    IOStabilityMetric,
+    CacheStabilityMetric,
     DBStabilityMetric,
     GCStabilityMetric,
-    CacheStabilityMetric,
-    ThreadStarvationMetric,
-    NetworkStabilityMetric,
+    IOStabilityMetric,
     KafkaLagStabilityMetric,
+    NetworkStabilityMetric,
+    ThreadStarvationMetric,
 )
-from .loader import load_plugins
+from .registry import MetricRegistry
 
-# Explicitly export for users
 __all__ = [
     "BaseMetric",
     "MetricRegistry",

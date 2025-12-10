@@ -1,8 +1,9 @@
-import sqlite3
 import json
+import sqlite3
 import time
-from typing import Dict, List, Any, Optional
 from contextlib import contextmanager
+from typing import Any, Dict, List, Optional
+
 from .base import StorageBackend
 
 
@@ -12,7 +13,7 @@ class SQLiteStorage(StorageBackend):
     def __init__(self, db_path: str = "pypss_history.db", retention_days: int = 90):
         self.db_path = db_path
         self.retention_days = retention_days
-        self._conn: Optional[sqlite3.Connection] = None  # Store connection for :memory:
+        self._conn: Optional[sqlite3.Connection] = None
         self._init_db()
 
     @contextmanager
@@ -32,7 +33,6 @@ class SQLiteStorage(StorageBackend):
         with self._managed_conn() as conn:
             cursor = conn.cursor()
 
-            # Meta table for versioning
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS _meta (
                     key TEXT PRIMARY KEY,
@@ -40,13 +40,11 @@ class SQLiteStorage(StorageBackend):
                 )
             """)
 
-            # Check version
             cursor.execute("SELECT value FROM _meta WHERE key='version'")
             row = cursor.fetchone()
             db_version = int(row[0]) if row else 0
 
             if db_version == 0:
-                # First run, create tables
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS pss_history (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,9 +83,7 @@ class SQLiteStorage(StorageBackend):
             conn.execute("DELETE FROM pss_history WHERE timestamp < ?", (cutoff,))
             conn.commit()
 
-    def save(
-        self, report: Dict[str, Any], meta: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def save(self, report: Dict[str, Any], meta: Optional[Dict[str, Any]] = None) -> None:
         # Auto-prune on save (keep DB healthy)
         self.prune()
 
@@ -117,9 +113,7 @@ class SQLiteStorage(StorageBackend):
             )
             conn.commit()
 
-    def get_history(
-        self, limit: int = 10, days: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+    def get_history(self, limit: int = 10, days: Optional[int] = None) -> List[Dict[str, Any]]:
         query = "SELECT * FROM pss_history"
         params = []
 

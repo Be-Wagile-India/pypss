@@ -1,13 +1,14 @@
 # Example application using pypss
-import time
-import random
 import json
+import random
+import time
+
 from pypss import (
-    monitor_function,
-    global_collector,
     compute_pss_from_traces,
-    render_report_text,
+    global_collector,
     init,  # Import the init function
+    monitor_function,
+    render_report_text,
 )
 
 

@@ -1,8 +1,9 @@
+import logging
 from typing import Dict, Type
-import logging  # Import logging
+
 from .base import BaseMetric
 
-logger = logging.getLogger(__name__)  # Get logger instance
+logger = logging.getLogger(__name__)
 
 
 class MetricRegistry:
@@ -19,9 +20,7 @@ class MetricRegistry:
 
     @classmethod
     def get_all(cls) -> Dict[str, BaseMetric]:
-        logger.debug(
-            f"MetricRegistry: get_all called. Current registry: {list(cls._registry.keys())}"
-        )
+        logger.debug(f"MetricRegistry: get_all called. Current registry: {list(cls._registry.keys())}")
         return cls._registry
 
     @classmethod

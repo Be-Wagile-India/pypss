@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock, patch
+
 import pypss
 from pypss.integrations.pytest_plugin import (
     pytest_addoption,
@@ -111,9 +112,7 @@ class TestPytestPlugin:
         assert session.exitstatus == 0  # Should not change exit status
 
     @patch("pypss.integrations.pytest_plugin.compute_pss_from_traces")
-    def test_sessionfinish_fail_below_threshold(
-        self, mock_compute_pss, capsys, tmp_path
-    ):
+    def test_sessionfinish_fail_below_threshold(self, mock_compute_pss, capsys, tmp_path):
         session = MagicMock()
         del session.config.workerinput  # Ensure Master node behavior
         session.config.getoption.side_effect = lambda x: {
@@ -136,10 +135,7 @@ class TestPytestPlugin:
 
         captured = capsys.readouterr()
         # Check for per-test failure message
-        assert (
-            "FAILURE: The following tests fell below the PSS threshold of 90"
-            in captured.out
-        )
+        assert "FAILURE: The following tests fell below the PSS threshold of 90" in captured.out
         assert "test_failure (PSS: 85)" in captured.out
         assert session.exitstatus == 1
 

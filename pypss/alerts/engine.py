@@ -1,17 +1,18 @@
 import logging
-from typing import List, Dict, Any, Optional
-from .base import Alert, AlertRule, AlertChannel
-from .rules import (
-    TimingStabilitySurgeRule,
-    MemoryStabilitySpikeRule,
-    ErrorBurstRule,
-    EntropyAnomalyRule,
-    ConcurrencySpikeRule,
-    StabilityRegressionRule,
-)
-from .channels import SlackChannel, TeamsChannel, WebhookChannel, AlertmanagerChannel
-from .state import AlertState
+from typing import Any, Dict, List, Optional
+
 from ..utils.config import GLOBAL_CONFIG
+from .base import Alert, AlertChannel, AlertRule
+from .channels import AlertmanagerChannel, SlackChannel, TeamsChannel, WebhookChannel
+from .rules import (
+    ConcurrencySpikeRule,
+    EntropyAnomalyRule,
+    ErrorBurstRule,
+    MemoryStabilitySpikeRule,
+    StabilityRegressionRule,
+    TimingStabilitySurgeRule,
+)
+from .state import AlertState
 
 
 class AlertEngine:
@@ -26,7 +27,7 @@ class AlertEngine:
         ]
         self.channels: List[AlertChannel] = []
         self.state = AlertState()
-        self.cooldown = 3600  # 1 hour default deduplication window
+        self.cooldown = 3600
         self._init_channels()
         self._validate_config()
 
@@ -46,13 +47,9 @@ class AlertEngine:
 
     def _validate_config(self) -> None:
         if GLOBAL_CONFIG.alerts_enabled and not self.channels:
-            logging.warning(
-                "Alerting enabled but no channels configured in pypss.toml!"
-            )
+            logging.warning("Alerting enabled but no channels configured in pypss.toml!")
 
-    def run(
-        self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None
-    ) -> List[Alert]:
+    def run(self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None) -> List[Alert]:
         if not GLOBAL_CONFIG.alerts_enabled:
             return []
 
@@ -64,9 +61,7 @@ class AlertEngine:
                     triggered_alerts.append(alert)
                     self.state.record_alert(rule.name)
                 else:
-                    logging.info(
-                        f"Alert '{rule.name}' suppressed (cooldown)."
-                    )  # Changed to logging.info
+                    logging.info(f"Alert '{rule.name}' suppressed (cooldown).")
 
         if triggered_alerts:
             for channel in self.channels:

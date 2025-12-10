@@ -1,15 +1,16 @@
-import click
 import json
 import os
 import sys
-from unittest.mock import patch, MagicMock
-from click.testing import CliRunner
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock, patch
+
+import click
+from click.testing import CliRunner
 
 # Ensure project root is in sys.path for module discovery
 sys.path.insert(0, os.path.abspath("."))
 
-from pypss.cli.cli import ml_detect, history, analyze  # Import analyze command
+from pypss.cli.cli import analyze, history, ml_detect  # Import analyze command
 from pypss.storage.sqlite import SQLiteStorage
 
 # Define a test group for CLI commands
@@ -67,10 +68,7 @@ class TestNewCLICoammnds:
             ],
         )
         assert result.exit_code == 1
-        assert (
-            "Error reading trace file: lexical error: invalid char in json text."
-            in result.output
-        )
+        assert "Error reading trace file: lexical error: invalid char in json text." in result.output
 
     def test_ml_detect_no_target_traces(self, tmp_path):
         baseline_file = tmp_path / "baseline.json"
@@ -93,9 +91,7 @@ class TestNewCLICoammnds:
                 ],
             )
             assert result.exit_code == 0
-            assert (
-                "No traces found in target file. Nothing to analyze." in result.output
-            )
+            assert "No traces found in target file. Nothing to analyze." in result.output
             mock_detector.assert_called_once()
             mock_instance.fit.assert_called_once()
 
@@ -123,9 +119,7 @@ class TestNewCLICoammnds:
         assert result.exit_code == 1
         assert "Please install scikit-learn to use ML features" in result.output
 
-    @patch(
-        "pypss.cli.cli.PatternDetector", side_effect=Exception("Model training failed!")
-    )
+    @patch("pypss.cli.cli.PatternDetector", side_effect=Exception("Model training failed!"))
     def test_ml_detect_model_fit_error(self, mock_pattern_detector, tmp_path):
         baseline_file = tmp_path / "baseline.json"
         target_file = tmp_path / "target.json"
@@ -170,9 +164,7 @@ class TestNewCLICoammnds:
             0.5,
         ]  # -0.1 normal, 0.5 anomaly
 
-        MockPatternDetector.return_value = (
-            mock_instance  # Ensure PatternDetector() returns our configured mock
-        )
+        MockPatternDetector.return_value = mock_instance  # Ensure PatternDetector() returns our configured mock
 
         result = self.runner.invoke(
             ml_detect,  # Use ml_detect directly
@@ -214,9 +206,7 @@ class TestNewCLICoammnds:
                 ],
             )
             assert result.exit_code == 0
-            assert (
-                "No significant anomalies detected in target traces." in result.output
-            )
+            assert "No significant anomalies detected in target traces." in result.output
             mock_detector.assert_called_once()
             mock_instance.fit.assert_called_once()
             mock_instance.predict_anomalies.assert_called_once()
@@ -225,9 +215,7 @@ class TestNewCLICoammnds:
     # --- history command tests ---
     def test_history_no_data(self):
         with (
-            patch(
-                "pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path
-            ),
+            patch("pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path),
             patch("pypss.utils.config.GLOBAL_CONFIG.storage_backend", new="sqlite"),
         ):
             # Ensure the storage is initialized for this path
@@ -241,14 +229,10 @@ class TestNewCLICoammnds:
 
     def test_history_display(self):
         with (
-            patch(
-                "pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path
-            ),
+            patch("pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path),
             patch("pypss.utils.config.GLOBAL_CONFIG.storage_backend", new="sqlite"),
         ):
-            storage = SQLiteStorage(
-                db_path=self.temp_db_path
-            )  # Re-initialize storage here
+            storage = SQLiteStorage(db_path=self.temp_db_path)  # Re-initialize storage here
             # Add some mock data
             now = datetime.now()
             with patch("time.time", return_value=(now - timedelta(days=1)).timestamp()):
@@ -289,20 +273,14 @@ class TestNewCLICoammnds:
             assert "85" in result.output
             assert "10.00" in result.output
             assert "9.00" in result.output
-            assert (
-                "script1.py" not in result.output
-            )  # meta is not displayed in text report
+            assert "script1.py" not in result.output  # meta is not displayed in text report
 
     def test_history_export_json(self):
         with (
-            patch(
-                "pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path
-            ),
+            patch("pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path),
             patch("pypss.utils.config.GLOBAL_CONFIG.storage_backend", new="sqlite"),
         ):
-            storage = SQLiteStorage(
-                db_path=self.temp_db_path
-            )  # Re-initialize storage here
+            storage = SQLiteStorage(db_path=self.temp_db_path)  # Re-initialize storage here
             now = datetime.now()
             with patch("time.time", return_value=(now - timedelta(days=1)).timestamp()):
                 storage.save(
@@ -331,14 +309,10 @@ class TestNewCLICoammnds:
 
     def test_history_export_csv(self):
         with (
-            patch(
-                "pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path
-            ),
+            patch("pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path),
             patch("pypss.utils.config.GLOBAL_CONFIG.storage_backend", new="sqlite"),
         ):
-            storage = SQLiteStorage(
-                db_path=self.temp_db_path
-            )  # Re-initialize storage here
+            storage = SQLiteStorage(db_path=self.temp_db_path)  # Re-initialize storage here
             now = datetime.now()
             with patch("time.time", return_value=(now - timedelta(days=1)).timestamp()):
                 storage.save(
@@ -380,26 +354,17 @@ class TestNewCLICoammnds:
             # The most recent record is script2.py (PSS 80)
             assert '80.0,8.0,8.0,8.0,8.0,8.0,"{""script"": ""script2.py""}"' in lines[1]
             # The older record is script1.py (PSS 90)
-            assert (
-                '90.0,10.0,10.0,10.0,10.0,10.0,"{""script"": ""script1.py""}"'
-                in lines[2]
-            )
+            assert '90.0,10.0,10.0,10.0,10.0,10.0,"{""script"": ""script1.py""}"' in lines[2]
 
     def test_history_with_limit(self):
         with (
-            patch(
-                "pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path
-            ),
+            patch("pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path),
             patch("pypss.utils.config.GLOBAL_CONFIG.storage_backend", new="sqlite"),
         ):
-            storage = SQLiteStorage(
-                db_path=self.temp_db_path
-            )  # Re-initialize storage here
+            storage = SQLiteStorage(db_path=self.temp_db_path)  # Re-initialize storage here
             now = datetime.now()
             for i in range(5):
-                with patch(
-                    "time.time", return_value=(now - timedelta(minutes=i)).timestamp()
-                ):
+                with patch("time.time", return_value=(now - timedelta(minutes=i)).timestamp()):
                     storage.save(
                         {
                             "pss": 100 - i,
@@ -429,14 +394,10 @@ class TestNewCLICoammnds:
 
     def test_history_with_days_filter(self):
         with (
-            patch(
-                "pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path
-            ),
+            patch("pypss.utils.config.GLOBAL_CONFIG.storage_uri", new=self.temp_db_path),
             patch("pypss.utils.config.GLOBAL_CONFIG.storage_backend", new="sqlite"),
         ):
-            storage = SQLiteStorage(
-                db_path=self.temp_db_path
-            )  # Re-initialize storage here
+            storage = SQLiteStorage(db_path=self.temp_db_path)  # Re-initialize storage here
             now = datetime.now()
             # Data from today and yesterday
             with patch("time.time", return_value=now.timestamp()):

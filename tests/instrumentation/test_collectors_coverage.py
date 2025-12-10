@@ -1,20 +1,22 @@
-import pytest
-from unittest.mock import MagicMock
-import sys
-import queue
-import time
-import os
 import importlib
+import os
+import queue
+import sys
+import time
+from unittest.mock import MagicMock
+
+import pytest
+
+import pypss.instrumentation.collectors
 from pypss.instrumentation import collectors
 from pypss.instrumentation.collectors import (
-    cross_platform_file_lock,
-    _initialize_global_collector,
-    ThreadedBatchCollector,
     FileFIFOCollector,
     GRPCCollector,
     RedisCollector,
+    ThreadedBatchCollector,
+    _initialize_global_collector,
+    cross_platform_file_lock,
 )
-import pypss.instrumentation.collectors
 
 
 class TestCollectorsCoverage:
@@ -141,9 +143,7 @@ class TestCollectorsCoverage:
 
         monkeypatch.setitem(sys.modules, "grpc", mock_grpc)
         monkeypatch.setattr(pypss.instrumentation.collectors, "grpc_module", mock_grpc)
-        monkeypatch.setattr(
-            pypss.instrumentation.collectors, "trace_pb2_grpc_module", mock_pb2_grpc
-        )
+        monkeypatch.setattr(pypss.instrumentation.collectors, "trace_pb2_grpc_module", mock_pb2_grpc)
 
         GRPCCollector("target", secure=True)
 
@@ -155,9 +155,7 @@ class TestCollectorsCoverage:
 
         monkeypatch.setitem(sys.modules, "grpc", mock_grpc)
         monkeypatch.setattr(pypss.instrumentation.collectors, "grpc_module", mock_grpc)
-        monkeypatch.setattr(
-            pypss.instrumentation.collectors, "trace_pb2_grpc_module", mock_pb2_grpc
-        )
+        monkeypatch.setattr(pypss.instrumentation.collectors, "trace_pb2_grpc_module", mock_pb2_grpc)
 
         collector = GRPCCollector("target")
         # Mock stub to raise exception
