@@ -1,0 +1,230 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ML-based Pattern Detection &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Alerting Engine" href="alerting.html" />
+    <link rel="prev" title="Integrations" href="integrations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ML-based Pattern Detection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cli-usage">CLI Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#further-customization-advanced">Further Customization (Advanced)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation-note">Installation Note</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ML-based Pattern Detection</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ml_detection.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ml-based-pattern-detection">
+<span id="ml-detection"></span><h1>ML-based Pattern Detection<a class="headerlink" href="#ml-based-pattern-detection" title="Link to this heading"></a></h1>
+<p>PyPSS introduces Machine Learning based pattern detection to identify subtle and complex anomalies in your application’s behavior that might be hard to capture with static rules or thresholds. This feature currently leverages unsupervised anomaly detection techniques.</p>
+<section id="how-it-works">
+<h2>How it Works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
+<p>The <cite>pypss ml-detect</cite> command trains an anomaly detection model on a set of “baseline” (healthy) traces. Once trained, it can then analyze new “target” traces and identify those that deviate significantly from the learned normal behavior.</p>
+<p>The core steps are:</p>
+<ol class="arabic simple">
+<li><p><strong>Feature Extraction:</strong> Key numerical metrics (like duration, memory changes, wait times, error flags) are extracted from each trace, forming a numerical representation suitable for machine learning.</p></li>
+<li><p><strong>Model Training (Fitting):</strong> An unsupervised anomaly detection model (currently <cite>IsolationForest</cite>) is trained on the baseline traces. This process learns the characteristics of “normal” operation.</p></li>
+<li><p><strong>Anomaly Prediction:</strong> When new traces are provided, the trained model evaluates how “normal” each trace is. Traces that deviate significantly are flagged as anomalies, and an anomaly score is provided (higher score = more anomalous).</p></li>
+</ol>
+</section>
+<section id="cli-usage">
+<h2>CLI Usage<a class="headerlink" href="#cli-usage" title="Link to this heading"></a></h2>
+<p>The <cite>pypss ml-detect</cite> command provides the interface for this feature.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pypss<span class="w"> </span>ml-detect<span class="w"> </span>--help
+
+Usage:<span class="w"> </span>pypss<span class="w"> </span>ml-detect<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+
+<span class="w">  </span>Detects<span class="w"> </span>anomalous<span class="w"> </span>patterns<span class="w"> </span><span class="k">in</span><span class="w"> </span>target<span class="w"> </span>traces<span class="w"> </span>using<span class="w"> </span>a<span class="w"> </span>Machine<span class="w"> </span>Learning<span class="w"> </span>model
+<span class="w">  </span>trained<span class="w"> </span>on<span class="w"> </span>baseline<span class="w"> </span>traces.
+
+Options:
+<span class="w">  </span>--baseline-file<span class="w"> </span>PATH<span class="w">      </span>Path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>JSON<span class="w"> </span>trace<span class="w"> </span>file<span class="w"> </span>containing<span class="w"> </span>baseline
+<span class="w">                            </span><span class="o">(</span>normal<span class="o">)</span><span class="w"> </span>behavior.<span class="w">  </span><span class="o">[</span>required<span class="o">]</span>
+<span class="w">  </span>--target-file<span class="w"> </span>PATH<span class="w">        </span>Path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>JSON<span class="w"> </span>trace<span class="w"> </span>file<span class="w"> </span>containing<span class="w"> </span>traces<span class="w"> </span>to
+<span class="w">                            </span>detect<span class="w"> </span>anomalies<span class="w"> </span><span class="k">in</span>.<span class="w">  </span><span class="o">[</span>required<span class="o">]</span>
+<span class="w">  </span>--contamination<span class="w"> </span>FLOAT<span class="w">     </span>The<span class="w"> </span>proportion<span class="w"> </span>of<span class="w"> </span>outliers<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>baseline<span class="w"> </span>dataset.
+<span class="w">                            </span>Used<span class="w"> </span>by<span class="w"> </span>IsolationForest.<span class="w">  </span><span class="o">[</span>default:<span class="w"> </span><span class="m">0</span>.1<span class="o">]</span>
+<span class="w">  </span>--random-state<span class="w"> </span>INTEGER<span class="w">    </span>Random<span class="w"> </span>seed<span class="w"> </span><span class="k">for</span><span class="w"> </span>reproducibility<span class="w"> </span>of<span class="w"> </span>ML<span class="w"> </span>model
+<span class="w">                            </span>training.<span class="w">  </span><span class="o">[</span>default:<span class="w"> </span><span class="m">42</span><span class="o">]</span>
+<span class="w">  </span>--help<span class="w">                    </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+</pre></div>
+</div>
+<p><strong>Example:</strong></p>
+<p>First, generate some baseline traces (e.g., from a healthy test run):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assuming you have an instrumented app.py running normally</span>
+pypss<span class="w"> </span>run<span class="w"> </span>app.py<span class="w"> </span>--output<span class="w"> </span>baseline_traces.json
+</pre></div>
+</div>
+<p>Then, generate some target traces (e.g., from a potentially problematic run):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run app.py again, perhaps with some injected faults or under load</span>
+pypss<span class="w"> </span>run<span class="w"> </span>app.py<span class="w"> </span>--output<span class="w"> </span>target_traces.json
+</pre></div>
+</div>
+<p>Finally, use <cite>ml-detect</cite> to find anomalies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pypss<span class="w"> </span>ml-detect<span class="w"> </span>--baseline-file<span class="w"> </span>baseline_traces.json<span class="w"> </span>--target-file<span class="w"> </span>target_traces.json
+</pre></div>
+</div>
+<p>The command will output a summary indicating if anomalies were detected in the <cite>target_traces</cite> and their respective anomaly scores.</p>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>The <cite>PatternDetector</cite> itself has a few configurable parameters, which can be passed via the CLI:</p>
+<ul class="simple">
+<li><p><cite>–contamination</cite>: This is a crucial parameter for IsolationForest. It’s the expected proportion of outliers in your training data. A value of 0.1 (10%) means the model expects 10% of the training data to be anomalous. Adjust this based on your understanding of your baseline data.</p></li>
+<li><p><cite>–random-state</cite>: A seed for the random number generator, useful for reproducibility.</p></li>
+</ul>
+</section>
+<section id="further-customization-advanced">
+<h2>Further Customization (Advanced)<a class="headerlink" href="#further-customization-advanced" title="Link to this heading"></a></h2>
+<p>For more advanced use cases, you can programmatically use the <cite>PatternDetector</cite> class in your own Python code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.ml.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">PatternDetector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.cli.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_traces</span> <span class="c1"># Helper to load JSON traces</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pypss</span>
+
+<span class="n">pypss</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="c1"># 1. Load your baseline and target traces</span>
+<span class="n">baseline_traces</span> <span class="o">=</span> <span class="n">load_traces</span><span class="p">(</span><span class="s2">&quot;baseline_traces.json&quot;</span><span class="p">)</span>
+<span class="n">target_traces</span> <span class="o">=</span> <span class="n">load_traces</span><span class="p">(</span><span class="s2">&quot;target_traces.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># 2. Initialize and fit the detector</span>
+<span class="n">detector</span> <span class="o">=</span> <span class="n">PatternDetector</span><span class="p">(</span><span class="n">contamination</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">detector</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">baseline_traces</span><span class="p">)</span>
+
+<span class="c1"># 3. Predict anomalies and get scores for new traces</span>
+<span class="n">is_anomaly</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">predict_anomalies</span><span class="p">(</span><span class="n">target_traces</span><span class="p">)</span>
+<span class="n">anomaly_scores</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">anomaly_score</span><span class="p">(</span><span class="n">target_traces</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">trace</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">target_traces</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trace: </span><span class="si">{</span><span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="sa">f</span><span class="s1">&#39;Trace #</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, Anomaly: </span><span class="si">{</span><span class="n">is_anomaly</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">, Score: </span><span class="si">{</span><span class="n">anomaly_scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This allows for custom feature engineering, integration with different ML models, or more complex anomaly scoring logic.</p>
+</section>
+<section id="installation-note">
+<h2>Installation Note<a class="headerlink" href="#installation-note" title="Link to this heading"></a></h2>
+<p>ML-based pattern detection requires the <cite>scikit-learn</cite> library. If you encounter an <cite>ImportError</cite>, ensure it’s installed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;pypss[ml]&quot;</span>
+<span class="c1"># Or directly:</span>
+<span class="c1"># pip install scikit-learn</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="integrations.html" class="btn btn-neutral float-left" title="Integrations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="alerting.html" class="btn btn-neutral float-right" title="Alerting Engine" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

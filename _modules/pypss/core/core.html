@@ -42,9 +42,25 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adaptive_sampling.html">Adaptive Sampling Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../integrations.html">Integrations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../advanced_config.html">Advanced Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_detection.html">ML-based Pattern Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alerting.html">Alerting Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
 </ul>
 
@@ -74,35 +90,36 @@
              
   <h1>Source code for pypss.core.core</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Core score computation and algorithms</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">array</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">statistics</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">array</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricRegistry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GLOBAL_CONFIG</span><span class="p">,</span>
     <span class="n">calculate_cv</span><span class="p">,</span>
     <span class="n">calculate_entropy</span><span class="p">,</span>
     <span class="n">exponential_decay_score</span><span class="p">,</span>
     <span class="n">normalize_score</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">GLOBAL_CONFIG</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="_calculate_timing_stability_score">
 <a class="viewcode-back" href="../../../api.html#pypss.core._calculate_timing_stability_score">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_timing_stability_score</span><span class="p">(</span>
-    <span class="n">latencies</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">conf</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_timing_stability_score</span><span class="p">(</span><span class="n">latencies</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">conf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="n">ts_score</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">latencies</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ts_score</span>
 
-    <span class="c1"># calculate_cv expects a sequence, array works</span>
     <span class="n">cv</span> <span class="o">=</span> <span class="n">calculate_cv</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span>
 
     <span class="n">tail_ratio</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># Create a sorted copy to avoid modifying the original list if it&#39;s used elsewhere</span>
         <span class="n">quantiles</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">quantiles</span><span class="p">(</span><span class="n">latencies</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
         <span class="n">p50</span> <span class="o">=</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">49</span><span class="p">]</span>  <span class="c1"># 50th percentile</span>
         <span class="n">p95</span> <span class="o">=</span> <span class="n">quantiles</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">score_latency_tail_percentile</span><span class="p">]</span>  <span class="c1"># Configurable percentile</span>
@@ -118,9 +135,7 @@
 
 <div class="viewcode-block" id="_calculate_memory_stability_score">
 <a class="viewcode-back" href="../../../api.html#pypss.core._calculate_memory_stability_score">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_memory_stability_score</span><span class="p">(</span>
-    <span class="n">memory_samples</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">conf</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_memory_stability_score</span><span class="p">(</span><span class="n">memory_samples</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">conf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="n">ms_score</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">memory_samples</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">memory_samples</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ms_score</span>
@@ -132,8 +147,6 @@
     <span class="n">mem_median</span> <span class="o">+=</span> <span class="n">conf</span><span class="o">.</span><span class="n">score_memory_epsilon</span>
 
     <span class="k">if</span> <span class="n">mem_median</span> <span class="o">&lt;=</span> <span class="n">conf</span><span class="o">.</span><span class="n">score_memory_epsilon</span><span class="p">:</span>
-        <span class="c1"># If median is zero, and we have samples, it means constant zero memory or some issue.</span>
-        <span class="c1"># If peak is also zero, score is 1.0. Otherwise, very unstable.</span>
         <span class="k">return</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">mem_peak</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
 
     <span class="n">mem_std</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">memory_samples</span><span class="p">)</span>
@@ -144,11 +157,8 @@
 
     <span class="c1"># Add a penalty for significant memory spikes</span>
     <span class="k">if</span> <span class="n">mem_peak</span> <span class="o">/</span> <span class="n">mem_median</span> <span class="o">&gt;</span> <span class="n">conf</span><span class="o">.</span><span class="n">mem_spike_threshold_ratio</span><span class="p">:</span>
-        <span class="c1"># Proportional penalty based on how much it exceeds the threshold</span>
         <span class="n">spike_penalty</span> <span class="o">=</span> <span class="p">(</span><span class="n">mem_peak</span> <span class="o">/</span> <span class="n">mem_median</span><span class="p">)</span> <span class="o">-</span> <span class="n">conf</span><span class="o">.</span><span class="n">mem_spike_threshold_ratio</span>
-        <span class="n">ms_score</span> <span class="o">*=</span> <span class="n">exponential_decay_score</span><span class="p">(</span>
-            <span class="n">spike_penalty</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">gamma</span>
-        <span class="p">)</span>  <span class="c1"># Apply more gamma sensitivity</span>
+        <span class="n">ms_score</span> <span class="o">*=</span> <span class="n">exponential_decay_score</span><span class="p">(</span><span class="n">spike_penalty</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">gamma</span><span class="p">)</span>  <span class="c1"># Apply more gamma sensitivity</span>
 
     <span class="k">return</span> <span class="n">ms_score</span></div>
 
@@ -161,7 +171,6 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">errors</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ev_score</span>
 
-    <span class="c1"># errors is boolean 0/1, so sum is count</span>
     <span class="n">total_errors</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
     <span class="n">total_traces</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
 
@@ -175,24 +184,16 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">variance</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
             <span class="n">vmr</span> <span class="o">=</span> <span class="n">variance</span> <span class="o">/</span> <span class="n">mean_count</span>
-        <span class="k">except</span> <span class="p">(</span>
-            <span class="n">statistics</span><span class="o">.</span><span class="n">StatisticsError</span>
-        <span class="p">):</span>  <span class="c1"># Handle case of all identical values in error_counts (variance is 0)</span>
+        <span class="k">except</span> <span class="n">statistics</span><span class="o">.</span><span class="n">StatisticsError</span><span class="p">:</span>
             <span class="n">vmr</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="c1"># Base score using mean error rate and VMR</span>
-    <span class="n">ev_score</span> <span class="o">=</span> <span class="n">exponential_decay_score</span><span class="p">(</span>
-        <span class="n">mean_count</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">score_error_vmr_multiplier</span> <span class="o">*</span> <span class="n">vmr</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">delta</span>
-    <span class="p">)</span>
+    <span class="n">ev_score</span> <span class="o">=</span> <span class="n">exponential_decay_score</span><span class="p">(</span><span class="n">mean_count</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">score_error_vmr_multiplier</span> <span class="o">*</span> <span class="n">vmr</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span>
 
     <span class="c1"># Penalty for error spikes (sudden high error rate)</span>
     <span class="k">if</span> <span class="n">mean_count</span> <span class="o">&gt;</span> <span class="n">conf</span><span class="o">.</span><span class="n">error_spike_threshold</span><span class="p">:</span>
-        <span class="n">spike_impact</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_count</span> <span class="o">-</span> <span class="n">conf</span><span class="o">.</span><span class="n">error_spike_threshold</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="mf">1.0</span> <span class="o">-</span> <span class="n">conf</span><span class="o">.</span><span class="n">error_spike_threshold</span>
-        <span class="p">)</span>  <span class="c1"># Normalize impact</span>
-        <span class="n">ev_score</span> <span class="o">*=</span> <span class="p">(</span>
-            <span class="mf">1.0</span> <span class="o">-</span> <span class="n">spike_impact</span> <span class="o">*</span> <span class="n">conf</span><span class="o">.</span><span class="n">score_error_spike_impact_multiplier</span>
-        <span class="p">)</span>  <span class="c1"># Apply penalty for severe spikes</span>
+        <span class="n">spike_impact</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_count</span> <span class="o">-</span> <span class="n">conf</span><span class="o">.</span><span class="n">error_spike_threshold</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">conf</span><span class="o">.</span><span class="n">error_spike_threshold</span><span class="p">)</span>
+        <span class="n">ev_score</span> <span class="o">*=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">spike_impact</span> <span class="o">*</span> <span class="n">conf</span><span class="o">.</span><span class="n">score_error_spike_impact_multiplier</span>
 
     <span class="c1"># Penalty for consecutive errors</span>
     <span class="n">consecutive_error_count</span> <span class="o">=</span> <span class="mi">0</span>
@@ -205,13 +206,11 @@
         <span class="n">max_consecutive_errors</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_consecutive_errors</span><span class="p">,</span> <span class="n">consecutive_error_count</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">max_consecutive_errors</span> <span class="o">&gt;=</span> <span class="n">conf</span><span class="o">.</span><span class="n">consecutive_error_threshold</span><span class="p">:</span>
-        <span class="n">consecutive_penalty_factor</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">max_consecutive_errors</span> <span class="o">-</span> <span class="n">conf</span><span class="o">.</span><span class="n">consecutive_error_threshold</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="p">)</span>  <span class="c1"># +1 to start penalty at threshold</span>
+        <span class="n">consecutive_penalty_factor</span> <span class="o">=</span> <span class="n">max_consecutive_errors</span> <span class="o">-</span> <span class="n">conf</span><span class="o">.</span><span class="n">consecutive_error_threshold</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">ev_score</span> <span class="o">*=</span> <span class="n">exponential_decay_score</span><span class="p">(</span>
             <span class="n">consecutive_penalty_factor</span><span class="p">,</span>
             <span class="n">conf</span><span class="o">.</span><span class="n">delta</span> <span class="o">*</span> <span class="n">conf</span><span class="o">.</span><span class="n">score_consecutive_error_decay_multiplier</span><span class="p">,</span>
-        <span class="p">)</span>  <span class="c1"># More aggressive decay for consecutive errors</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ev_score</span></div>
 
@@ -224,13 +223,8 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">branch_data</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">be_score</span>
 
-    <span class="c1"># Handle both list of tags and pre-computed Counter</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">branch_data</span><span class="p">,</span> <span class="n">Counter</span><span class="p">):</span>
-        <span class="c1"># We need calculate_entropy to handle dict/counter or we do it here</span>
-        <span class="c1"># calculate_entropy typically takes a list. Let&#39;s assume we need to adapt.</span>
-        <span class="c1"># Check pypss.utils.calculate_entropy implementation.</span>
-        <span class="c1"># If it takes a list, we can recreate a distribution or calculate entropy from counts.</span>
-        <span class="c1"># Entropy = - sum(p * log2(p)). p = count/total.</span>
+        <span class="c1"># Calculate Shannon entropy from frequency counts</span>
         <span class="n">total_count</span> <span class="o">=</span> <span class="n">branch_data</span><span class="o">.</span><span class="n">total</span><span class="p">()</span>
         <span class="n">entropy</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">if</span> <span class="n">total_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -250,9 +244,7 @@
         <span class="k">if</span> <span class="n">max_entropy</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">be_score</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">entropy</span> <span class="o">/</span> <span class="n">max_entropy</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">be_score</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="mf">1.0</span>  <span class="c1"># Should not happen if unique_branches &gt; 1, but as a safeguard</span>
-            <span class="p">)</span>
+            <span class="n">be_score</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Should not happen if unique_branches &gt; 1, but as a safeguard</span>
     <span class="k">elif</span> <span class="n">unique_branches</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">be_score</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="c1"># If unique_branches is 0 (covered by not branch_tags), be_score is 1.0</span>
@@ -263,22 +255,45 @@
 <div class="viewcode-block" id="_calculate_concurrency_chaos_score">
 <a class="viewcode-back" href="../../../api.html#pypss.core._calculate_concurrency_chaos_score">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_concurrency_chaos_score</span><span class="p">(</span>
-    <span class="n">wait_times</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">conf</span>
+    <span class="n">wait_times</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">],</span>
+    <span class="n">conf</span><span class="p">,</span>
+    <span class="n">system_metrics</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="n">cc_score</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="c1"># Base Score: Wait Time Variance (Standard)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">wait_times</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">wait_times</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">cc_score</span>
-
-    <span class="n">mean_wait</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">wait_times</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">wait_times</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="n">mean_wait</span> <span class="o">&gt;</span> <span class="n">conf</span><span class="o">.</span><span class="n">concurrency_wait_threshold</span>
-    <span class="p">):</span>  <span class="c1"># Use a configurable threshold instead of hardcoded 0.001</span>
-        <span class="n">cc_cv</span> <span class="o">=</span> <span class="n">calculate_cv</span><span class="p">(</span><span class="n">wait_times</span><span class="p">)</span>
-        <span class="n">cc_score</span> <span class="o">=</span> <span class="n">exponential_decay_score</span><span class="p">(</span><span class="n">cc_cv</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="k">pass</span>  <span class="c1"># Keep 1.0 if no data</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">cc_score</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="k">return</span> <span class="n">cc_score</span></div>
+        <span class="n">mean_wait</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">wait_times</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">wait_times</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mean_wait</span> <span class="o">&gt;</span> <span class="n">conf</span><span class="o">.</span><span class="n">concurrency_wait_threshold</span><span class="p">:</span>
+            <span class="n">cc_cv</span> <span class="o">=</span> <span class="n">calculate_cv</span><span class="p">(</span><span class="n">wait_times</span><span class="p">)</span>
+            <span class="n">cc_score</span> <span class="o">=</span> <span class="n">exponential_decay_score</span><span class="p">(</span><span class="n">cc_cv</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+
+    <span class="c1"># Advanced Score: System Metrics (Event Loop Health)</span>
+    <span class="k">if</span> <span class="n">system_metrics</span><span class="p">:</span>
+        <span class="c1"># 1. Loop Lag Penalty</span>
+        <span class="n">lags</span> <span class="o">=</span> <span class="n">system_metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lag&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">lags</span><span class="p">:</span>
+            <span class="n">mean_lag</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">lags</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lags</span><span class="p">)</span>
+            <span class="c1"># If mean lag &gt; 10ms, penalize</span>
+            <span class="c1"># Example: 100ms lag =&gt; heavy penalty</span>
+            <span class="k">if</span> <span class="n">mean_lag</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">:</span>
+                <span class="n">lag_penalty</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mean_lag</span> <span class="o">*</span> <span class="mf">5.0</span><span class="p">)</span>  <span class="c1"># 0.2s lag =&gt; 0 score modifier</span>
+                <span class="n">cc_score</span> <span class="o">*=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">lag_penalty</span>
+
+        <span class="c1"># 2. Task Churn Penalty (Stability of parallelism)</span>
+        <span class="c1"># High churn rate (spikes) might indicate instability</span>
+        <span class="c1"># Not implementing strict penalty yet without baseline</span>
+
+        <span class="c1"># 3. Active Task Saturation</span>
+        <span class="n">active_tasks</span> <span class="o">=</span> <span class="n">system_metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;active_tasks&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">active_tasks</span><span class="p">:</span>
+            <span class="k">pass</span>
+            <span class="c1"># If we have massive task spikes, minor penalty?</span>
+            <span class="c1"># Let&#39;s keep it simple for now: Lag is the best proxy for chaos.</span>
+
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">cc_score</span><span class="p">)</span></div>
 
 
 
@@ -304,20 +319,63 @@
     <span class="n">errors</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>  <span class="c1"># signed char is sufficient for 0/1</span>
     <span class="n">branch_tags_counter</span><span class="p">:</span> <span class="n">Counter</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
 
+    <span class="c1"># System Metrics (for advanced scoring)</span>
+    <span class="n">system_metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lag&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;active_tasks&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;churn_rate&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="c1"># Check for registered plugins</span>
+    <span class="n">custom_metrics</span> <span class="o">=</span> <span class="n">MetricRegistry</span><span class="o">.</span><span class="n">get_all</span><span class="p">()</span>
+    <span class="n">materialized_traces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">should_materialize</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">custom_metrics</span><span class="p">)</span>
+    <span class="c1"># logger.debug(f&quot;DEBUG CORE: MetricRegistry.get_all() called. Registry keys: {list(custom_metrics.keys())}&quot;)</span>
+
     <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Use lists for faster append in loop</span>
+    <span class="n">_latencies_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_memory_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_wait_times_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_errors_list</span> <span class="o">=</span> <span class="p">[]</span>
+
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">traces</span><span class="p">:</span>
-        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="c1"># Use float() to handle potential Decimal from ijson</span>
-        <span class="n">latencies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
-        <span class="n">memory_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
-        <span class="n">wait_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;wait_time&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
-        <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">should_materialize</span><span class="p">:</span>
+                <span class="n">materialized_traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 
-        <span class="n">tag</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;branch_tag&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">branch_tags_counter</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># Check for system/meta traces first</span>
+            <span class="c1"># Use direct access if possible, or get with None default</span>
+            <span class="n">sys_metric</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;system_metric&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sys_metric</span><span class="p">:</span>
+                <span class="n">meta</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">if</span> <span class="s2">&quot;lag&quot;</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+                    <span class="n">system_metrics</span><span class="p">[</span><span class="s2">&quot;lag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;lag&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s2">&quot;active_tasks&quot;</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+                    <span class="n">system_metrics</span><span class="p">[</span><span class="s2">&quot;active_tasks&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;active_tasks&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s2">&quot;churn_rate&quot;</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+                    <span class="n">system_metrics</span><span class="p">[</span><span class="s2">&quot;churn_rate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;churn_rate&quot;</span><span class="p">])</span>
+                <span class="c1"># System traces don&#39;t contribute to regular latencies/errors count</span>
+                <span class="k">continue</span>
 
-    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># fast path for dict access if keys are expected, but stay safe with .get()</span>
+            <span class="n">_latencies_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
+            <span class="n">_memory_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
+            <span class="n">_wait_times_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;wait_time&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
+            <span class="n">_errors_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;branch_tag&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tag</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">branch_tags_counter</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># Skip malformed traces to prevent report failure</span>
+            <span class="k">continue</span>
+
+    <span class="c1"># Convert to arrays only once</span>
+    <span class="n">latencies</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_latencies_list</span><span class="p">)</span>
+    <span class="n">memory_samples</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_memory_list</span><span class="p">)</span>
+    <span class="n">wait_times</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_wait_times_list</span><span class="p">)</span>
+    <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_errors_list</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">system_metrics</span><span class="p">[</span><span class="s2">&quot;lag&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">custom_metrics</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;pss&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s2">&quot;breakdown&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -336,33 +394,56 @@
     <span class="n">ms_score</span> <span class="o">=</span> <span class="n">_calculate_memory_stability_score</span><span class="p">(</span><span class="n">memory_samples</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span>
     <span class="n">ev_score</span> <span class="o">=</span> <span class="n">_calculate_error_volatility_score</span><span class="p">(</span><span class="n">errors</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span>
     <span class="n">be_score</span> <span class="o">=</span> <span class="n">_calculate_branching_entropy_score</span><span class="p">(</span><span class="n">branch_tags_counter</span><span class="p">)</span>
-    <span class="n">cc_score</span> <span class="o">=</span> <span class="n">_calculate_concurrency_chaos_score</span><span class="p">(</span><span class="n">wait_times</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span>
+
+    <span class="c1"># CC Score now accepts system metrics</span>
+    <span class="n">cc_score</span> <span class="o">=</span> <span class="n">_calculate_concurrency_chaos_score</span><span class="p">(</span><span class="n">wait_times</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">system_metrics</span><span class="p">)</span>
 
     <span class="c1"># Final PSS</span>
     <span class="n">pss_raw</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">conf</span><span class="o">.</span><span class="n">w_ts</span> <span class="o">*</span> <span class="n">ts_score</span>
-        <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_ms</span> <span class="o">*</span> <span class="n">ms_score</span>
-        <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_ev</span> <span class="o">*</span> <span class="n">ev_score</span>
-        <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_be</span> <span class="o">*</span> <span class="n">be_score</span>
-        <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_cc</span> <span class="o">*</span> <span class="n">cc_score</span>
+        <span class="n">conf</span><span class="o">.</span><span class="n">w_ts</span> <span class="o">*</span> <span class="n">ts_score</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_ms</span> <span class="o">*</span> <span class="n">ms_score</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_ev</span> <span class="o">*</span> <span class="n">ev_score</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_be</span> <span class="o">*</span> <span class="n">be_score</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_cc</span> <span class="o">*</span> <span class="n">cc_score</span>
     <span class="p">)</span>
 
-    <span class="c1"># Normalize if weights don&#39;t sum to 1</span>
     <span class="n">total_weight</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_ts</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_ms</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_ev</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_be</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">w_cc</span>
+
+    <span class="c1"># Custom Metrics Integration</span>
+    <span class="n">custom_scores</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">custom_metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">materialized_traces</span><span class="p">)</span>
+            <span class="c1"># Ensure score is 0.0-1.0</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+            <span class="n">custom_scores</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="c1"># Determine weight: override from config or default</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">custom_metric_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">metric</span><span class="o">.</span><span class="n">default_weight</span><span class="p">)</span>
+
+            <span class="n">pss_raw</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">score</span>
+            <span class="n">total_weight</span> <span class="o">+=</span> <span class="n">weight</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error computing custom metric </span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Prevent plugin failure from crashing core calculation</span>
+            <span class="c1"># We could log this but core.py usually doesn&#39;t log much.</span>
+            <span class="n">custom_scores</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Normalize if weights don&#39;t sum to 1</span>
     <span class="k">if</span> <span class="n">total_weight</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pss_raw</span> <span class="o">/=</span> <span class="n">total_weight</span>
 
     <span class="n">pss_final</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">normalize_score</span><span class="p">(</span><span class="n">pss_raw</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
 
+    <span class="n">breakdown</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;timing_stability&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">ts_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;memory_stability&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">ms_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;error_volatility&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">ev_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;branching_entropy&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">be_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;concurrency_chaos&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">cc_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="c1"># Add custom scores to breakdown (using code as key, e.g., &#39;IO&#39;)</span>
+    <span class="n">breakdown</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_scores</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;pss&quot;</span><span class="p">:</span> <span class="n">pss_final</span><span class="p">,</span>
-        <span class="s2">&quot;breakdown&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;timing_stability&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">ts_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-            <span class="s2">&quot;memory_stability&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">ms_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-            <span class="s2">&quot;error_volatility&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">ev_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-            <span class="s2">&quot;branching_entropy&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">be_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-            <span class="s2">&quot;concurrency_chaos&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">cc_score</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-        <span class="p">},</span>
+        <span class="s2">&quot;breakdown&quot;</span><span class="p">:</span> <span class="n">breakdown</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 </pre></div>

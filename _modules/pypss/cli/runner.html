@@ -42,9 +42,25 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adaptive_sampling.html">Adaptive Sampling Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../integrations.html">Integrations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../advanced_config.html">Advanced Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_detection.html">ML-based Pattern Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alerting.html">Alerting Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
 </ul>
 
@@ -73,14 +89,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pypss.cli.runner</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">runpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.discovery</span><span class="w"> </span><span class="kn">import</span> <span class="n">CodebaseDiscoverer</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">..instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.discovery</span><span class="w"> </span><span class="kn">import</span> <span class="n">CodebaseDiscoverer</span>
 
 
 <div class="viewcode-block" id="AutoInstrumentor">
@@ -91,24 +109,20 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>  <span class="c1"># module_name -&gt; [func_names]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">instrumented_count</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="AutoInstrumentor.apply">
 <a class="viewcode-back" href="../../../api.html#pypss.cli.runner.AutoInstrumentor.apply">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attempts to import modules and wrap functions.&quot;&quot;&quot;</span>
-        <span class="c1"># Add current directory to sys.path so we can import local modules</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
 
         <span class="k">for</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">functions</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># Skip pypss itself to avoid recursion in instrumentation logic</span>
             <span class="k">if</span> <span class="n">module_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pypss.&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">module_name</span> <span class="o">==</span> <span class="s2">&quot;pypss&quot;</span><span class="p">:</span>
                 <span class="k">continue</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># We use safe import. If it fails (e.g., missing dependency), we skip.</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_patch_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">functions</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -124,22 +138,17 @@
 
             <span class="n">original_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">func_name</span><span class="p">)</span>
 
-            <span class="c1"># Ensure it&#39;s actually a function/method defined in this module (not an import)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isroutine</span><span class="p">(</span><span class="n">original_func</span><span class="p">):</span>
                 <span class="k">continue</span>
 
-            <span class="c1"># Avoid double instrumentation</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">original_func</span><span class="p">,</span> <span class="s2">&quot;_is_pypss_monitored&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                 <span class="k">continue</span>
 
-            <span class="c1"># Full qualified name for the report</span>
             <span class="n">fqn</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s2">&quot;</span>
 
-            <span class="c1"># Apply decorator</span>
             <span class="n">wrapped_func</span> <span class="o">=</span> <span class="n">monitor_function</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">fqn</span><span class="p">)(</span><span class="n">original_func</span><span class="p">)</span>
             <span class="n">wrapped_func</span><span class="o">.</span><span class="n">_is_pypss_monitored</span> <span class="o">=</span> <span class="kc">True</span>
 
-            <span class="c1"># Patch the module</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">wrapped_func</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">instrumented_count</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
@@ -153,15 +162,16 @@
 <span class="sd">    2. Auto-instruments it.</span>
 <span class="sd">    3. Runs the target script.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pypss</span>
+
     <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">GLOBAL_CONFIG</span>
 
+    <span class="n">pypss</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initial max_traces: </span><span class="si">{</span><span class="n">GLOBAL_CONFIG</span><span class="o">.</span><span class="n">max_traces</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 Scanning </span><span class="si">{</span><span class="n">root_dir</span><span class="si">}</span><span class="s2"> for Python modules...&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Ensure script directory is in sys.path for imports to work</span>
     <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">target_script</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">script_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">script_dir</span><span class="p">)</span>
@@ -177,13 +187,16 @@
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🚀 Launching </span><span class="si">{</span><span class="n">target_script</span><span class="si">}</span><span class="s2">...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
 
+    <span class="n">original_argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_script</span><span class="p">]</span>
+
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Run the user&#39;s script in the current process</span>
         <span class="n">runpy</span><span class="o">.</span><span class="n">run_path</span><span class="p">(</span><span class="n">target_script</span><span class="p">,</span> <span class="n">run_name</span><span class="o">=</span><span class="s2">&quot;__main__&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">💥 Application crashed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="c1"># We still want to report on what happened before the crash</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="n">original_argv</span></div>
 
 </pre></div>
 

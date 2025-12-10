@@ -42,9 +42,25 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adaptive_sampling.html">Adaptive Sampling Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../integrations.html">Integrations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../advanced_config.html">Advanced Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_detection.html">ML-based Pattern Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alerting.html">Alerting Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
 </ul>
 
@@ -74,9 +90,9 @@
              
   <h1>Source code for pypss.utils.utils</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">statistics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 
@@ -88,7 +104,7 @@
         <span class="k">return</span> <span class="mf">0.0</span>
     <span class="n">mean</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">mean</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">0.0</span>  <span class="c1"># Avoid division by zero</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
     <span class="n">std</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">std</span> <span class="o">/</span> <span class="n">mean</span></div>
 
@@ -139,17 +155,13 @@
 <span class="sd">    Parses a human-readable time string (e.g., &quot;5s&quot;, &quot;2m&quot;, &quot;1.5h&quot;, &quot;1d&quot;, &quot;1w&quot;) into seconds.</span>
 <span class="sd">    Raises ValueError for invalid formats.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="n">time_str</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">time_str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span>
-    <span class="p">):</span>  <span class="c1"># Handle &quot;None&quot; string from CLI</span>
+    <span class="k">if</span> <span class="n">time_str</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">time_str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="n">time_str</span> <span class="o">=</span> <span class="n">time_str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+(?:\.\d+)?)([smhdw])&quot;</span><span class="p">,</span> <span class="n">time_str</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid time string format: </span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">. Expected format like &#39;5s&#39;, &#39;2m&#39;, &#39;1.5h&#39;, &#39;1d&#39;.&quot;</span>
-        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid time string format: </span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">. Expected format like &#39;5s&#39;, &#39;2m&#39;, &#39;1.5h&#39;, &#39;1d&#39;.&quot;</span><span class="p">)</span>
 
     <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
     <span class="n">unit</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -165,7 +177,6 @@
     <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="mi">604800</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># This branch should ideally not be reached due to regex</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown time unit: </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 </pre></div>

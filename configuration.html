@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Understanding the Metrics" href="metrics_explained.html" />
+    <link rel="prev" title="Historical Trends &amp; Regression Detection" href="history_regression.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file-structure">Configuration File Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-settings-tool-pypss">Core Settings <code class="docutils literal notranslate"><span class="pre">[tool.pypss]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metric-auto-tuning-tool-pypss-tuning">Metric Auto-Tuning <code class="docutils literal notranslate"><span class="pre">[tool.pypss.tuning]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adaptive-sampling-tool-pypss-adaptive-sampling">Adaptive Sampling <code class="docutils literal notranslate"><span class="pre">[tool.pypss.adaptive_sampling]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui-configuration-tool-pypss-ui">UI Configuration <code class="docutils literal notranslate"><span class="pre">[tool.pypss.ui]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-logic-tool-pypss-dashboard">Dashboard Logic <code class="docutils literal notranslate"><span class="pre">[tool.pypss.dashboard]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#background-dumpers-tool-pypss-background">Background Dumpers <code class="docutils literal notranslate"><span class="pre">[tool.pypss.background]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scoring-tuning-tool-pypss-score">Scoring Tuning <code class="docutils literal notranslate"><span class="pre">[tool.pypss.score]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#collector-performance-tool-pypss-collector">Collector Performance <code class="docutils literal notranslate"><span class="pre">[tool.pypss.collector]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advisor-thresholds-tool-pypss-advisor">Advisor Thresholds <code class="docutils literal notranslate"><span class="pre">[tool.pypss.advisor]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integrations-tool-pypss-integration">Integrations <code class="docutils literal notranslate"><span class="pre">[tool.pypss.integration.*]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#llm-advisor-tool-pypss-llm">LLM Advisor <code class="docutils literal notranslate"><span class="pre">[tool.pypss.llm]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml-based-pattern-detection-tool-pypss-ml">ML-based Pattern Detection <code class="docutils literal notranslate"><span class="pre">[tool.pypss.ml]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alerting-configuration-tool-pypss-alerts">Alerting Configuration <code class="docutils literal notranslate"><span class="pre">[tool.pypss.alerts]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-metrics-configuration-tool-pypss-custom-metric-weights">Custom Metrics Configuration <code class="docutils literal notranslate"><span class="pre">[tool.pypss.custom_metric_weights]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#storage-monitoring">Storage &amp; Monitoring</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sqlite-default">SQLite (Default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prometheus-production">Prometheus (Production)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_detection.html">ML-based Pattern Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/configuration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration">
+<span id="id1"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h1>
+<p>The Python Program Stability Score (PSS) is highly configurable via a centralized <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code> file in your project root. This allows you to tune everything from scoring algorithms to UI colors without touching the code.</p>
+<section id="configuration-file-structure">
+<h2>Configuration File Structure<a class="headerlink" href="#configuration-file-structure" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code> file (or <code class="docutils literal notranslate"><span class="pre">[tool.pypss]</span></code> section in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>) uses sections to organize settings.</p>
+<section id="core-settings-tool-pypss">
+<h3>Core Settings <code class="docutils literal notranslate"><span class="pre">[tool.pypss]</span></code><a class="headerlink" href="#core-settings-tool-pypss" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 60.0%" />
+<col style="width: 10.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sample_rate</span></code></p></td>
+<td><p>Fraction of calls to sample (0.0 to 1.0).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_traces</span></code></p></td>
+<td><p>Ring buffer size for storing trace data.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10000</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">w_ts</span></code>, <code class="docutils literal notranslate"><span class="pre">w_ms</span></code>, <code class="docutils literal notranslate"><span class="pre">w_ev</span></code>, <code class="docutils literal notranslate"><span class="pre">w_be</span></code>, <code class="docutils literal notranslate"><span class="pre">w_cc</span></code></p></td>
+<td><p>Weights for the 5 stability pillars. Must sum to approx 1.0. <strong>Can be auto-tuned via `pypss tune`.</strong></p></td>
+<td><p>(Various)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code>, <code class="docutils literal notranslate"><span class="pre">gamma</span></code>, <code class="docutils literal notranslate"><span class="pre">delta</span></code></p></td>
+<td><p>Sensitivity coefficients for scoring algorithms. <strong>Can be auto-tuned via `pypss tune`.</strong></p></td>
+<td><p>(Various)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">plugins</span></code></p></td>
+<td><p>List of strings specifying external python modules to load as plugins.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="metric-auto-tuning-tool-pypss-tuning">
+<h3>Metric Auto-Tuning <code class="docutils literal notranslate"><span class="pre">[tool.pypss.tuning]</span></code><a class="headerlink" href="#metric-auto-tuning-tool-pypss-tuning" title="Link to this heading"></a></h3>
+<p>While the <cite>pypss tune</cite> command automatically optimizes configuration parameters, you can also manually set initial ranges or values. The tuning process will optimize parameters like <code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code>, <code class="docutils literal notranslate"><span class="pre">gamma</span></code>, <code class="docutils literal notranslate"><span class="pre">mem_spike_threshold_ratio</span></code>, <code class="docutils literal notranslate"><span class="pre">concurrency_wait_threshold</span></code>, and the individual metric weights (<code class="docutils literal notranslate"><span class="pre">w_ts</span></code>, <code class="docutils literal notranslate"><span class="pre">w_ms</span></code>, etc.).</p>
+<p>When running <code class="docutils literal notranslate"><span class="pre">pypss</span> <span class="pre">tune</span></code>, the output configuration file (e.g., <cite>pypss_tuned.toml</cite>) will contain the optimized values for these parameters.</p>
+</section>
+<section id="adaptive-sampling-tool-pypss-adaptive-sampling">
+<h3>Adaptive Sampling <code class="docutils literal notranslate"><span class="pre">[tool.pypss.adaptive_sampling]</span></code><a class="headerlink" href="#adaptive-sampling-tool-pypss-adaptive-sampling" title="Link to this heading"></a></h3>
+<p>Settings to control the dynamic adjustment of the sample rate.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 60.0%" />
+<col style="width: 10.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adaptive_sampler_mode</span></code></p></td>
+<td><p>Strategy: <code class="docutils literal notranslate"><span class="pre">balanced</span></code>, <code class="docutils literal notranslate"><span class="pre">high_load</span></code>, <code class="docutils literal notranslate"><span class="pre">error_triggered</span></code>, <code class="docutils literal notranslate"><span class="pre">surge</span></code>, <code class="docutils literal notranslate"><span class="pre">low_noise</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">balanced</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">adaptive_sampler_high_qps_threshold</span></code></p></td>
+<td><p>Trace QPS threshold to trigger <code class="docutils literal notranslate"><span class="pre">high_load</span></code> mode.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1000.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adaptive_sampler_low_noise_sample_rate</span></code></p></td>
+<td><p>Sample rate used when <code class="docutils literal notranslate"><span class="pre">low_noise</span></code> mode is active.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.01</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ui-configuration-tool-pypss-ui">
+<h3>UI Configuration <code class="docutils literal notranslate"><span class="pre">[tool.pypss.ui]</span></code><a class="headerlink" href="#ui-configuration-tool-pypss-ui" title="Link to this heading"></a></h3>
+<p>Customize the dashboard appearance and behavior.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.ui]</span>
+<span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8080</span>
+<span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;My Stability Dashboard&quot;</span>
+
+<span class="k">[tool.pypss.ui.theme]</span>
+<span class="n">primary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;#4285F4&quot;</span>
+<span class="n">secondary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;#607D8B&quot;</span>
+<span class="c1"># ... other colors</span>
+</pre></div>
+</div>
+</section>
+<section id="dashboard-logic-tool-pypss-dashboard">
+<h3>Dashboard Logic <code class="docutils literal notranslate"><span class="pre">[tool.pypss.dashboard]</span></code><a class="headerlink" href="#dashboard-logic-tool-pypss-dashboard" title="Link to this heading"></a></h3>
+<p>Thresholds for visual indicators on the dashboard.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.dashboard]</span>
+<span class="n">critical_pss_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">60.0</span>
+<span class="n">warning_error_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span>
+</pre></div>
+</div>
+</section>
+<section id="background-dumpers-tool-pypss-background">
+<h3>Background Dumpers <code class="docutils literal notranslate"><span class="pre">[tool.pypss.background]</span></code><a class="headerlink" href="#background-dumpers-tool-pypss-background" title="Link to this heading"></a></h3>
+<p>Control how trace data is persisted to disk.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.background]</span>
+<span class="n">dump_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60</span>
+<span class="n">archive_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;archive&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="scoring-tuning-tool-pypss-score">
+<h3>Scoring Tuning <code class="docutils literal notranslate"><span class="pre">[tool.pypss.score]</span></code><a class="headerlink" href="#scoring-tuning-tool-pypss-score" title="Link to this heading"></a></h3>
+<p>Fine-tune the mathematical models.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.score]</span>
+<span class="n">latency_tail_percentile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">94</span>
+<span class="n">memory_epsilon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-9</span>
+<span class="n">error_vmr_multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="n">error_spike_impact_multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="n">consecutive_error_decay_multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span>
+</pre></div>
+</div>
+</section>
+<section id="collector-performance-tool-pypss-collector">
+<h3>Collector Performance <code class="docutils literal notranslate"><span class="pre">[tool.pypss.collector]</span></code><a class="headerlink" href="#collector-performance-tool-pypss-collector" title="Link to this heading"></a></h3>
+<p>Optimize the in-memory collector for high-concurrency workloads.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.collector]</span>
+<span class="n">max_traces_sharding_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span>
+<span class="n">shard_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span>
+</pre></div>
+</div>
+</section>
+<section id="advisor-thresholds-tool-pypss-advisor">
+<h3>Advisor Thresholds <code class="docutils literal notranslate"><span class="pre">[tool.pypss.advisor]</span></code><a class="headerlink" href="#advisor-thresholds-tool-pypss-advisor" title="Link to this heading"></a></h3>
+<p>Configure when the AI Advisor triggers specific warnings.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.advisor]</span>
+<span class="n">threshold_excellent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span>
+<span class="n">metric_score_critical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.6</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="integrations-tool-pypss-integration">
+<h3>Integrations <code class="docutils literal notranslate"><span class="pre">[tool.pypss.integration.*]</span></code><a class="headerlink" href="#integrations-tool-pypss-integration" title="Link to this heading"></a></h3>
+<p>Configure prefixes and headers for various integrations.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.integration.celery]</span>
+<span class="n">trace_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;celery:&quot;</span>
+
+<span class="k">[tool.pypss.integration.flask]</span>
+<span class="n">trace_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;flask:&quot;</span>
+<span class="n">header_latency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;X-PSS-Latency&quot;</span>
+
+<span class="k">[tool.pypss.integration.otel]</span>
+<span class="n">metric_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pypss.&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="llm-advisor-tool-pypss-llm">
+<h3>LLM Advisor <code class="docutils literal notranslate"><span class="pre">[tool.pypss.llm]</span></code><a class="headerlink" href="#llm-advisor-tool-pypss-llm" title="Link to this heading"></a></h3>
+<p>Configure the AI backend for the <code class="docutils literal notranslate"><span class="pre">diagnose</span></code> command.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.llm]</span>
+<span class="n">openai_model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;gpt-4o&quot;</span>
+<span class="n">ollama_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://localhost:11434/api/generate&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="ml-based-pattern-detection-tool-pypss-ml">
+<h3>ML-based Pattern Detection <code class="docutils literal notranslate"><span class="pre">[tool.pypss.ml]</span></code><a class="headerlink" href="#ml-based-pattern-detection-tool-pypss-ml" title="Link to this heading"></a></h3>
+<p>Configure the default parameters for the <cite>pypss ml-detect</cite> command.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 60.0%" />
+<col style="width: 10.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">contamination</span></code></p></td>
+<td><p>The proportion of outliers expected in the baseline dataset. Used by IsolationForest.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">random_state</span></code></p></td>
+<td><p>Random seed for reproducibility of ML model training.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">42</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="alerting-configuration-tool-pypss-alerts">
+<h3>Alerting Configuration <code class="docutils literal notranslate"><span class="pre">[tool.pypss.alerts]</span></code><a class="headerlink" href="#alerting-configuration-tool-pypss-alerts" title="Link to this heading"></a></h3>
+<p>Configure alerting behavior, channels, and rule thresholds.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.alerts]</span>
+<span class="n">alerts_enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="w">             </span><span class="c1"># Enable or disable the alerting engine</span>
+<span class="n">alerts_cooldown_seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3600</span><span class="w">    </span><span class="c1"># Cooldown period (in seconds) for suppressing duplicate alerts</span>
+
+<span class="c1"># Webhook Channels</span>
+<span class="n">alerts_slack_webhook</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://hooks.slack.com/services/...&quot;</span>
+<span class="n">alerts_teams_webhook</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://outlook.office.com/webhook/...&quot;</span>
+<span class="n">alerts_generic_webhook</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://your.webhook.site/...&quot;</span>
+<span class="n">alerts_alertmanager_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://localhost:9093/api/v2/alerts&quot;</span><span class="w"> </span><span class="c1"># Prometheus Alertmanager URL</span>
+
+<span class="c1"># Rule Thresholds (Scores are 0.0-1.0 for sub-metrics)</span>
+<span class="n">alert_threshold_ts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.70</span><span class="w">         </span><span class="c1"># Timing Stability score below this triggers an alert</span>
+<span class="n">alert_threshold_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.70</span><span class="w">         </span><span class="c1"># Memory Stability score below this triggers an alert</span>
+<span class="n">alert_threshold_ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.80</span><span class="w">         </span><span class="c1"># Error Volatility score below this triggers an alert</span>
+<span class="n">alert_threshold_be</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.70</span><span class="w">         </span><span class="c1"># Branching Entropy score below this triggers an alert</span>
+<span class="n">alert_threshold_cc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.70</span><span class="w">         </span><span class="c1"># Concurrency Chaos score below this triggers an alert</span>
+
+<span class="c1"># Custom Alert Rules (Example)</span>
+<span class="k">[[tool.pypss.custom_alert_rules]]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Critical Service Alert&quot;</span>
+<span class="n">severity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;critical&quot;</span>
+<span class="n">module_pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;^service_.*&quot;</span>
+<span class="k">[[tool.pypss.custom_alert_rules.conditions]]</span>
+<span class="n">metric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pss&quot;</span>
+<span class="n">operator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;&quot;</span>
+<span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">80.0</span>
+
+<span class="c1"># Dashboard Layout (Example)</span>
+<span class="k">[[tool.pypss.dashboard_layout]]</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pss_gauge&quot;</span>
+<span class="n">col_span</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="n">tab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;overview&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-metrics-configuration-tool-pypss-custom-metric-weights">
+<h3>Custom Metrics Configuration <code class="docutils literal notranslate"><span class="pre">[tool.pypss.custom_metric_weights]</span></code><a class="headerlink" href="#custom-metrics-configuration-tool-pypss-custom-metric-weights" title="Link to this heading"></a></h3>
+<p>Adjust the weight of specific custom plugins in the overall score.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss.custom_metric_weights]</span>
+<span class="n">IO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="n">DB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.20</span>
+<span class="n">MY_PLUGIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span>
+</pre></div>
+</div>
+</section>
+<section id="storage-monitoring">
+<h3>Storage &amp; Monitoring<a class="headerlink" href="#storage-monitoring" title="Link to this heading"></a></h3>
+<p>PyPSS supports persisting stability scores to enable long-term trend analysis and integration with monitoring systems.</p>
+<section id="sqlite-default">
+<h4>SQLite (Default)<a class="headerlink" href="#sqlite-default" title="Link to this heading"></a></h4>
+<p>For local development and CI environments, SQLite is the easiest way to track history.</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss]</span>
+<span class="n">storage_backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sqlite&quot;</span>
+<span class="n">storage_uri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pypss_history.db&quot;</span>
+<span class="c1"># Automatically remove records older than 90 days</span>
+<span class="n">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span>
+</pre></div>
+</div>
+</section>
+<section id="prometheus-production">
+<h4>Prometheus (Production)<a class="headerlink" href="#prometheus-production" title="Link to this heading"></a></h4>
+<p>PyPSS supports two modes for Prometheus integration:</p>
+<ol class="arabic simple">
+<li><p><strong>Push Mode (Default)</strong>: Pushes metrics to a PushGateway at the end of execution. Ideal for batch jobs or CLI runs.</p></li>
+<li><p><strong>Pull Mode</strong>: Starts an HTTP server to expose metrics. Ideal for long-running services.</p></li>
+</ol>
+<p><strong>Prerequisites:</strong></p>
+<ol class="arabic simple">
+<li><p>Install optional dependencies: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pypss[monitoring]</span></code></p></li>
+</ol>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss]</span>
+<span class="n">storage_backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;prometheus&quot;</span>
+
+<span class="c1"># Push Mode</span>
+<span class="n">storage_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;push&quot;</span>
+<span class="n">storage_uri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pushgateway.example.com:9091&quot;</span>
+
+<span class="c1"># Pull Mode</span>
+<span class="c1"># storage_mode = &quot;pull&quot;</span>
+<span class="c1"># storage_uri = &quot;8000&quot;  # Port to listen on</span>
+</pre></div>
+</div>
+<p><strong>How it works:</strong></p>
+<p>When you run <code class="docutils literal notranslate"><span class="pre">pypss</span> <span class="pre">run</span> <span class="pre">...</span> <span class="pre">--store-history</span></code> (Push Mode) or initialize the app (Pull Mode), PyPSS exposes/puses the following metrics:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pypss_score</span></code>: The overall PSS score (0-100).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pypss_ts</span></code>: Timing Stability score.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pypss_ms</span></code>: Memory Stability score.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pypss_ev</span></code>: Error Volatility score.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pypss_be</span></code>: Branching Entropy score.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pypss_cc</span></code>: Concurrency Chaos score.</p></li>
+</ul>
+<p><strong>Grafana Integration:</strong></p>
+<p>You can then query these metrics in Prometheus (e.g., <code class="docutils literal notranslate"><span class="pre">pypss_score{job=&quot;pypss&quot;}</span></code>) and build dashboards in Grafana.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="history_regression.html" class="btn btn-neutral float-left" title="Historical Trends &amp; Regression Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="metrics_explained.html" class="btn btn-neutral float-right" title="Understanding the Metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

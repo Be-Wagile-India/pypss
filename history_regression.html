@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Integrations &mdash; pypss 0.1.0 documentation</title>
+  <title>Historical Trends &amp; Regression Detection &mdash; pypss 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ML-based Pattern Detection" href="ml_detection.html" />
-    <link rel="prev" title="Adaptive Sampling Modes" href="adaptive_sampling.html" /> 
+    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="prev" title="CLI Usage" href="cli_usage.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,17 +56,16 @@
 <li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Historical Trends &amp; Regression Detection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Integrations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pytest-integration">Pytest Integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sample-output">Sample Output:</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ml_detection.html">ML-based Pattern Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
@@ -86,9 +85,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Integrations</li>
+      <li class="breadcrumb-item active">Historical Trends &amp; Regression Detection</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/integrations.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/history_regression.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -96,53 +95,63 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="integrations">
-<span id="id1"></span><h1>Integrations<a class="headerlink" href="#integrations" title="Link to this heading"></a></h1>
-<p><cite>pypss</cite> provides built-in integrations for popular Python frameworks and tools:</p>
-<ul class="simple">
-<li><p><strong>FastAPI</strong>: Easily instrument your FastAPI endpoints.</p></li>
-<li><p><strong>Flask</strong>: Monitor Flask routes and background tasks.</p></li>
-<li><p><strong>Celery</strong>: Track the stability of your Celery tasks.</p></li>
-<li><p><strong>RQ</strong>: Observe the stability of your RQ jobs.</p></li>
-<li><p><strong>OpenTelemetry</strong>: Export <cite>pypss</cite> traces to OpenTelemetry collectors.</p></li>
-</ul>
-<section id="pytest-integration">
-<h2>Pytest Integration<a class="headerlink" href="#pytest-integration" title="Link to this heading"></a></h2>
-<p><cite>pypss</cite> includes a powerful pytest plugin to measure the stability of your test suite. It automatically wraps your tests, calculates a PSS score for each test case, and can fail the build if stability drops.</p>
-</section>
+  <section id="historical-trends-regression-detection">
+<span id="history-regression"></span><h1>Historical Trends &amp; Regression Detection<a class="headerlink" href="#historical-trends-regression-detection" title="Link to this heading"></a></h1>
+<p>PyPSS can store stability scores over time to help you track long-term trends and detect regressions.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><p><strong>Enable PSS monitoring</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss
+<li><p><strong>Store History</strong>: Add the <code class="docutils literal notranslate"><span class="pre">--store-history</span></code> flag to your run or analysis.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pypss<span class="w"> </span>run<span class="w"> </span>my_app.py<span class="w"> </span>--store-history
+pypss<span class="w"> </span>analyze<span class="w"> </span>--trace-file<span class="w"> </span>traces.json<span class="w"> </span>--store-history
 </pre></div>
 </div>
 </li>
-<li><p><strong>Generate Stability Scores (Requires multiple runs)</strong>:
-To statistically measure stability (variance), you need multiple data points. Use <code class="docutils literal notranslate"><span class="pre">pytest-repeat</span></code> or simply run the loop:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss<span class="w"> </span>--count<span class="o">=</span><span class="m">10</span>
+<li><p><strong>View Trends</strong>: Use the <code class="docutils literal notranslate"><span class="pre">history</span></code> command to see a table of recent runs.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show last 20 runs</span>
+pypss<span class="w"> </span><span class="nb">history</span><span class="w"> </span>--limit<span class="w"> </span><span class="m">20</span>
+
+<span class="c1"># Show history for the last 7 days</span>
+pypss<span class="w"> </span><span class="nb">history</span><span class="w"> </span>--days<span class="w"> </span><span class="m">7</span>
+
+<span class="c1"># Export to CSV for spreadsheet analysis</span>
+pypss<span class="w"> </span><span class="nb">history</span><span class="w"> </span>--days<span class="w"> </span><span class="m">30</span><span class="w"> </span>--export<span class="w"> </span>csv<span class="w"> </span>&gt;<span class="w"> </span>stability_report.csv
 </pre></div>
 </div>
 </li>
-<li><p><strong>Fail on Instability</strong>:
-Fail the test session if <em>any</em> individual test’s PSS score drops below a threshold (e.g., 80):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss<span class="w"> </span>--count<span class="o">=</span><span class="m">10</span><span class="w"> </span>--pss-fail-below<span class="w"> </span><span class="m">80</span>
+<li><p><strong>Automated Regression Detection</strong>:
+When <code class="docutils literal notranslate"><span class="pre">--store-history</span></code> is used, PyPSS automatically compares the current PSS against the average of the last 5 runs. If a significant drop (default &gt; 10 points) is detected, it will print a warning:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>⚠️ REGRESSION DETECTED: Current PSS (75.0) is significantly lower than the 5-run average (90.0).
 </pre></div>
 </div>
 </li>
 </ol>
 </section>
-<section id="sample-output">
-<h2>Sample Output:<a class="headerlink" href="#sample-output" title="Link to this heading"></a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>======================= PyPSS Stability Report ========================
-Test Node ID                                     | Runs | PSS | Status
------------------------------------------------------------------------
-tests/test_api.py::test_login_latency            | 10   | 98  | ✅ Stable
-tests/test_api.py::test_flaky_endpoint           | 10   | 45  | ❌ Unstable
-tests/test_utils.py::test_helper                 | 1    | N/A | ⚠️  Need &gt;1 run
-================================================================-------
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>Configure storage backends in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pypss]</span>
+<span class="n">storage_backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sqlite&quot;</span><span class="w">  </span><span class="c1"># or &quot;prometheus&quot;</span>
+<span class="n">storage_uri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pypss_history.db&quot;</span><span class="w">  </span><span class="c1"># path to db or pushgateway url</span>
+<span class="n">regression_threshold_drop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10.0</span>
+<span class="n">regression_history_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
 </pre></div>
 </div>
+<p><strong>Prometheus Support</strong>:
+To use Prometheus PushGateway (Push Mode):
+.. code-block:: toml</p>
+<blockquote>
+<div><p>storage_backend = “prometheus”
+storage_uri = “localhost:9091”</p>
+</div></blockquote>
+<p>To expose metrics via HTTP server (Pull Mode):
+.. code-block:: toml</p>
+<blockquote>
+<div><p>storage_backend = “prometheus”
+storage_mode = “pull”
+storage_uri = “8000”  # Port number</p>
+</div></blockquote>
+<p><em>Note: Requires ``pip install pypss[monitoring]``.</em></p>
 </section>
 </section>
 
@@ -150,8 +159,8 @@ tests/test_utils.py::test_helper                 | 1    | N/A | ⚠️  Need &gt
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="adaptive_sampling.html" class="btn btn-neutral float-left" title="Adaptive Sampling Modes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="ml_detection.html" class="btn btn-neutral float-right" title="ML-based Pattern Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cli_usage.html" class="btn btn-neutral float-left" title="CLI Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="configuration.html" class="btn btn-neutral float-right" title="Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

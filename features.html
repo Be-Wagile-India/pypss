@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Integrations &mdash; pypss 0.1.0 documentation</title>
+  <title>Key Features &mdash; pypss 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ML-based Pattern Detection" href="ml_detection.html" />
-    <link rel="prev" title="Adaptive Sampling Modes" href="adaptive_sampling.html" /> 
+    <link rel="next" title="Benchmarks &amp; Overhead" href="benchmarks.html" />
+    <link rel="prev" title="Core Concepts" href="quick_start.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,7 +51,11 @@
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html#async-monitoring">Async Monitoring</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">Key Features</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Key Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core-capabilities">Core Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#developer-experience">Developer Experience</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks &amp; Overhead</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a></li>
@@ -61,12 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Integrations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pytest-integration">Pytest Integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sample-output">Sample Output:</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ml_detection.html">ML-based Pattern Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
@@ -86,9 +85,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Integrations</li>
+      <li class="breadcrumb-item active">Key Features</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/integrations.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/features.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -96,53 +95,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="integrations">
-<span id="id1"></span><h1>Integrations<a class="headerlink" href="#integrations" title="Link to this heading"></a></h1>
-<p><cite>pypss</cite> provides built-in integrations for popular Python frameworks and tools:</p>
+  <section id="key-features">
+<span id="features"></span><h1>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h1>
+<section id="core-capabilities">
+<h2>Core Capabilities<a class="headerlink" href="#core-capabilities" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>FastAPI</strong>: Easily instrument your FastAPI endpoints.</p></li>
-<li><p><strong>Flask</strong>: Monitor Flask routes and background tasks.</p></li>
-<li><p><strong>Celery</strong>: Track the stability of your Celery tasks.</p></li>
-<li><p><strong>RQ</strong>: Observe the stability of your RQ jobs.</p></li>
-<li><p><strong>OpenTelemetry</strong>: Export <cite>pypss</cite> traces to OpenTelemetry collectors.</p></li>
+<li><p><strong>Multi-dimensional Scoring</strong>: Combines 5 distinct stability dimensions into one 0-100 score.</p></li>
+<li><p><strong>Timing Stability (TS)</strong>: Penalizes high variance (CV) and long tail latencies (p95/p50).</p></li>
+<li><p><strong>Memory Stability (MS)</strong>: Tracks erratic memory spikes and growth patterns.</p></li>
+<li><p><strong>Error Volatility (EV)</strong>: Distinguishes between consistent failures and chaotic, bursty errors.</p></li>
+<li><p><strong>Branching Entropy (BE)</strong>: Measures the unpredictability of code execution paths.</p></li>
+<li><p><strong>Async-Aware Instrumentation</strong>: Natively handles <cite>async</cite> functions to measure event loop stability.</p></li>
+<li><p><strong>Concurrency Chaos (CC)</strong>: <em>(Experimental)</em> Quantifies thread contention and locking overhead.</p></li>
+<li><p><strong>Alerting Engine</strong>: Proactively monitors and notifies on stability changes with configurable rules and channels.</p></li>
+<li><p><strong>Adaptive Sampling</strong>: Intelligent sampling modes (<cite>balanced</cite>, <cite>high_load</cite>, <cite>error_triggered</cite>, <cite>surge</cite>, <cite>low_noise</cite>) to optimize overhead.</p></li>
+<li><p><strong>Metric Auto-Tuning</strong>: Automatically calibrates PSS metric weights and thresholds using Bayesian Optimization for optimal fault detection.</p></li>
+<li><p><strong>ML-based Pattern Detection</strong>: Detects subtle, complex instability patterns using machine learning (e.g., anomaly detection).</p></li>
+<li><p><strong>Plugin System</strong>: Extend PyPSS with custom metrics like <cite>IOStability</cite>, <cite>DatabaseStability</cite>, <cite>KafkaLag</cite>, <cite>GPUSpikes</cite>, etc.</p></li>
 </ul>
-<section id="pytest-integration">
-<h2>Pytest Integration<a class="headerlink" href="#pytest-integration" title="Link to this heading"></a></h2>
-<p><cite>pypss</cite> includes a powerful pytest plugin to measure the stability of your test suite. It automatically wraps your tests, calculates a PSS score for each test case, and can fail the build if stability drops.</p>
 </section>
-<section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
-<ol class="arabic">
-<li><p><strong>Enable PSS monitoring</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss
-</pre></div>
-</div>
-</li>
-<li><p><strong>Generate Stability Scores (Requires multiple runs)</strong>:
-To statistically measure stability (variance), you need multiple data points. Use <code class="docutils literal notranslate"><span class="pre">pytest-repeat</span></code> or simply run the loop:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss<span class="w"> </span>--count<span class="o">=</span><span class="m">10</span>
-</pre></div>
-</div>
-</li>
-<li><p><strong>Fail on Instability</strong>:
-Fail the test session if <em>any</em> individual test’s PSS score drops below a threshold (e.g., 80):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss<span class="w"> </span>--count<span class="o">=</span><span class="m">10</span><span class="w"> </span>--pss-fail-below<span class="w"> </span><span class="m">80</span>
-</pre></div>
-</div>
-</li>
-</ol>
-</section>
-<section id="sample-output">
-<h2>Sample Output:<a class="headerlink" href="#sample-output" title="Link to this heading"></a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>======================= PyPSS Stability Report ========================
-Test Node ID                                     | Runs | PSS | Status
------------------------------------------------------------------------
-tests/test_api.py::test_login_latency            | 10   | 98  | ✅ Stable
-tests/test_api.py::test_flaky_endpoint           | 10   | 45  | ❌ Unstable
-tests/test_utils.py::test_helper                 | 1    | N/A | ⚠️  Need &gt;1 run
-================================================================-------
-</pre></div>
-</div>
+<section id="developer-experience">
+<h2>Developer Experience<a class="headerlink" href="#developer-experience" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Non-Intrusive Instrumentation</strong>: Lightweight decorators and context managers.</p></li>
+<li><p><strong>Distributed Collection</strong>: Built-in support for Redis, gRPC, and File-based trace collection for microservices.</p></li>
+<li><p><strong>CLI Analysis</strong>: Analyze trace files from production logs or test runs.</p></li>
+<li><p><strong>Type Safe</strong>: Fully typed codebase with <cite>mypy</cite> compliance.</p></li>
+<li><p><strong>Production Ready</strong>: Minimal overhead for sampling stability in critical paths.</p></li>
+</ul>
 </section>
 </section>
 
@@ -150,8 +130,8 @@ tests/test_utils.py::test_helper                 | 1    | N/A | ⚠️  Need &gt
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="adaptive_sampling.html" class="btn btn-neutral float-left" title="Adaptive Sampling Modes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="ml_detection.html" class="btn btn-neutral float-right" title="ML-based Pattern Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="quick_start.html" class="btn btn-neutral float-left" title="Core Concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="benchmarks.html" class="btn btn-neutral float-right" title="Benchmarks &amp; Overhead" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

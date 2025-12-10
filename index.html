@@ -44,9 +44,25 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="advanced_config.html">Advanced Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_detection.html">ML-based Pattern Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
 
@@ -81,37 +97,87 @@
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#from-source-core-package">From Source (Core Package)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#for-development-with-extras">For Development (with Extras)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#basic-installation">Basic Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#optional-features">Optional Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#development-installation">Development Installation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#core-concepts">Core Concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#instrumenting-code">Instrumenting Code</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#cli-usage">CLI Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#interactive-dashboard">Interactive Dashboard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#pss-configuration">PSS Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#distributed-trace-collection">Distributed Trace Collection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#why-distributed-collection">Why Distributed Collection?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#available-collectors">Available Collectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#custom-collectors">Custom Collectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#api-reference">API Reference</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Key Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="features.html#core-capabilities">Core Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html#developer-experience">Developer Experience</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reports.html#example-1-an-unstable-program-low-pss">Example 1: An Unstable Program (Low PSS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reports.html#example-2-a-stable-program-high-pss">Example 2: A Stable Program (High PSS)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dashboard.html#dashboard-features">Dashboard Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dashboard.html#customization-settings">Customization &amp; Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="history_regression.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history_regression.html#configuration">Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-file-structure">Configuration File Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="metrics_explained.html#final-pss-calculation">Final PSS Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html#loading-plugins">Loading Plugins</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="integrations.html#celery">Celery</a></li>
-<li class="toctree-l2"><a class="reference internal" href="integrations.html#fastapi">FastAPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="integrations.html#flask">Flask</a></li>
-<li class="toctree-l2"><a class="reference internal" href="integrations.html#opentelemetry-otel">OpenTelemetry (OTel)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="integrations.html#rq-redis-queue">RQ (Redis Queue)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="integrations.html#pytest-plugin">Pytest Plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations.html#pytest-integration">Pytest Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations.html#sample-output">Sample Output:</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="advanced_config.html">Advanced Configuration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="advanced_config.html#configuration-file-structure">Configuration File Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_detection.html">ML-based Pattern Detection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ml_detection.html#how-it-works">How it Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ml_detection.html#cli-usage">CLI Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ml_detection.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ml_detection.html#further-customization-advanced">Further Customization (Advanced)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ml_detection.html#installation-note">Installation Note</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="alerting.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="alerting.html#standard-rules">Standard Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="alerting.html#custom-alert-rules">Custom Alert Rules</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#module-pypss.core">Core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#module-pypss.instrumentation">Instrumentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pypss.ml.detector">ML</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#module-pypss.cli.reporting">CLI &amp; Reporting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#module-pypss.utils.utils">Utils &amp; Config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pypss.storage">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#integrations">Integrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pypss.alerts">Alerts</a></li>
 </ul>
 </li>
 </ul>

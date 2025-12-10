@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pypss.alerts.rules &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adaptive_sampling.html">Adaptive Sampling Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrations.html">Integrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_detection.html">ML-based Pattern Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alerting.html">Alerting Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pypss.alerts.rules</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pypss.alerts.rules</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GLOBAL_CONFIG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Alert</span><span class="p">,</span> <span class="n">AlertRule</span><span class="p">,</span> <span class="n">AlertSeverity</span>
+
+
+<div class="viewcode-block" id="MetricStabilityRule">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.MetricStabilityRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MetricStabilityRule</span><span class="p">(</span><span class="n">AlertRule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">metric_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">threshold_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">severity</span><span class="p">:</span> <span class="n">AlertSeverity</span> <span class="o">=</span> <span class="n">AlertSeverity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+        <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span> <span class="o">=</span> <span class="n">metric_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold_key</span> <span class="o">=</span> <span class="n">threshold_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">severity</span> <span class="o">=</span> <span class="n">severity</span>
+
+<div class="viewcode-block" id="MetricStabilityRule.evaluate">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.MetricStabilityRule.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">report</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">history</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">module_scores</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Alert</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span> <span class="o">==</span> <span class="s2">&quot;pss&quot;</span><span class="p">:</span>
+            <span class="n">current_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pss&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">current_val</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="n">current_val</span> <span class="o">/=</span> <span class="mf">100.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">breakdown</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;breakdown&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">current_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">breakdown</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">GLOBAL_CONFIG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold_key</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">current_val</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Alert</span><span class="p">(</span>
+                <span class="n">rule_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">severity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> detected. Score </span><span class="si">{</span><span class="n">current_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> is below threshold </span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">),</span>
+                <span class="n">metric_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="p">,</span>
+                <span class="n">current_value</span><span class="o">=</span><span class="n">current_val</span><span class="p">,</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TimingStabilitySurgeRule">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.TimingStabilitySurgeRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimingStabilitySurgeRule</span><span class="p">(</span><span class="n">MetricStabilityRule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Timing Stability Surge&quot;</span><span class="p">,</span> <span class="s2">&quot;timing_stability&quot;</span><span class="p">,</span> <span class="s2">&quot;alert_threshold_ts&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MemoryStabilitySpikeRule">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.MemoryStabilitySpikeRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MemoryStabilitySpikeRule</span><span class="p">(</span><span class="n">MetricStabilityRule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Memory Stability Spike&quot;</span><span class="p">,</span> <span class="s2">&quot;memory_stability&quot;</span><span class="p">,</span> <span class="s2">&quot;alert_threshold_ms&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ErrorBurstRule">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.ErrorBurstRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ErrorBurstRule</span><span class="p">(</span><span class="n">MetricStabilityRule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;Error Burst&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error_volatility&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alert_threshold_ev&quot;</span><span class="p">,</span>
+            <span class="n">AlertSeverity</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EntropyAnomalyRule">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.EntropyAnomalyRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EntropyAnomalyRule</span><span class="p">(</span><span class="n">MetricStabilityRule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Entropy Anomaly&quot;</span><span class="p">,</span> <span class="s2">&quot;branching_entropy&quot;</span><span class="p">,</span> <span class="s2">&quot;alert_threshold_be&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ConcurrencySpikeRule">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.ConcurrencySpikeRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConcurrencySpikeRule</span><span class="p">(</span><span class="n">MetricStabilityRule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Concurrency Variance Spike&quot;</span><span class="p">,</span> <span class="s2">&quot;concurrency_chaos&quot;</span><span class="p">,</span> <span class="s2">&quot;alert_threshold_cc&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="StabilityRegressionRule">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.StabilityRegressionRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StabilityRegressionRule</span><span class="p">(</span><span class="n">AlertRule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Stability Regression&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StabilityRegressionRule.evaluate">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.StabilityRegressionRule.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">report</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">history</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">module_scores</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Alert</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">history</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">limit</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">GLOBAL_CONFIG</span><span class="p">,</span> <span class="s2">&quot;regression_history_limit&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">threshold_drop</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">GLOBAL_CONFIG</span><span class="p">,</span> <span class="s2">&quot;regression_threshold_drop&quot;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
+
+        <span class="n">recent_history</span> <span class="o">=</span> <span class="n">history</span><span class="p">[:</span><span class="n">limit</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">recent_history</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">avg_pss</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">h</span><span class="p">[</span><span class="s2">&quot;pss&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">recent_history</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">recent_history</span><span class="p">)</span>
+        <span class="n">current_pss</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pss&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">current_pss</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">avg_pss</span> <span class="o">-</span> <span class="n">threshold_drop</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Alert</span><span class="p">(</span>
+                <span class="n">rule_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">severity</span><span class="o">=</span><span class="n">AlertSeverity</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Regression detected! PSS </span><span class="si">{</span><span class="n">current_pss</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> is significantly lower &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;than average </span><span class="si">{</span><span class="n">avg_pss</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> (-</span><span class="si">{</span><span class="n">threshold_drop</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="p">),</span>
+                <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;pss&quot;</span><span class="p">,</span>
+                <span class="n">current_value</span><span class="o">=</span><span class="n">current_pss</span><span class="p">,</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="n">avg_pss</span> <span class="o">-</span> <span class="n">threshold_drop</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CustomRule">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.CustomRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomRule</span><span class="p">(</span><span class="n">AlertRule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Custom Rule&quot;</span><span class="p">),</span> <span class="n">enabled</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">severity</span> <span class="o">=</span> <span class="n">AlertSeverity</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;severity&quot;</span><span class="p">,</span> <span class="s2">&quot;warning&quot;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="CustomRule.evaluate">
+<a class="viewcode-back" href="../../../api.html#pypss.alerts.rules.CustomRule.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">report</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">history</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">module_scores</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Alert</span><span class="p">]]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>  <span class="c1"># noqa: F401</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">conditions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">conditions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">alerts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">module_pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;module_pattern&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">module_pattern</span> <span class="ow">and</span> <span class="n">module_scores</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">module_pattern</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">re</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="k">for</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">scores_data</span> <span class="ow">in</span> <span class="n">module_scores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+                    <span class="c1"># Combine PSS and breakdown into a flat dict for evaluation</span>
+                    <span class="n">flat_metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pss&quot;</span><span class="p">:</span> <span class="n">scores_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pss&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)}</span>
+                    <span class="n">flat_metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scores_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;breakdown&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_conditions</span><span class="p">(</span><span class="n">flat_metrics</span><span class="p">,</span> <span class="n">conditions</span><span class="p">):</span>
+                        <span class="n">alerts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">Alert</span><span class="p">(</span>
+                                <span class="n">rule_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                <span class="n">severity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span>
+                                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: Module &#39;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&#39; matched conditions.&quot;</span><span class="p">,</span>
+                                <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                                <span class="n">current_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># Placeholder</span>
+                                <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                <span class="n">extra_data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="n">module_name</span><span class="p">},</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">module_pattern</span><span class="p">:</span>
+            <span class="c1"># Global check</span>
+            <span class="n">flat_metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pss&quot;</span><span class="p">:</span> <span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pss&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)}</span>
+            <span class="n">flat_metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;breakdown&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_conditions</span><span class="p">(</span><span class="n">flat_metrics</span><span class="p">,</span> <span class="n">conditions</span><span class="p">):</span>
+                <span class="n">alerts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Alert</span><span class="p">(</span>
+                        <span class="n">rule_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">severity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span>
+                        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: Global metrics matched conditions.&quot;</span><span class="p">,</span>
+                        <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                        <span class="n">current_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">alerts</span> <span class="k">if</span> <span class="n">alerts</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">:</span>
+            <span class="n">metric_key</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metric&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">operator</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operator&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">threshold</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;&lt;&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">val</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;&lt;=&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;&gt;&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">val</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;&gt;=&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">val</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;==&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="n">threshold</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

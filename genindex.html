@@ -42,9 +42,25 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#distributed-trace-collection">Distributed Trace Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="advanced_config.html">Advanced Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_detection.html">ML-based Pattern Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
 
@@ -81,15 +97,18 @@
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
@@ -115,10 +134,36 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api.html#pypss.instrumentation.Collector.add_trace">add_trace() (pypss.instrumentation.Collector method)</a>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_churn_threshold">adaptive_sampler_churn_threshold (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_decrease_step">adaptive_sampler_decrease_step (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_error_threshold">adaptive_sampler_error_threshold (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_high_qps_threshold">adaptive_sampler_high_qps_threshold (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_increase_step">adaptive_sampler_increase_step (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_lag_threshold">adaptive_sampler_lag_threshold (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_low_noise_sample_rate">adaptive_sampler_low_noise_sample_rate (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_max_rate">adaptive_sampler_max_rate (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_min_interval">adaptive_sampler_min_interval (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_min_rate">adaptive_sampler_min_rate (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.adaptive_sampler_mode">adaptive_sampler_mode (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.instrumentation.collectors.BaseCollector.add_trace">add_trace() (pypss.instrumentation.collectors.BaseCollector method)</a>
 
       <ul>
-        <li><a href="api.html#pypss.instrumentation.collectors.Collector.add_trace">(pypss.instrumentation.collectors.Collector method)</a>
+        <li><a href="api.html#pypss.instrumentation.collectors.GRPCCollector.add_trace">(pypss.instrumentation.collectors.GRPCCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.MemoryCollector.add_trace">(pypss.instrumentation.collectors.MemoryCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.ThreadedBatchCollector.add_trace">(pypss.instrumentation.collectors.ThreadedBatchCollector method)</a>
 </li>
       </ul></li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.advisor_entropy_threshold">advisor_entropy_threshold (pypss.utils.config.PSSConfig attribute)</a>
@@ -133,13 +178,67 @@
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.advisor_threshold_excellent">advisor_threshold_excellent (pypss.utils.config.PSSConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.advisor_threshold_good">advisor_threshold_good (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.advisor_threshold_warning">advisor_threshold_warning (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+      <li><a href="api.html#pypss.alerts.Alert">Alert (class in pypss.alerts)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert">(class in pypss.alerts.base)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alert_threshold_be">alert_threshold_be (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alert_threshold_cc">alert_threshold_cc (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alert_threshold_ev">alert_threshold_ev (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alert_threshold_ms">alert_threshold_ms (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alert_threshold_ts">alert_threshold_ts (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.AlertChannel">AlertChannel (class in pypss.alerts)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertChannel">(class in pypss.alerts.base)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.engine.AlertEngine">AlertEngine (class in pypss.alerts.engine)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.channels.AlertmanagerChannel">AlertmanagerChannel (class in pypss.alerts.channels)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.AlertRule">AlertRule (class in pypss.alerts)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertRule">(class in pypss.alerts.base)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alerts_alertmanager_url">alerts_alertmanager_url (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alerts_cooldown_seconds">alerts_cooldown_seconds (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alerts_enabled">alerts_enabled (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alerts_generic_webhook">alerts_generic_webhook (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alerts_slack_webhook">alerts_slack_webhook (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.alerts_teams_webhook">alerts_teams_webhook (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.AlertSeverity">AlertSeverity (class in pypss.alerts)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertSeverity">(class in pypss.alerts.base)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.state.AlertState">AlertState (class in pypss.alerts.state)</a>
+</li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.alpha">alpha (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.SamplingStrategy.ALWAYS">ALWAYS (pypss.utils.config.SamplingStrategy attribute)</a>
 </li>
       <li><a href="api.html#pypss.core.advisor.StabilityAdvisor.analyze">analyze() (pypss.core.advisor.StabilityAdvisor method)</a>
 
@@ -147,6 +246,8 @@
         <li><a href="api.html#pypss.core.StabilityAdvisor.analyze">(pypss.core.StabilityAdvisor method)</a>
 </li>
       </ul></li>
+      <li><a href="api.html#pypss.ml.detector.PatternDetector.anomaly_score">anomaly_score() (pypss.ml.detector.PatternDetector method)</a>
+</li>
       <li><a href="api.html#pypss.cli.runner.AutoInstrumentor.apply">apply() (pypss.cli.runner.AutoInstrumentor method)</a>
 </li>
       <li><a href="api.html#pypss.instrumentation.AutoDumper">AutoDumper (class in pypss.instrumentation)</a>
@@ -161,9 +262,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.background_archive_dir">background_archive_dir (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.background_dump_interval">background_dump_interval (pypss.utils.config.PSSConfig attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api.html#pypss.utils.config.PSSConfig.background_dump_interval">background_dump_interval (pypss.utils.config.PSSConfig attribute)</a>
+      <li><a href="api.html#pypss.instrumentation.collectors.BaseCollector">BaseCollector (class in pypss.instrumentation.collectors)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.beta">beta (pypss.utils.config.PSSConfig attribute)</a>
 </li>
@@ -177,20 +280,22 @@
 </li>
       <li><a href="api.html#pypss.utils.utils.calculate_entropy">calculate_entropy() (in module pypss.utils.utils)</a>
 </li>
-      <li><a href="api.html#pypss.instrumentation.Collector.clear">clear() (pypss.instrumentation.Collector method)</a>
+      <li><a href="api.html#pypss.storage.check_regression">check_regression() (in module pypss.storage)</a>
+</li>
+      <li><a href="api.html#pypss.instrumentation.collectors.BaseCollector.clear">clear() (pypss.instrumentation.collectors.BaseCollector method)</a>
 
       <ul>
-        <li><a href="api.html#pypss.instrumentation.collectors.Collector.clear">(pypss.instrumentation.collectors.Collector method)</a>
+        <li><a href="api.html#pypss.instrumentation.collectors.FileFIFOCollector.clear">(pypss.instrumentation.collectors.FileFIFOCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.GRPCCollector.clear">(pypss.instrumentation.collectors.GRPCCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.MemoryCollector.clear">(pypss.instrumentation.collectors.MemoryCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.RedisCollector.clear">(pypss.instrumentation.collectors.RedisCollector method)</a>
 </li>
       </ul></li>
-      <li><a href="api.html#pypss.instrumentation.Collector">Collector (class in pypss.instrumentation)</a>
-
-      <ul>
-        <li><a href="api.html#pypss.instrumentation.collectors.Collector">(class in pypss.instrumentation.collectors)</a>
+      <li><a href="api.html#pypss.instrumentation.Collector">Collector (in module pypss.instrumentation)</a>
 </li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.collector_max_traces_sharding_threshold">collector_max_traces_sharding_threshold (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.collector_shard_count">collector_shard_count (pypss.utils.config.PSSConfig attribute)</a>
@@ -201,9 +306,39 @@
         <li><a href="api.html#pypss.core.core.compute_pss_from_traces">(in module pypss.core.core)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.concurrency_wait_threshold">concurrency_wait_threshold (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+      <li><a href="api.html#pypss.alerts.rules.ConcurrencySpikeRule">ConcurrencySpikeRule (class in pypss.alerts.rules)</a>
+</li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.consecutive_error_threshold">consecutive_error_threshold (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.context_sampling_rules">context_sampling_rules (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.AlertSeverity.CRITICAL">CRITICAL (pypss.alerts.AlertSeverity attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertSeverity.CRITICAL">(pypss.alerts.base.AlertSeverity attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.Alert.current_value">current_value (pypss.alerts.Alert attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert.current_value">(pypss.alerts.base.Alert attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.storage.sqlite.SQLiteStorage.CURRENT_VERSION">CURRENT_VERSION (pypss.storage.sqlite.SQLiteStorage attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.storage.SQLiteStorage.CURRENT_VERSION">(pypss.storage.SQLiteStorage attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.custom_alert_rules">custom_alert_rules (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.custom_metric_weights">custom_metric_weights (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.rules.CustomRule">CustomRule (class in pypss.alerts.rules)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -212,6 +347,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.dashboard_critical_pss_threshold">dashboard_critical_pss_threshold (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.dashboard_layout">dashboard_layout (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.dashboard_warning_error_rate">dashboard_warning_error_rate (pypss.utils.config.PSSConfig attribute)</a>
 </li>
@@ -241,11 +378,47 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.alerts.rules.EntropyAnomalyRule">EntropyAnomalyRule (class in pypss.alerts.rules)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.error_sample_rate">error_sample_rate (pypss.utils.config.PSSConfig attribute)</a>
+</li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.error_spike_threshold">error_spike_threshold (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+      <li><a href="api.html#pypss.alerts.rules.ErrorBurstRule">ErrorBurstRule (class in pypss.alerts.rules)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.AlertRule.evaluate">evaluate() (pypss.alerts.AlertRule method)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertRule.evaluate">(pypss.alerts.base.AlertRule method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.rules.CustomRule.evaluate">(pypss.alerts.rules.CustomRule method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.rules.MetricStabilityRule.evaluate">(pypss.alerts.rules.MetricStabilityRule method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.rules.StabilityRegressionRule.evaluate">(pypss.alerts.rules.StabilityRegressionRule method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.utils.exponential_decay_score">exponential_decay_score() (in module pypss.utils.utils)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.Alert.extra_data">extra_data (pypss.alerts.Alert attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert.extra_data">(pypss.alerts.base.Alert attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.instrumentation.collectors.FileFIFOCollector">FileFIFOCollector (class in pypss.instrumentation.collectors)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.ml.detector.PatternDetector.fit">fit() (pypss.ml.detector.PatternDetector method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -261,16 +434,38 @@
         <li><a href="api.html#pypss.core.advisor.generate_advisor_report">(in module pypss.core.advisor)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api.html#pypss.instrumentation.get_memory_usage">get_memory_usage() (in module pypss.instrumentation)</a>
-</li>
-      <li><a href="api.html#pypss.instrumentation.Collector.get_traces">get_traces() (pypss.instrumentation.Collector method)</a>
+      <li><a href="api.html#pypss.storage.base.StorageBackend.get_history">get_history() (pypss.storage.base.StorageBackend method)</a>
 
       <ul>
-        <li><a href="api.html#pypss.instrumentation.collectors.Collector.get_traces">(pypss.instrumentation.collectors.Collector method)</a>
+        <li><a href="api.html#pypss.storage.prometheus.PrometheusStorage.get_history">(pypss.storage.prometheus.PrometheusStorage method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.PrometheusStorage.get_history">(pypss.storage.PrometheusStorage method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.sqlite.SQLiteStorage.get_history">(pypss.storage.sqlite.SQLiteStorage method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.SQLiteStorage.get_history">(pypss.storage.SQLiteStorage method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.StorageBackend.get_history">(pypss.storage.StorageBackend method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.storage.get_storage_backend">get_storage_backend() (in module pypss.storage)</a>
+</li>
+      <li><a href="api.html#pypss.instrumentation.collectors.BaseCollector.get_traces">get_traces() (pypss.instrumentation.collectors.BaseCollector method)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.instrumentation.collectors.FileFIFOCollector.get_traces">(pypss.instrumentation.collectors.FileFIFOCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.GRPCCollector.get_traces">(pypss.instrumentation.collectors.GRPCCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.MemoryCollector.get_traces">(pypss.instrumentation.collectors.MemoryCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.RedisCollector.get_traces">(pypss.instrumentation.collectors.RedisCollector method)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.instrumentation.collectors.GRPCCollector">GRPCCollector (class in pypss.instrumentation.collectors)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -289,16 +484,22 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.alerts.AlertSeverity.INFO">INFO (pypss.alerts.AlertSeverity attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertSeverity.INFO">(pypss.alerts.base.AlertSeverity attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.integration_celery_trace_prefix">integration_celery_trace_prefix (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.integration_flask_header_latency">integration_flask_header_latency (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.integration_flask_header_wait">integration_flask_header_wait (pypss.utils.config.PSSConfig attribute)</a>
 </li>
-      <li><a href="api.html#pypss.utils.config.PSSConfig.integration_flask_trace_prefix">integration_flask_trace_prefix (pypss.utils.config.PSSConfig attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.integration_flask_trace_prefix">integration_flask_trace_prefix (pypss.utils.config.PSSConfig attribute)</a>
+</li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.integration_otel_meter_name">integration_otel_meter_name (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.integration_otel_meter_version">integration_otel_meter_version (pypss.utils.config.PSSConfig attribute)</a>
@@ -337,10 +538,40 @@
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.mem_spike_threshold_ratio">mem_spike_threshold_ratio (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+      <li><a href="api.html#pypss.instrumentation.collectors.MemoryCollector">MemoryCollector (class in pypss.instrumentation.collectors)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.rules.MemoryStabilitySpikeRule">MemoryStabilitySpikeRule (class in pypss.alerts.rules)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.Alert.message">message (pypss.alerts.Alert attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert.message">(pypss.alerts.base.Alert attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.Alert.metric_name">metric_name (pypss.alerts.Alert attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert.metric_name">(pypss.alerts.base.Alert attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.rules.MetricStabilityRule">MetricStabilityRule (class in pypss.alerts.rules)</a>
+</li>
       <li>
     module
 
       <ul>
+        <li><a href="api.html#module-pypss.alerts">pypss.alerts</a>
+</li>
+        <li><a href="api.html#module-pypss.alerts.base">pypss.alerts.base</a>
+</li>
+        <li><a href="api.html#module-pypss.alerts.channels">pypss.alerts.channels</a>
+</li>
+        <li><a href="api.html#module-pypss.alerts.engine">pypss.alerts.engine</a>
+</li>
+        <li><a href="api.html#module-pypss.alerts.rules">pypss.alerts.rules</a>
+</li>
+        <li><a href="api.html#module-pypss.alerts.state">pypss.alerts.state</a>
+</li>
         <li><a href="api.html#module-pypss.cli.reporting">pypss.cli.reporting</a>
 </li>
         <li><a href="api.html#module-pypss.cli.runner">pypss.cli.runner</a>
@@ -355,6 +586,16 @@
 </li>
         <li><a href="api.html#module-pypss.instrumentation.collectors">pypss.instrumentation.collectors</a>
 </li>
+        <li><a href="api.html#module-pypss.ml.detector">pypss.ml.detector</a>
+</li>
+        <li><a href="api.html#module-pypss.storage">pypss.storage</a>
+</li>
+        <li><a href="api.html#module-pypss.storage.base">pypss.storage.base</a>
+</li>
+        <li><a href="api.html#module-pypss.storage.prometheus">pypss.storage.prometheus</a>
+</li>
+        <li><a href="api.html#module-pypss.storage.sqlite">pypss.storage.sqlite</a>
+</li>
         <li><a href="api.html#module-pypss.utils.config">pypss.utils.config</a>
 </li>
         <li><a href="api.html#module-pypss.utils.utils">pypss.utils.utils</a>
@@ -362,6 +603,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.instrumentation.monitor_async">monitor_async (in module pypss.instrumentation)</a>
+</li>
       <li><a href="api.html#pypss.instrumentation.monitor_block">monitor_block (class in pypss.instrumentation)</a>
 </li>
       <li><a href="api.html#pypss.instrumentation.monitor_function">monitor_function() (in module pypss.instrumentation)</a>
@@ -372,7 +615,19 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.utils.config.SamplingStrategy.NEVER">NEVER (pypss.utils.config.SamplingStrategy attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.utils.normalize_score">normalize_score() (in module pypss.utils.utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.utils.config.SamplingStrategy.ON_ERROR">ON_ERROR (pypss.utils.config.SamplingStrategy attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -382,8 +637,68 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.utils.parse_time_string">parse_time_string() (in module pypss.utils.utils)</a>
 </li>
+      <li><a href="api.html#pypss.ml.detector.PatternDetector">PatternDetector (class in pypss.ml.detector)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.plugins">plugins (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.ml.detector.PatternDetector.predict_anomalies">predict_anomalies() (pypss.ml.detector.PatternDetector method)</a>
+</li>
+      <li><a href="api.html#pypss.storage.PrometheusStorage">PrometheusStorage (class in pypss.storage)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.storage.prometheus.PrometheusStorage">(class in pypss.storage.prometheus)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.storage.sqlite.SQLiteStorage.prune">prune() (pypss.storage.sqlite.SQLiteStorage method)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.storage.SQLiteStorage.prune">(pypss.storage.SQLiteStorage method)</a>
+</li>
+      </ul></li>
       <li><a href="api.html#pypss.utils.config.PSSConfig">PSSConfig (class in pypss.utils.config)</a>
 </li>
+      <li>
+    pypss.alerts
+
+      <ul>
+        <li><a href="api.html#module-pypss.alerts">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.alerts.base
+
+      <ul>
+        <li><a href="api.html#module-pypss.alerts.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.alerts.channels
+
+      <ul>
+        <li><a href="api.html#module-pypss.alerts.channels">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.alerts.engine
+
+      <ul>
+        <li><a href="api.html#module-pypss.alerts.engine">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.alerts.rules
+
+      <ul>
+        <li><a href="api.html#module-pypss.alerts.rules">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.alerts.state
+
+      <ul>
+        <li><a href="api.html#module-pypss.alerts.state">module</a>
+</li>
+      </ul></li>
       <li>
     pypss.cli.reporting
 
@@ -398,6 +713,8 @@
         <li><a href="api.html#module-pypss.cli.runner">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pypss.core
 
@@ -412,8 +729,6 @@
         <li><a href="api.html#module-pypss.core.advisor">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pypss.core.core
 
@@ -436,6 +751,41 @@
 </li>
       </ul></li>
       <li>
+    pypss.ml.detector
+
+      <ul>
+        <li><a href="api.html#module-pypss.ml.detector">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.storage
+
+      <ul>
+        <li><a href="api.html#module-pypss.storage">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.storage.base
+
+      <ul>
+        <li><a href="api.html#module-pypss.storage.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.storage.prometheus
+
+      <ul>
+        <li><a href="api.html#module-pypss.storage.prometheus">module</a>
+</li>
+      </ul></li>
+      <li>
+    pypss.storage.sqlite
+
+      <ul>
+        <li><a href="api.html#module-pypss.storage.sqlite">module</a>
+</li>
+      </ul></li>
+      <li>
     pypss.utils.config
 
       <ul>
@@ -455,13 +805,41 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.utils.config.SamplingStrategy.RANDOM">RANDOM (pypss.utils.config.SamplingStrategy attribute)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.state.AlertState.record_alert">record_alert() (pypss.alerts.state.AlertState method)</a>
+</li>
+      <li><a href="api.html#pypss.instrumentation.collectors.RedisCollector">RedisCollector (class in pypss.instrumentation.collectors)</a>
+</li>
+      <li><a href="api.html#pypss.instrumentation.collectors.BaseCollector.register_observer">register_observer() (pypss.instrumentation.collectors.BaseCollector method)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.instrumentation.collectors.GRPCCollector.register_observer">(pypss.instrumentation.collectors.GRPCCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.MemoryCollector.register_observer">(pypss.instrumentation.collectors.MemoryCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.ThreadedBatchCollector.register_observer">(pypss.instrumentation.collectors.ThreadedBatchCollector method)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.regression_history_limit">regression_history_limit (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.regression_threshold_drop">regression_threshold_drop (pypss.utils.config.PSSConfig attribute)</a>
+</li>
       <li><a href="api.html#pypss.cli.reporting.render_report_json">render_report_json() (in module pypss.cli.reporting)</a>
 </li>
       <li><a href="api.html#pypss.cli.reporting.render_report_text">render_report_text() (in module pypss.cli.reporting)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.instrumentation.AutoDumper.rotate">rotate() (pypss.instrumentation.AutoDumper method)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.Alert.rule_name">rule_name (pypss.alerts.Alert attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert.rule_name">(pypss.alerts.base.Alert attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.engine.AlertEngine.run">run() (pypss.alerts.engine.AlertEngine method)</a>
 </li>
       <li><a href="api.html#pypss.cli.runner.run_with_instrumentation">run_with_instrumentation() (in module pypss.cli.runner)</a>
 </li>
@@ -473,29 +851,133 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.sample_rate">sample_rate (pypss.utils.config.PSSConfig attribute)</a>
 </li>
-      <li><a href="api.html#pypss.utils.config.PSSConfig.save">save() (pypss.utils.config.PSSConfig method)</a>
+      <li><a href="api.html#pypss.utils.config.SamplingStrategy">SamplingStrategy (class in pypss.utils.config)</a>
 </li>
+      <li><a href="api.html#pypss.alerts.state.AlertState.save">save() (pypss.alerts.state.AlertState method)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.storage.base.StorageBackend.save">(pypss.storage.base.StorageBackend method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.prometheus.PrometheusStorage.save">(pypss.storage.prometheus.PrometheusStorage method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.PrometheusStorage.save">(pypss.storage.PrometheusStorage method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.sqlite.SQLiteStorage.save">(pypss.storage.sqlite.SQLiteStorage method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.SQLiteStorage.save">(pypss.storage.SQLiteStorage method)</a>
+</li>
+        <li><a href="api.html#pypss.storage.StorageBackend.save">(pypss.storage.StorageBackend method)</a>
+</li>
+        <li><a href="api.html#pypss.utils.config.PSSConfig.save">(pypss.utils.config.PSSConfig method)</a>
+</li>
+      </ul></li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.score_consecutive_error_decay_multiplier">score_consecutive_error_decay_multiplier (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.score_error_spike_impact_multiplier">score_error_spike_impact_multiplier (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.score_error_vmr_multiplier">score_error_vmr_multiplier (pypss.utils.config.PSSConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.score_latency_tail_percentile">score_latency_tail_percentile (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.score_memory_epsilon">score_memory_epsilon (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+      <li><a href="api.html#pypss.alerts.AlertChannel.send">send() (pypss.alerts.AlertChannel method)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertChannel.send">(pypss.alerts.base.AlertChannel method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.channels.AlertmanagerChannel.send">(pypss.alerts.channels.AlertmanagerChannel method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.channels.SlackChannel.send">(pypss.alerts.channels.SlackChannel method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.channels.TeamsChannel.send">(pypss.alerts.channels.TeamsChannel method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.channels.WebhookChannel.send">(pypss.alerts.channels.WebhookChannel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.alerts.AlertChannel.send_batch">send_batch() (pypss.alerts.AlertChannel method)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertChannel.send_batch">(pypss.alerts.base.AlertChannel method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.channels.AlertmanagerChannel.send_batch">(pypss.alerts.channels.AlertmanagerChannel method)</a>
+</li>
+        <li><a href="api.html#pypss.alerts.channels.WebhookChannel.send_batch">(pypss.alerts.channels.WebhookChannel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.Alert.severity">severity (pypss.alerts.Alert attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert.severity">(pypss.alerts.base.Alert attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.state.AlertState.should_alert">should_alert() (pypss.alerts.state.AlertState method)</a>
+</li>
+      <li><a href="api.html#pypss.instrumentation.collectors.ThreadedBatchCollector.shutdown">shutdown() (pypss.instrumentation.collectors.ThreadedBatchCollector method)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.channels.SlackChannel">SlackChannel (class in pypss.alerts.channels)</a>
+</li>
+      <li><a href="api.html#pypss.storage.SQLiteStorage">SQLiteStorage (class in pypss.storage)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.storage.sqlite.SQLiteStorage">(class in pypss.storage.sqlite)</a>
+</li>
+      </ul></li>
       <li><a href="api.html#pypss.core.StabilityAdvisor">StabilityAdvisor (class in pypss.core)</a>
 
       <ul>
         <li><a href="api.html#pypss.core.advisor.StabilityAdvisor">(class in pypss.core.advisor)</a>
 </li>
       </ul></li>
+      <li><a href="api.html#pypss.alerts.rules.StabilityRegressionRule">StabilityRegressionRule (class in pypss.alerts.rules)</a>
+</li>
       <li><a href="api.html#pypss.instrumentation.AutoDumper.start">start() (pypss.instrumentation.AutoDumper method)</a>
 </li>
+      <li><a href="api.html#pypss.instrumentation.start_async_monitoring">start_async_monitoring() (in module pypss.instrumentation)</a>
+</li>
       <li><a href="api.html#pypss.instrumentation.AutoDumper.stop">stop() (pypss.instrumentation.AutoDumper method)</a>
+</li>
+      <li><a href="api.html#pypss.instrumentation.stop_async_monitoring">stop_async_monitoring() (in module pypss.instrumentation)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.storage_backend">storage_backend (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.storage_uri">storage_uri (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.storage.StorageBackend">StorageBackend (class in pypss.storage)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.storage.base.StorageBackend">(class in pypss.storage.base)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.alerts.channels.TeamsChannel">TeamsChannel (class in pypss.alerts.channels)</a>
+</li>
+      <li><a href="api.html#pypss.utils.config.PSSConfig.thread_starvation_sensitivity">thread_starvation_sensitivity (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.instrumentation.collectors.ThreadedBatchCollector">ThreadedBatchCollector (class in pypss.instrumentation.collectors)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.Alert.threshold">threshold (pypss.alerts.Alert attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert.threshold">(pypss.alerts.base.Alert attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pypss.alerts.Alert.timestamp">timestamp (pypss.alerts.Alert attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.Alert.timestamp">(pypss.alerts.base.Alert attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.rules.TimingStabilitySurgeRule">TimingStabilitySurgeRule (class in pypss.alerts.rules)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -511,18 +993,28 @@
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.ui_theme_negative">ui_theme_negative (pypss.utils.config.PSSConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.ui_theme_positive">ui_theme_positive (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.ui_theme_primary">ui_theme_primary (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.ui_theme_secondary">ui_theme_secondary (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.ui_theme_warning">ui_theme_warning (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.ui_title">ui_title (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+      <li><a href="api.html#pypss.instrumentation.collectors.BaseCollector.unregister_observer">unregister_observer() (pypss.instrumentation.collectors.BaseCollector method)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.instrumentation.collectors.GRPCCollector.unregister_observer">(pypss.instrumentation.collectors.GRPCCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.MemoryCollector.unregister_observer">(pypss.instrumentation.collectors.MemoryCollector method)</a>
+</li>
+        <li><a href="api.html#pypss.instrumentation.collectors.ThreadedBatchCollector.unregister_observer">(pypss.instrumentation.collectors.ThreadedBatchCollector method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -533,13 +1025,21 @@
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.w_cc">w_cc (pypss.utils.config.PSSConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.w_ev">w_ev (pypss.utils.config.PSSConfig attribute)</a>
 </li>
       <li><a href="api.html#pypss.utils.config.PSSConfig.w_ms">w_ms (pypss.utils.config.PSSConfig attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pypss.utils.config.PSSConfig.w_ts">w_ts (pypss.utils.config.PSSConfig attribute)</a>
+</li>
+      <li><a href="api.html#pypss.alerts.AlertSeverity.WARNING">WARNING (pypss.alerts.AlertSeverity attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pypss.alerts.base.AlertSeverity.WARNING">(pypss.alerts.base.AlertSeverity attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api.html#pypss.alerts.channels.WebhookChannel">WebhookChannel (class in pypss.alerts.channels)</a>
 </li>
   </ul></td>
 </tr></table>

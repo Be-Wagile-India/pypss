@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Core Concepts &mdash; pypss 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Key Features" href="features.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pypss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#simple-instrumentation">Simple Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#context-manager-usage">Context Manager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#async-monitoring">Async Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#distributed-trace-collection">Distributed Trace Collection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#why-distributed-collection">Why Distributed Collection?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#available-collectors">Available Collectors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#redis-collector">Redis Collector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-fifo-collector">File FIFO Collector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grpc-collector">gRPC Collector</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-collectors">Custom Collectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-reference">API Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#using-branch-tag-for-deeper-insights">Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks &amp; Overhead</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_detection.html">ML-based Pattern Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Core Concepts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quick_start.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="core-concepts">
+<h1>Core Concepts<a class="headerlink" href="#core-concepts" title="Link to this heading"></a></h1>
+<p>pypss calculates a score based on:</p>
+<ul class="simple">
+<li><p><strong>Timing Stability (TS)</strong></p></li>
+<li><p><strong>Memory Stability (MS)</strong></p></li>
+<li><p><strong>Error Volatility (EV)</strong></p></li>
+<li><p><strong>Branching Entropy (BE)</strong></p></li>
+<li><p><strong>Concurrency Chaos (CC)</strong></p></li>
+</ul>
+</section>
+<section id="simple-instrumentation">
+<h1>Simple Instrumentation<a class="headerlink" href="#simple-instrumentation" title="Link to this heading"></a></h1>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">&#64;monitor_function</span></code> decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="n">global_collector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_pss_from_traces</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pypss.reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_report_text</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+
+<span class="c1"># 1. Decorate functions you want to measure</span>
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="s2">&quot;critical_op&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">critical_operation</span><span class="p">():</span>
+    <span class="c1"># Simulate work with some jitter</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Random failure!&quot;</span><span class="p">)</span>
+
+<span class="c1"># 2. Run your workload</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running workload...&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">critical_operation</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+<span class="c1"># 3. Compute and print the PSS Score</span>
+<span class="n">traces</span> <span class="o">=</span> <span class="n">global_collector</span><span class="o">.</span><span class="n">get_traces</span><span class="p">()</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">compute_pss_from_traces</span><span class="p">(</span><span class="n">traces</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">render_report_text</span><span class="p">(</span><span class="n">report</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="context-manager-usage">
+<h1>Context Manager Usage<a class="headerlink" href="#context-manager-usage" title="Link to this heading"></a></h1>
+<p>For fine-grained control over specific blocks of code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_block</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">process_data</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">monitor_block</span><span class="p">(</span><span class="s2">&quot;data_processing&quot;</span><span class="p">,</span> <span class="n">branch_tag</span><span class="o">=</span><span class="s2">&quot;batch_start&quot;</span><span class="p">):</span>
+        <span class="c1"># ... complex logic ...</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="async-monitoring">
+<h1>Async Monitoring<a class="headerlink" href="#async-monitoring" title="Link to this heading"></a></h1>
+<p>For modern <cite>asyncio</cite> applications, PyPSS offers dedicated tools:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitor_async</span><span class="p">,</span> <span class="n">start_async_monitoring</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span> <span class="c1"># Added for async example</span>
+
+<span class="c1"># 1. Enable background loop monitoring (measures lag/jitter)</span>
+<span class="n">start_async_monitoring</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_data</span><span class="p">():</span>
+    <span class="c1"># 2. Use the async context manager</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">monitor_async</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">,</span> <span class="n">branch_tag</span><span class="o">=</span><span class="s2">&quot;network_io&quot;</span><span class="p">):</span>
+        <span class="c1"># Example client.get to be replaced</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span> <span class="c1"># Simulate IO</span>
+
+<span class="c1"># Example function for monitor_block with async</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">some_io_operation</span><span class="p">():</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main_async_example</span><span class="p">():</span>
+    <span class="c1"># Use the async context manager for fine-grained tracing</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">monitor_async</span><span class="p">(</span><span class="s2">&quot;my_async_block&quot;</span><span class="p">,</span> <span class="n">branch_tag</span><span class="o">=</span><span class="s2">&quot;io_wait&quot;</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">some_io_operation</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Features:</strong>
+*   <strong>Loop Lag</strong>: Automatically tracks event loop latency as a system metric (contributes to Concurrency Chaos).
+*   <strong>Yield Counting</strong>: On Python 3.12+, automatically counts task yields/switches to detect concurrency thrashing (zero-overhead).</p>
+</section>
+<section id="distributed-trace-collection">
+<h1>Distributed Trace Collection<a class="headerlink" href="#distributed-trace-collection" title="Link to this heading"></a></h1>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
+</div>
+<p>PyPSS includes a robust set of distributed trace collectors designed for high-throughput microservices, multi-process applications, and ETL pipelines. These collectors allow you to offload trace data from the application process to external storage systems or separate processes, ensuring minimal overhead and high durability.</p>
+<section id="why-distributed-collection">
+<h2>Why Distributed Collection?<a class="headerlink" href="#why-distributed-collection" title="Link to this heading"></a></h2>
+<p>The default in-memory collector is perfect for single-process scripts or development. However, in production environments with multiple workers (e.g., Gunicorn, Celery, Kubernetes pods), you need a way to aggregate traces centrally without blocking the main application thread.</p>
+<p>Key Features:
+*   <strong>Asynchronous Batching</strong>: All distributed collectors inherit from <code class="docutils literal notranslate"><span class="pre">ThreadedBatchCollector</span></code>, which buffers traces and flushes them in a background thread. This ensures that network I/O or disk writes never block your critical application path.
+*   <strong>Load Shedding</strong>: If the internal buffer fills up (e.g., downstream is slow), collectors automatically drop new traces to protect application stability.
+*   <strong>Resilience</strong>: Collectors are designed to handle connection failures gracefully without crashing the host application.</p>
+</section>
+<section id="available-collectors">
+<h2>Available Collectors<a class="headerlink" href="#available-collectors" title="Link to this heading"></a></h2>
+<section id="redis-collector">
+<h3>Redis Collector<a class="headerlink" href="#redis-collector" title="Link to this heading"></a></h3>
+<p>Push traces to a Redis list using high-performance pipelines. Ideal for high-throughput distributed systems.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">RedisCollector</span><span class="p">,</span> <span class="n">monitor_function</span>
+
+<span class="c1"># Initialize with your Redis URL</span>
+<span class="c1"># Recommended: Set a generous batch size for better throughput</span>
+<span class="n">collector</span> <span class="o">=</span> <span class="n">RedisCollector</span><span class="p">(</span>
+    <span class="n">redis_url</span><span class="o">=</span><span class="s2">&quot;redis://localhost:6379/0&quot;</span><span class="p">,</span>
+    <span class="n">key_name</span><span class="o">=</span><span class="s2">&quot;pypss:traces&quot;</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">flush_interval</span><span class="o">=</span><span class="mf">2.0</span>
+<span class="p">)</span>
+
+<span class="c1"># Use explicitly (or set as global_collector if supported by your setup)</span>
+<span class="nd">@monitor_function</span><span class="p">(</span><span class="n">collector</span><span class="o">=</span><span class="n">collector</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_func</span><span class="p">():</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>Requirements:</strong>
+Install with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pypss[distributed]</span></code>.</p>
+</section>
+<section id="file-fifo-collector">
+<h3>File FIFO Collector<a class="headerlink" href="#file-fifo-collector" title="Link to this heading"></a></h3>
+<p>Write traces to a local file (or named pipe) using NDJSON format. This collector uses OS-level advisory locks (<code class="docutils literal notranslate"><span class="pre">flock</span></code>) to ensure safe concurrent writes from multiple processes (e.g., multiprocessing workers).</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileFIFOCollector</span>
+
+<span class="c1"># Ideal for multi-process applications on a single node</span>
+<span class="n">collector</span> <span class="o">=</span> <span class="n">FileFIFOCollector</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;/var/log/pypss/traces.jsonl&quot;</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Requirements:</strong>
+No extra dependencies needed (uses standard library <code class="docutils literal notranslate"><span class="pre">fcntl</span></code> on Linux/Unix).</p>
+</section>
+<section id="grpc-collector">
+<h3>gRPC Collector<a class="headerlink" href="#grpc-collector" title="Link to this heading"></a></h3>
+<p>Send traces to a remote gRPC server. This is useful for cross-language observability or sending data to a centralized observability agent.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">GRPCCollector</span>
+
+<span class="n">collector</span> <span class="o">=</span> <span class="n">GRPCCollector</span><span class="p">(</span>
+    <span class="n">target</span><span class="o">=</span><span class="s2">&quot;observability-agent:50051&quot;</span><span class="p">,</span>
+    <span class="n">secure</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Requirements:</strong>
+Install with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pypss[distributed]</span></code>.</p>
+</section>
+</section>
+<section id="custom-collectors">
+<h2>Custom Collectors<a class="headerlink" href="#custom-collectors" title="Link to this heading"></a></h2>
+<p>You can implement your own collector by subclassing <code class="docutils literal notranslate"><span class="pre">BaseCollector</span></code> or <code class="docutils literal notranslate"><span class="pre">ThreadedBatchCollector</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pypss.instrumentation.collectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadedBatchCollector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyCustomCollector</span><span class="p">(</span><span class="n">ThreadedBatchCollector</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_flush_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]):</span>
+        <span class="c1"># Implement your custom logic to send batch to S3, Kafka, etc.</span>
+        <span class="n">send_to_kafka</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h2>
+<p>See the <a class="reference internal" href="api.html"><span class="doc">API Reference</span></a> section for detailed class reference.</p>
+</section>
+</section>
+<section id="using-branch-tag-for-deeper-insights">
+<h1>Using <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> for Deeper Insights<a class="headerlink" href="#using-branch-tag-for-deeper-insights" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> parameter is a powerful feature for analyzing different code paths within the same function. For example, you can measure the stability of a cache hit versus a cache miss:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_user_data</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_cached</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">monitor_block</span><span class="p">(</span><span class="s2">&quot;get_user_data&quot;</span><span class="p">,</span> <span class="n">branch_tag</span><span class="o">=</span><span class="s2">&quot;cache_hit&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">from_cache</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">monitor_block</span><span class="p">(</span><span class="s2">&quot;get_user_data&quot;</span><span class="p">,</span> <span class="n">branch_tag</span><span class="o">=</span><span class="s2">&quot;cache_miss&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">from_database</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="features.html" class="btn btn-neutral float-right" title="Key Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saidatta Teja Ghanta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

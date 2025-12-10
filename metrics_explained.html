@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; pypss 0.1.0 documentation</title>
+  <title>Understanding the Metrics &mdash; pypss 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Core Concepts" href="quick_start.html" />
-    <link rel="prev" title="Welcome to pypss’s documentation!" href="index.html" /> 
+    <link rel="next" title="Plugin System &amp; Extensions" href="plugins.html" />
+    <link rel="prev" title="Configuration" href="configuration.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,12 +44,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#basic-installation">Basic Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-features">Optional Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#development-installation">Development Installation</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Core Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html#simple-instrumentation">Simple Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html#context-manager-usage">Context Manager Usage</a></li>
@@ -63,7 +58,10 @@
 <li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Understanding the Metrics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#final-pss-calculation">Final PSS Calculation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
@@ -86,9 +84,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Installation</li>
+      <li class="breadcrumb-item active">Understanding the Metrics</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/metrics_explained.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -96,41 +94,56 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="installation">
-<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
-<section id="basic-installation">
-<h2>Basic Installation<a class="headerlink" href="#basic-installation" title="Link to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pypss
-</pre></div>
-</div>
-</section>
-<section id="optional-features">
-<h2>Optional Features<a class="headerlink" href="#optional-features" title="Link to this heading"></a></h2>
-<p>Install only what you need to keep your environment light:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Distributed Collectors (Redis, gRPC, etc.)</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;pypss[distributed]&quot;</span>
-
-<span class="c1"># Web Dashboard</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;pypss[dashboard]&quot;</span>
-
-<span class="c1"># AI Diagnosis (OpenAI/Ollama)</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;pypss[llm]&quot;</span>
-
-<span class="c1"># Prometheus Monitoring</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;pypss[monitoring]&quot;</span>
-
-<span class="c1"># OpenTelemetry Integration</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;pypss[otel]&quot;</span>
-</pre></div>
-</div>
-</section>
-<section id="development-installation">
-<h2>Development Installation<a class="headerlink" href="#development-installation" title="Link to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Be-Wagile-India/pypss.git
-<span class="nb">cd</span><span class="w"> </span>pypss
-make<span class="w"> </span>install
-</pre></div>
-</div>
+  <section id="understanding-the-metrics">
+<span id="metrics-explained"></span><h1>Understanding the Metrics<a class="headerlink" href="#understanding-the-metrics" title="Link to this heading"></a></h1>
+<p>The Python Program Stability Score (PSS) is a composite metric designed to provide a holistic view of a program’s runtime stability. The final score is a weighted average of five individual sub-scores, each targeting a different dimension of stability.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 5.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Code</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Timing Stability</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TS</span></code></p></td>
+<td><p><strong>Goal:</strong> Measures the consistency and predictability of your code’s execution time.
+<strong>How it’s calculated:</strong> It primarily uses the <strong>Coefficient of Variation (CV)</strong> of latencies. A lower CV means latencies are consistent, resulting in a higher score. It also penalizes high <strong>tail latency</strong> (p95/p50 ratio).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Memory Stability</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MS</span></code></p></td>
+<td><p><strong>Goal:</strong> Measures how consistently the program uses memory.
+<strong>How it’s calculated:</strong> The score is lowered by high memory fluctuation (standard deviation relative to the median) and is heavily penalized by large, sudden memory spikes (peak memory relative to the median).</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Error Volatility</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">EV</span></code></p></td>
+<td><p><strong>Goal:</strong> Measures not just the presence of errors, but their frequency and tendency to occur in bursts.
+<strong>How it’s calculated:</strong> It considers the overall <strong>mean error rate</strong> and uses the <strong>Variance-to-Mean Ratio (VMR)</strong> to penalize bursty, unpredictable errors more than consistent failures.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Branching Entropy</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BE</span></code></p></td>
+<td><p><strong>Goal:</strong> Measures the predictability of the code paths taken at runtime.
+<strong>How it’s calculated:</strong> This requires <code class="docutils literal notranslate"><span class="pre">branch_tag</span></code> s. It calculates the <strong>Shannon entropy</strong> of the branch tags that are executed. Lower entropy (more predictable paths) results in a higher score.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Concurrency Chaos</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CC</span></code></p></td>
+<td><p><strong>Goal:</strong> Measures stability in concurrent applications by quantifying time spent waiting.
+<strong>How it’s calculated:</strong> It analyzes the “wait time” (wall time minus CPU time). A high <strong>Coefficient of Variation (CV)</strong> of these wait times indicates inconsistent waiting periods and lowers the score.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="final-pss-calculation">
+<h2>Final PSS Calculation<a class="headerlink" href="#final-pss-calculation" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Each of the five sub-scores is calculated, resulting in a value between 0.0 and 1.0.</p></li>
+<li><p>These scores are combined using configurable weights (e.g., <code class="docutils literal notranslate"><span class="pre">w_ts</span></code>, <code class="docutils literal notranslate"><span class="pre">w_ms</span></code>, etc.) found in your <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> or <code class="docutils literal notranslate"><span class="pre">pypss.toml</span></code>.</p></li>
+<li><p>The final weighted average is normalized and scaled to produce the final PSS score from 0 to 100.</p></li>
+</ol>
 </section>
 </section>
 
@@ -138,8 +151,8 @@ make<span class="w"> </span>install
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to pypss’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="quick_start.html" class="btn btn-neutral float-right" title="Core Concepts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="configuration.html" class="btn btn-neutral float-left" title="Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plugins.html" class="btn btn-neutral float-right" title="Plugin System &amp; Extensions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Integrations &mdash; pypss 0.1.0 documentation</title>
+  <title>Interactive Dashboard &mdash; pypss 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ML-based Pattern Detection" href="ml_detection.html" />
-    <link rel="prev" title="Adaptive Sampling Modes" href="adaptive_sampling.html" /> 
+    <link rel="next" title="CLI Usage" href="cli_usage.html" />
+    <link rel="prev" title="Sample PSS Report" href="reports.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,19 +54,22 @@
 <li class="toctree-l1"><a class="reference internal" href="features.html">Key Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks &amp; Overhead</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reports.html">Sample PSS Report</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Interactive Dashboard</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Interactive Dashboard</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dashboard-features">Dashboard Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#customization-settings">Customization &amp; Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-builder"><strong>Dashboard Builder</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-tuning"><strong>Parameter Tuning</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="cli_usage.html">CLI Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="history_regression.html">Historical Trends &amp; Regression Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metrics_explained.html">Understanding the Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin System &amp; Extensions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="adaptive_sampling.html">Adaptive Sampling Modes</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Integrations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pytest-integration">Pytest Integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sample-output">Sample Output:</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ml_detection.html">ML-based Pattern Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alerting.html">Alerting Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
@@ -86,9 +89,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Integrations</li>
+      <li class="breadcrumb-item active">Interactive Dashboard</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/integrations.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/dashboard.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -96,53 +99,56 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="integrations">
-<span id="id1"></span><h1>Integrations<a class="headerlink" href="#integrations" title="Link to this heading"></a></h1>
-<p><cite>pypss</cite> provides built-in integrations for popular Python frameworks and tools:</p>
+  <section id="interactive-dashboard">
+<span id="dashboard"></span><h1>Interactive Dashboard<a class="headerlink" href="#interactive-dashboard" title="Link to this heading"></a></h1>
+<p><cite>pypss</cite> includes a real-time interactive dashboard to visualize stability metrics and traces.</p>
+<p>To use the dashboard, first install the optional dependencies:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>pip install “pypss[dashboard]”</p>
+</div></blockquote>
+<p>Then, run the <cite>board</cite> command with your trace file:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>pypss board traces.json</p>
+</div></blockquote>
+<section id="dashboard-features">
+<h2>Dashboard Features<a class="headerlink" href="#dashboard-features" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>FastAPI</strong>: Easily instrument your FastAPI endpoints.</p></li>
-<li><p><strong>Flask</strong>: Monitor Flask routes and background tasks.</p></li>
-<li><p><strong>Celery</strong>: Track the stability of your Celery tasks.</p></li>
-<li><p><strong>RQ</strong>: Observe the stability of your RQ jobs.</p></li>
-<li><p><strong>OpenTelemetry</strong>: Export <cite>pypss</cite> traces to OpenTelemetry collectors.</p></li>
+<li><p><strong>Overview Tab</strong>:
+*   <strong>Real-time KPIs</strong>: Instant gauges for Overall PSS, Error Rate, and Throughput.
+*   <strong>AI Advisor</strong>: Automated root cause analysis and actionable recommendations.
+*   <strong>Module Breakdown</strong>: Drill down into specific modules to find the weakest link.</p></li>
+<li><p><strong>Metrics Tab</strong>:
+*   <strong>Real-time Trends</strong>: Live line charts showing the evolution of all 5 stability metrics (TS, MS, EV, BE, CC) over time.</p></li>
+<li><p><strong>Diagnostics Tab</strong>:
+*   <strong>Error Heatmap</strong>: Visualize <em>when</em> and <em>where</em> error bursts are happening across your system.
+*   <strong>Complexity Heatmap</strong>: Identify “hot spots” of high branching entropy (logic complexity).</p></li>
+<li><p><strong>Performance Tab</strong>:
+*   <strong>Latency Percentiles</strong>: Detailed P50, P90, and P99 latency tracking.
+*   <strong>Concurrency Analysis</strong>: Violin plots comparing CPU time vs. Wait time to detect resource contention.</p></li>
 </ul>
-<section id="pytest-integration">
-<h2>Pytest Integration<a class="headerlink" href="#pytest-integration" title="Link to this heading"></a></h2>
-<p><cite>pypss</cite> includes a powerful pytest plugin to measure the stability of your test suite. It automatically wraps your tests, calculates a PSS score for each test case, and can fail the build if stability drops.</p>
 </section>
-<section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
-<ol class="arabic">
-<li><p><strong>Enable PSS monitoring</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss
-</pre></div>
-</div>
-</li>
-<li><p><strong>Generate Stability Scores (Requires multiple runs)</strong>:
-To statistically measure stability (variance), you need multiple data points. Use <code class="docutils literal notranslate"><span class="pre">pytest-repeat</span></code> or simply run the loop:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss<span class="w"> </span>--count<span class="o">=</span><span class="m">10</span>
-</pre></div>
-</div>
-</li>
-<li><p><strong>Fail on Instability</strong>:
-Fail the test session if <em>any</em> individual test’s PSS score drops below a threshold (e.g., 80):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--pss<span class="w"> </span>--count<span class="o">=</span><span class="m">10</span><span class="w"> </span>--pss-fail-below<span class="w"> </span><span class="m">80</span>
-</pre></div>
-</div>
-</li>
-</ol>
+<section id="customization-settings">
+<h2>Customization &amp; Settings<a class="headerlink" href="#customization-settings" title="Link to this heading"></a></h2>
+<p>You can customize the dashboard layout and parameters directly from the UI by clicking the <strong>Settings (Gear Icon)</strong> button in the header.</p>
+<section id="dashboard-builder">
+<h3><strong>Dashboard Builder</strong><a class="headerlink" href="#dashboard-builder" title="Link to this heading"></a></h3>
+<p>The <strong>Dashboard Builder</strong> tab in the settings dialog allows you to:
+*   <strong>Reorder Widgets</strong>: Drag and drop widgets to arrange them to your liking.
+*   <strong>Resize Widgets</strong>: Adjust the column span (1-12) for each widget.
+*   <strong>Add Custom Charts</strong>: Create new charts visualizing any data field in your traces (e.g., specific memory metrics, custom instrumentation keys).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Supported types: Line, Bar, Scatter.</p></li>
+<li><p>Configurable X and Y axes.</p></li>
+</ul>
+</div></blockquote>
 </section>
-<section id="sample-output">
-<h2>Sample Output:<a class="headerlink" href="#sample-output" title="Link to this heading"></a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>======================= PyPSS Stability Report ========================
-Test Node ID                                     | Runs | PSS | Status
------------------------------------------------------------------------
-tests/test_api.py::test_login_latency            | 10   | 98  | ✅ Stable
-tests/test_api.py::test_flaky_endpoint           | 10   | 45  | ❌ Unstable
-tests/test_utils.py::test_helper                 | 1    | N/A | ⚠️  Need &gt;1 run
-================================================================-------
-</pre></div>
-</div>
+<section id="parameter-tuning">
+<h3><strong>Parameter Tuning</strong><a class="headerlink" href="#parameter-tuning" title="Link to this heading"></a></h3>
+<p>You can also adjust the PSS calculation weights and sensitivity thresholds in real-time to see how they affect your score. Changes are saved to <cite>pypss.toml</cite>.</p>
+</section>
 </section>
 </section>
 
@@ -150,8 +156,8 @@ tests/test_utils.py::test_helper                 | 1    | N/A | ⚠️  Need &gt
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="adaptive_sampling.html" class="btn btn-neutral float-left" title="Adaptive Sampling Modes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="ml_detection.html" class="btn btn-neutral float-right" title="ML-based Pattern Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="reports.html" class="btn btn-neutral float-left" title="Sample PSS Report" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_usage.html" class="btn btn-neutral float-right" title="CLI Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
