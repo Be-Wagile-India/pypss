@@ -1,9 +1,9 @@
-from .fastapi import PSSMiddleware
 from .celery import enable_celery_integration
-from .rq import PSSJob
+from .fastapi import PSSMiddleware
 from .flask import init_pypss_flask_app
-from .otel import enable_otel_integration
 from .kafka import report_kafka_lag
+from .otel import enable_otel_integration
+from .rq import PSSJob
 
 __all__ = [
     "PSSMiddleware",

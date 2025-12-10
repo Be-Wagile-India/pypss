@@ -1,11 +1,12 @@
 import sys  # Added this import
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from pypss.core.llm_advisor import (
-    get_llm_diagnosis,
-    TraceSummarizer,
     OpenAIClient,
+    TraceSummarizer,
+    get_llm_diagnosis,
 )
 
 
@@ -141,9 +142,7 @@ class TestLLMAdvisor:
 
             mock_response = MagicMock()
             mock_response.status_code = 200
-            mock_response.json.return_value = {
-                "response": "Ollama says metrics are bad."
-            }
+            mock_response.json.return_value = {"response": "Ollama says metrics are bad."}
             client.requests.post.return_value = mock_response
 
             diagnosis = client.generate_diagnosis("metrics...")

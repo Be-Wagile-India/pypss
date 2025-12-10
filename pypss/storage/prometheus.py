@@ -1,10 +1,11 @@
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
+
 from .base import StorageBackend
 
 try:
     from prometheus_client import (
-        Gauge,
         CollectorRegistry,
+        Gauge,
         push_to_gateway,
         start_http_server,
     )
@@ -22,19 +23,14 @@ class PrometheusStorage(StorageBackend):
         job_name: str = "pypss",
     ):
         if not PROMETHEUS_AVAILABLE:
-            raise ImportError(
-                "prometheus-client is not installed. Run 'pip install pypss[monitoring]'"
-            )
+            raise ImportError("prometheus-client is not installed. Run 'pip install pypss[monitoring]'")
 
         self.push_gateway = push_gateway
         self.http_port = http_port
         self.job_name = job_name
         self.registry = CollectorRegistry()
 
-        # Define Metrics
-        self.g_pss = Gauge(
-            "pypss_score", "Python Program Stability Score", registry=self.registry
-        )
+        self.g_pss = Gauge("pypss_score", "Python Program Stability Score", registry=self.registry)
         self.g_ts = Gauge("pypss_ts", "Timing Stability Score", registry=self.registry)
         self.g_ms = Gauge("pypss_ms", "Memory Stability Score", registry=self.registry)
         self.g_ev = Gauge("pypss_ev", "Error Volatility Score", registry=self.registry)
@@ -45,13 +41,9 @@ class PrometheusStorage(StorageBackend):
             try:
                 start_http_server(self.http_port, registry=self.registry)
             except Exception as e:
-                print(
-                    f"⚠️ Failed to start Prometheus server on port {self.http_port}: {e}"
-                )
+                print(f"⚠️ Failed to start Prometheus server on port {self.http_port}: {e}")
 
-    def save(
-        self, report: Dict[str, Any], meta: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def save(self, report: Dict[str, Any], meta: Optional[Dict[str, Any]] = None) -> None:
         breakdown = report.get("breakdown", {})
 
         self.g_pss.set(report.get("pss", 0.0))
@@ -63,14 +55,9 @@ class PrometheusStorage(StorageBackend):
 
         if self.push_gateway:
             try:
-                push_to_gateway(
-                    self.push_gateway, job=self.job_name, registry=self.registry
-                )
+                push_to_gateway(self.push_gateway, job=self.job_name, registry=self.registry)
             except Exception as e:
                 print(f"⚠️ Failed to push metrics to {self.push_gateway}: {e}")
 
-    def get_history(
-        self, limit: int = 10, days: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
-        # Prometheus is write-only from the client perspective
+    def get_history(self, limit: int = 10, days: Optional[int] = None) -> List[Dict[str, Any]]:
         return []

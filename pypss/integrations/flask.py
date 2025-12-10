@@ -1,11 +1,13 @@
-import time
 import threading
-from flask import Flask, request
-import pypss
-from ..utils.trace_utils import get_memory_usage
-from ..utils.config import GLOBAL_CONFIG
+import time
 
-# Thread-local storage for request-specific metrics
+from flask import Flask, request
+
+import pypss
+
+from ..utils.config import GLOBAL_CONFIG
+from ..utils.trace_utils import get_memory_usage
+
 _request_metrics = threading.local()
 
 
@@ -48,13 +50,8 @@ def init_pypss_flask_app(app: Flask):
         if collector:
             collector.add_trace(trace)
 
-        # Add headers
-        response.headers[GLOBAL_CONFIG.integration_flask_header_latency] = (
-            f"{duration_wall * 1000:.2f}ms"
-        )
-        response.headers[GLOBAL_CONFIG.integration_flask_header_wait] = (
-            f"{wait_time * 1000:.2f}ms"
-        )
+        response.headers[GLOBAL_CONFIG.integration_flask_header_latency] = f"{duration_wall * 1000:.2f}ms"
+        response.headers[GLOBAL_CONFIG.integration_flask_header_wait] = f"{wait_time * 1000:.2f}ms"
 
         return response
 

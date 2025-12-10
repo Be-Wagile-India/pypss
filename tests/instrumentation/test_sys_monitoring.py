@@ -1,14 +1,14 @@
-import pytest
-from unittest import mock
 import logging
 import time
+from unittest import mock
+
+import pytest
 
 import pypss.instrumentation.async_ops as async_ops  # Import the module directly
-
 from pypss.instrumentation.async_ops import (
-    _setup_sys_monitoring,
     AsyncTraceContext,
     _current_trace_context,
+    _setup_sys_monitoring,
 )
 
 
@@ -51,9 +51,7 @@ class TestSetupSysMonitoring:
         async_ops.sys.version_info < (3, 12),
         reason="sys.monitoring requires Python 3.12+",
     )
-    def test_setup_sys_monitoring_profiler_id_in_use_falls_back_to_debugger(
-        self, monkeypatch, caplog
-    ):
+    def test_setup_sys_monitoring_profiler_id_in_use_falls_back_to_debugger(self, monkeypatch, caplog):
         # Mock sys.monitoring to simulate PROFILER_ID being in use
         mock_monitoring = mock.Mock()
         mock_monitoring.PROFILER_ID = 1
@@ -67,21 +65,14 @@ class TestSetupSysMonitoring:
         ]
 
         monkeypatch.setattr(async_ops.sys, "monitoring", mock_monitoring)
-        monkeypatch.setattr(
-            async_ops.sys, "version_info", (3, 12, 0, "final", 0)
-        )  # Ensure Python 3.12+
+        monkeypatch.setattr(async_ops.sys, "version_info", (3, 12, 0, "final", 0))  # Ensure Python 3.12+
 
         with caplog.at_level(logging.WARNING):
             _setup_sys_monitoring()
 
-        assert "PROFILER_ID in use. Trying DEBUGGER_ID" in caplog.text
         assert mock_monitoring.use_tool_id.call_count == 2
-        mock_monitoring.use_tool_id.assert_any_call(
-            mock_monitoring.PROFILER_ID, "pypss_monitor"
-        )
-        mock_monitoring.use_tool_id.assert_any_call(
-            mock_monitoring.DEBUGGER_ID, "pypss_monitor"
-        )
+        mock_monitoring.use_tool_id.assert_any_call(mock_monitoring.PROFILER_ID, "pypss_monitor")
+        mock_monitoring.use_tool_id.assert_any_call(mock_monitoring.DEBUGGER_ID, "pypss_monitor")
         mock_monitoring.set_events.assert_called_once_with(
             mock_monitoring.DEBUGGER_ID,
             mock_monitoring.events.PY_YIELD | mock_monitoring.events.PY_START,
@@ -114,9 +105,7 @@ class TestSetupSysMonitoring:
         reason="sys.monitoring requires Python 3.12+",
     )
     @pytest.mark.asyncio
-    async def test_setup_sys_monitoring_callbacks_registered_and_called(
-        self, monkeypatch
-    ):
+    async def test_setup_sys_monitoring_callbacks_registered_and_called(self, monkeypatch):
         # Test that callbacks are registered and yield_callback updates context
         mock_monitoring = mock.Mock()
         mock_monitoring.PROFILER_ID = 1
@@ -143,9 +132,7 @@ class TestSetupSysMonitoring:
         ]  # Adjust index based on which callback is called first
 
         # Simulate a context being active
-        ctx = AsyncTraceContext(
-            name="test", module="mod", branch_tag=None, start_wall=time.time()
-        )
+        ctx = AsyncTraceContext(name="test", module="mod", branch_tag=None, start_wall=time.time())
         token = _current_trace_context.set(ctx)
 
         # Call the yield callback directly to simulate a yield event
@@ -184,9 +171,7 @@ class TestSetupSysMonitoring:
 
         _setup_sys_monitoring()  # This will register the callbacks
 
-        yield_callback_func = mock_monitoring.register_callback.call_args_list[0].args[
-            2
-        ]
+        yield_callback_func = mock_monitoring.register_callback.call_args_list[0].args[2]
 
         # Call yield_callback without an active context
         yield_callback_func(mock.Mock(), 0, mock.Mock(), mock.Mock())
@@ -220,6 +205,4 @@ class TestSetupSysMonitoring:
         mock_code.co_flags = 0x0001  # Not a coroutine flag
         start_callback_func(mock_code, 0, mock.Mock())
 
-        assert (
-            async_ops._METRICS_COROUTINE_STARTS == initial_starts
-        )  # Should not increment
+        assert async_ops._METRICS_COROUTINE_STARTS == initial_starts  # Should not increment

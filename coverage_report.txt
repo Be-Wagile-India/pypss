@@ -1,0 +1,618 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.1, pluggy-1.6.0 -- /home/saghanta/LEO/pypss/.venv/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/saghanta/LEO/pypss
+configfile: pyproject.toml
+plugins: xdist-3.8.0, hypothesis-6.148.2, cov-7.0.0, anyio-4.11.0, asyncio-1.3.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 389 items
+
+tests/alerts/test_alerting.py::test_alert_engine_triggers PASSED         [  0%]
+tests/alerts/test_alerting.py::test_alert_engine_disabled PASSED         [  0%]
+tests/alerts/test_alerting.py::test_alert_channel_send_batch PASSED      [  0%]
+tests/alerts/test_alerting.py::test_webhook_channel_send_success PASSED  [  1%]
+tests/alerts/test_alerting.py::test_webhook_channel_send_failure PASSED  [  1%]
+tests/alerts/test_alerting.py::test_webhook_channel_empty_url_with_mock PASSED [  1%]
+tests/alerts/test_alerting.py::test_slack_channel_send PASSED            [  1%]
+tests/alerts/test_alerting.py::test_slack_channel_send_warning PASSED    [  2%]
+tests/alerts/test_alerting.py::test_slack_channel_send_info PASSED       [  2%]
+tests/alerts/test_alerting.py::test_teams_channel_send PASSED            [  2%]
+tests/alerts/test_alerting.py::test_teams_channel_send_info PASSED       [  2%]
+tests/alerts/test_alerting.py::test_teams_channel_send_critical PASSED   [  3%]
+tests/alerts/test_alerting.py::test_alertmanager_channel_send_batch PASSED [  3%]
+tests/alerts/test_alerting.py::TestAlertState::test_alert_state_load_corrupted_file PASSED [  3%]
+tests/alerts/test_alerting.py::TestAlertState::test_alert_state_save_io_error PASSED [  3%]
+tests/alerts/test_alerting.py::TestAlertState::test_alert_state_should_alert_cooldown PASSED [  4%]
+tests/alerts/test_alerting.py::TestAlertState::test_alert_state_record_alert PASSED [  4%]
+tests/alerts/test_alerting.py::TestAlertState::test_alert_state_atexit_registered_outside_pytest PASSED [  4%]
+tests/alerts/test_alerting.py::TestAlertState::test_alert_state_atexit_not_registered_in_pytest PASSED [  4%]
+tests/alerts/test_rules.py::test_metric_stability_rule_not_enabled PASSED [  5%]
+tests/alerts/test_rules.py::test_metric_stability_rule_no_trigger PASSED [  5%]
+tests/alerts/test_rules.py::test_metric_stability_rule_trigger PASSED    [  5%]
+tests/alerts/test_rules.py::test_metric_stability_rule_trigger_pss PASSED [  5%]
+tests/alerts/test_rules.py::test_timing_stability_surge_rule PASSED      [  6%]
+tests/alerts/test_rules.py::test_memory_stability_spike_rule PASSED      [  6%]
+tests/alerts/test_rules.py::test_error_burst_rule PASSED                 [  6%]
+tests/alerts/test_rules.py::test_entropy_anomaly_rule PASSED             [  6%]
+tests/alerts/test_rules.py::test_concurrency_spike_rule PASSED           [  7%]
+tests/alerts/test_rules.py::test_regression_rule_not_enabled PASSED      [  7%]
+tests/alerts/test_rules.py::test_regression_rule_no_history PASSED       [  7%]
+tests/alerts/test_rules.py::test_regression_rule_stable_history PASSED   [  7%]
+tests/alerts/test_rules.py::test_regression_rule_detected PASSED         [  8%]
+tests/alerts/test_rules.py::test_regression_rule_history_too_short PASSED [  8%]
+tests/board/test_data_loader.py::TestTraceProcessor::test_init_creates_dataframe PASSED [  8%]
+tests/board/test_data_loader.py::TestTraceProcessor::test_init_empty_traces PASSED [  8%]
+tests/board/test_data_loader.py::TestTraceProcessor::test_get_metric_timeseries_aggregation PASSED [  9%]
+tests/board/test_data_loader.py::TestTraceProcessor::test_get_metric_timeseries_empty PASSED [  9%]
+tests/board/test_data_loader.py::TestTraceProcessor::test_missing_columns_handling PASSED [  9%]
+tests/board/test_data_loader.py::TestTraceProcessor::test_get_metric_timeseries_duration_zero PASSED [ 10%]
+tests/board/test_data_loader.py::TestTraceProcessor::test_get_metric_timeseries_memory_zero PASSED [ 10%]
+tests/board/test_data_loader.py::TestLoadTraceData::test_load_trace_data_success PASSED [ 10%]
+tests/board/test_data_loader.py::TestLoadTraceData::test_load_trace_data_file_error PASSED [ 10%]
+tests/board/test_data_loader.py::TestLoadTraceData::test_load_trace_data_json_error PASSED [ 11%]
+tests/board/test_data_loader.py::TestLoadTraceData::test_load_trace_data_empty_or_bad_format PASSED [ 11%]
+tests/cli/test_cli.py::TestCLI::test_analyze_command PASSED              [ 11%]
+tests/cli/test_cli.py::TestCLI::test_analyze_fail_if_below PASSED        [ 11%]
+tests/cli/test_cli.py::TestCLI::test_run_command_no_traces PASSED        [ 12%]
+tests/cli/test_cli.py::TestCLI::test_run_command_html_output PASSED      [ 12%]
+tests/cli/test_cli.py::TestCLI::test_board_command_dependencies_missing PASSED [ 12%]
+tests/cli/test_cli.py::TestCLI::test_run_command PASSED                  [ 12%]
+tests/cli/test_cli.py::TestCLI::test_run_command_with_instrumentation PASSED [ 13%]
+tests/cli/test_cli.py::TestCLI::test_run_command_module_output PASSED    [ 13%]
+tests/cli/test_cli.py::TestCLI::test_run_command_output_file_write_error PASSED [ 13%]
+tests/cli/test_cli.py::TestCLI::test_analyze_command_file_read_error PASSED [ 13%]
+tests/cli/test_cli.py::TestCLI::test_analyze_command_html_output PASSED  [ 14%]
+tests/cli/test_cli.py::TestCLI::test_diagnose_command_file_read_error PASSED [ 14%]
+tests/cli/test_cli.py::TestCLI::test_diagnose_command_unknown_provider PASSED [ 14%]
+tests/cli/test_cli.py::TestCLI::test_diagnose_command_openai_success PASSED [ 14%]
+tests/cli/test_cli.py::TestCLI::test_diagnose_command_ollama_success PASSED [ 15%]
+tests/cli/test_cli.py::TestCLI::test_board_command_subprocess_success PASSED [ 15%]
+tests/cli/test_cli.py::TestCLI::test_board_command_subprocess_failure PASSED [ 15%]
+tests/cli/test_cli.py::TestCLI::test_board_command_keyboard_interrupt PASSED [ 15%]
+tests/cli/test_discovery.py::TestDiscovery::test_discovery_ignores PASSED [ 16%]
+tests/cli/test_discovery.py::TestDiscovery::test_analyze_file_parsing PASSED [ 16%]
+tests/cli/test_discovery.py::TestDiscovery::test_get_module_score_breakdown PASSED [ 16%]
+tests/cli/test_history.py::test_history_command_no_data PASSED           [ 16%]
+tests/cli/test_history.py::test_history_command_with_data PASSED         [ 17%]
+tests/cli/test_history.py::test_run_command_stores_history PASSED        [ 17%]
+tests/cli/test_history.py::test_analyze_command_stores_history PASSED    [ 17%]
+tests/cli/test_history.py::test_regression_detection PASSED              [ 17%]
+tests/cli/test_history.py::test_history_command_export_json PASSED       [ 18%]
+tests/cli/test_history.py::test_history_command_export_csv PASSED        [ 18%]
+tests/cli/test_history.py::test_history_command_days_filter PASSED       [ 18%]
+tests/cli/test_history.py::test_run_command_html_output PASSED           [ 19%]
+tests/cli/test_history.py::test_run_command_store_history_failure PASSED [ 19%]
+tests/cli/test_history.py::test_analyze_command_html_output PASSED       [ 19%]
+tests/cli/test_history.py::test_analyze_command_fail_if_below_trigger PASSED [ 19%]
+tests/cli/test_history.py::test_analyze_command_store_history_failure PASSED [ 20%]
+tests/cli/test_history.py::test_diagnose_command_success PASSED          [ 20%]
+tests/cli/test_history.py::test_diagnose_command_no_traces PASSED        [ 20%]
+tests/cli/test_history.py::test_diagnose_command_trace_file_read_error PASSED [ 20%]
+tests/cli/test_history.py::test_board_command_missing_dependencies PASSED [ 21%]
+tests/cli/test_history.py::test_board_command_subprocess_fail PASSED     [ 21%]
+tests/cli/test_history.py::test_main_command_pass_coverage PASSED        [ 21%]
+tests/cli/test_history.py::test_history_command_export_csv_empty_data PASSED [ 21%]
+tests/cli/test_history.py::test_run_command_no_traces_collected PASSED   [ 22%]
+tests/cli/test_history.py::test_run_command_module_score_indicators PASSED [ 22%]
+tests/cli/test_history.py::test_analyze_command_malformed_trace_file PASSED [ 22%]
+tests/cli/test_history.py::test_analyze_command_empty_traces PASSED      [ 22%]
+tests/cli/test_history.py::test_diagnose_command_llm_diagnosis_failure PASSED [ 23%]
+tests/cli/test_html_report.py::TestHTMLReport::test_render_report_html PASSED [ 23%]
+tests/cli/test_main_entry_point.py::test_cli_main_entry_point PASSED     [ 23%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_ml_detect_invalid_file_path PASSED [ 23%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_ml_detect_no_baseline_traces PASSED [ 24%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_ml_detect_no_target_traces PASSED [ 24%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_ml_detect_scikit_learn_missing PASSED [ 24%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_ml_detect_model_fit_error PASSED [ 24%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_ml_detect_anomalies_found PASSED [ 25%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_ml_detect_no_anomalies_found PASSED [ 25%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_history_no_data PASSED [ 25%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_history_display PASSED [ 25%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_history_export_json PASSED [ 26%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_history_export_csv PASSED [ 26%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_history_with_limit PASSED [ 26%]
+tests/cli/test_new_cli_commands.py::TestNewCLICoammnds::test_history_with_days_filter PASSED [ 26%]
+tests/cli/test_reporting.py::TestReporting::test_render_report_json PASSED [ 27%]
+tests/cli/test_reporting.py::TestReporting::test_render_report_text PASSED [ 27%]
+tests/cli/test_runner.py::TestRunner::test_auto_instrumentor_patching PASSED [ 27%]
+tests/cli/test_runner.py::TestRunner::test_auto_instrumentor_skip_non_routines PASSED [ 28%]
+tests/cli/test_runner.py::TestRunner::test_run_with_instrumentation PASSED [ 28%]
+tests/cli/test_tuning_command.py::TestTuneCommand::test_tune_success PASSED [ 28%]
+tests/cli/test_tuning_command.py::TestTuneCommand::test_tune_baseline_not_found PASSED [ 28%]
+tests/cli/test_tuning_command.py::TestTuneCommand::test_tune_empty_baseline_traces PASSED [ 29%]
+tests/cli/test_tuning_command.py::TestTuneCommand::test_tune_baseline_with_errors_warning PASSED [ 29%]
+tests/cli/test_tuning_command.py::TestTuneCommand::test_tune_default_output_file PASSED [ 29%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_initialization PASSED [ 29%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_update_metrics_stores_metrics PASSED [ 30%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_qps_calculation PASSED [ 30%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_adjust_sample_rate_increases_on_high_lag PASSED [ 30%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_mode_high_load PASSED [ 30%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_mode_error_triggered PASSED [ 31%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_mode_surge PASSED [ 31%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_mode_low_noise PASSED [ 31%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_adjust_sample_rate_decreases_on_low_metrics PASSED [ 31%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_adjust_sample_rate_no_change_partial_low_metrics PASSED [ 32%]
+tests/core/test_adaptive_sampler.py::TestAdaptiveSampler::test_global_adaptive_sampler_instance PASSED [ 32%]
+tests/core/test_advisor.py::TestAdvisor::test_advisor_perfect_score PASSED [ 32%]
+tests/core/test_advisor.py::TestAdvisor::test_advisor_critical_instability PASSED [ 32%]
+tests/core/test_advisor.py::TestAdvisor::test_advisor_moderate_instability PASSED [ 33%]
+tests/core/test_advisor.py::TestAdvisor::test_generate_advisor_report PASSED [ 33%]
+tests/core/test_core.py::TestCore::test_compute_pss_empty PASSED         [ 33%]
+tests/core/test_core.py::TestCore::test_compute_pss_perfect_run PASSED   [ 33%]
+tests/core/test_core.py::TestCore::test_compute_pss_with_errors PASSED   [ 34%]
+tests/core/test_core.py::TestCore::test_compute_pss_high_variance PASSED [ 34%]
+tests/core/test_error_rate_monitor.py::TestErrorRateMonitor::test_initialization PASSED [ 34%]
+tests/core/test_error_rate_monitor.py::TestErrorRateMonitor::test_start_stop PASSED [ 34%]
+tests/core/test_error_rate_monitor.py::TestErrorRateMonitor::test_start_already_running PASSED [ 35%]
+tests/core/test_error_rate_monitor.py::TestErrorRateMonitor::test_error_rate_calculation_no_errors PASSED [ 35%]
+tests/core/test_error_rate_monitor.py::TestErrorRateMonitor::test_error_rate_calculation_some_errors PASSED [ 35%]
+tests/core/test_error_rate_monitor.py::TestErrorRateMonitor::test_error_rate_calculation_all_errors PASSED [ 35%]
+tests/core/test_error_rate_monitor.py::TestErrorRateMonitor::test_error_rate_monitor_thread_integration PASSED [ 36%]
+tests/core/test_error_rate_monitor.py::TestErrorRateMonitor::test_error_rate_monitor_with_threaded_batch_collector PASSED [ 36%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_trace_summarizer_no_traces PASSED [ 36%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_trace_summarizer_basic_stats PASSED [ 37%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_get_llm_diagnosis_openai PASSED [ 37%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_get_llm_diagnosis_ollama PASSED [ 37%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_get_llm_diagnosis_unknown_provider PASSED [ 37%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_openai_client_import_error PASSED [ 38%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_ollama_client_connection_error PASSED [ 38%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_ollama_client_api_error PASSED [ 38%]
+tests/core/test_llm_advisor.py::TestLLMAdvisor::test_ollama_client_success PASSED [ 38%]
+tests/core/test_plugins.py::TestPluginSystem::test_registration PASSED   [ 39%]
+tests/core/test_plugins.py::TestPluginSystem::test_core_integration_with_plugin PASSED [ 39%]
+tests/core/test_plugins.py::TestPluginSystem::test_plugin_weight_override PASSED [ 39%]
+tests/core/test_plugins.py::TestPluginSystem::test_failing_plugin_does_not_crash_core PASSED [ 39%]
+tests/core/test_plugins.py::TestPluginSystem::test_io_stability_metric PASSED [ 40%]
+tests/core/test_plugins.py::TestPluginSystem::test_db_stability_metric PASSED [ 40%]
+tests/core/test_plugins.py::TestPluginSystem::test_gc_stability_metric FAILED [ 40%]
+tests/core/test_plugins.py::TestPluginSystem::test_cache_stability_metric PASSED [ 40%]
+tests/core/test_plugins.py::TestPluginSystem::test_thread_starvation_metric PASSED [ 41%]
+tests/core/test_plugins.py::TestPluginSystem::test_network_stability_metric PASSED [ 41%]
+tests/core/test_plugins.py::TestPluginSystem::test_kafka_lag_stability_metric FAILED [ 41%]
+tests/core/test_protos.py::TestTracePB2::test_trace_message_serialization PASSED [ 41%]
+tests/core/test_protos.py::TestTracePB2::test_trace_response_serialization PASSED [ 42%]
+tests/core/test_protos.py::TestTracePB2::test_pure_python_descriptors PASSED [ 42%]
+tests/core/test_protos.py::TestTracePB2GRPC::test_stub_initialization PASSED [ 42%]
+tests/core/test_protos.py::TestTracePB2GRPC::test_servicer_default_behavior PASSED [ 42%]
+tests/core/test_protos.py::TestTracePB2GRPC::test_add_servicer_to_server PASSED [ 43%]
+tests/core/test_protos.py::TestTracePB2GRPC::test_experimental_api PASSED [ 43%]
+tests/core/test_protos.py::TestTracePB2GRPC::test_version_check_logic PASSED [ 43%]
+tests/core/test_protos.py::TestTracePB2GRPC::test_legacy_grpc_import PASSED [ 43%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_timing_stability_empty_latencies PASSED [ 44%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_timing_stability_single_latency PASSED [ 44%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_timing_stability_perfect_stability PASSED [ 44%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_timing_stability_high_variance PASSED [ 44%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_timing_stability_tail_latency_impact PASSED [ 45%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_memory_stability_empty_samples PASSED [ 45%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_memory_stability_single_sample PASSED [ 45%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_memory_stability_perfect_stability PASSED [ 46%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_memory_stability_zero_median_and_peak PASSED [ 46%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_memory_stability_zero_median_non_zero_peak PASSED [ 46%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_memory_stability_with_spike_below_threshold PASSED [ 46%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_memory_stability_with_spike_above_threshold PASSED [ 47%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_memory_stability_high_variance PASSED [ 47%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_error_volatility_no_errors PASSED [ 47%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_error_volatility_all_errors PASSED [ 47%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_error_volatility_mixed_errors PASSED [ 48%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_error_volatility_spike_below_threshold PASSED [ 48%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_error_volatility_spike_above_threshold PASSED [ 48%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_error_volatility_consecutive_errors_below_threshold PASSED [ 48%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_error_volatility_consecutive_errors_at_threshold PASSED [ 49%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_error_volatility_consecutive_errors_above_threshold PASSED [ 49%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_branching_entropy_empty_tags PASSED [ 49%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_branching_entropy_single_tag PASSED [ 49%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_branching_entropy_perfect_stability PASSED [ 50%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_branching_entropy_high_entropy PASSED [ 50%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_branching_entropy_max_entropy PASSED [ 50%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_concurrency_chaos_empty_wait_times PASSED [ 50%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_concurrency_chaos_single_wait_time PASSED [ 51%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_concurrency_chaos_negligible_wait_times PASSED [ 51%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_concurrency_chaos_constant_significant_wait_times PASSED [ 51%]
+tests/core/test_scoring_algorithms.py::TestScoringAlgorithms::test_concurrency_chaos_varying_significant_wait_times PASSED [ 51%]
+tests/core/test_streaming.py::test_compute_pss_consumes_iterator PASSED  [ 52%]
+tests/core/test_streaming.py::test_compute_pss_handles_empty_iterator PASSED [ 52%]
+tests/core/test_streaming.py::test_compute_pss_handles_mixed_types PASSED [ 52%]
+tests/examples/test_complex_app.py::TestComplexApp::test_simulation_generates_traces PASSED [ 52%]
+tests/examples/test_complex_app.py::TestComplexApp::test_pss_report_generated PASSED [ 53%]
+tests/examples/test_complex_app.py::TestComplexApp::test_pss_score_range PASSED [ 53%]
+tests/examples/test_complex_app.py::TestComplexApp::test_breakdown_scores_exist PASSED [ 53%]
+tests/examples/test_complex_app.py::TestComplexApp::test_error_volatility_reflects_errors PASSED [ 53%]
+tests/instrumentation/test_async_ops.py::test_async_monitor_context_manager PASSED [ 54%]
+tests/instrumentation/test_async_ops.py::test_yield_counting PASSED      [ 54%]
+tests/instrumentation/test_async_ops.py::test_loop_health_monitor PASSED [ 54%]
+tests/instrumentation/test_async_ops.py::test_async_monitor_sampling_skip PASSED [ 55%]
+tests/instrumentation/test_async_ops.py::test_async_monitor_memory_tracking PASSED [ 55%]
+tests/instrumentation/test_async_ops.py::test_event_loop_health_monitor_start_already_running PASSED [ 55%]
+tests/instrumentation/test_async_ops.py::test_event_loop_health_monitor_start_runtime_error PASSED [ 55%]
+tests/instrumentation/test_async_ops.py::test_event_loop_health_monitor_stop_no_task PASSED [ 56%]
+tests/instrumentation/test_async_ops.py::test_event_loop_health_monitor_monitor_loop_cancelled_error PASSED [ 56%]
+tests/instrumentation/test_async_ops.py::test_event_loop_health_monitor_monitor_loop_exception PASSED [ 56%]
+tests/instrumentation/test_async_ops.py::test_start_async_monitoring_runtime_error PASSED [ 56%]
+tests/instrumentation/test_async_ops.py::test_stop_async_monitoring_no_instance PASSED [ 57%]
+tests/instrumentation/test_async_ops.py::test_monitor_function_async_error_sampled_out PASSED [ 57%]
+tests/instrumentation/test_async_ops.py::test_monitor_function_async_no_yield_context_enabled PASSED [ 57%]
+tests/instrumentation/test_async_ops.py::test_monitor_function_async_yield_count_passed PASSED [ 57%]
+tests/instrumentation/test_async_support.py::test_async_monitoring PASSED [ 58%]
+tests/instrumentation/test_async_support.py::test_async_wait_time_metric PASSED [ 58%]
+tests/instrumentation/test_background.py::TestAutoDumper::test_dump_writes_file PASSED [ 58%]
+tests/instrumentation/test_background.py::TestAutoDumper::test_background_thread_runs_and_dumps PASSED [ 58%]
+tests/instrumentation/test_background.py::TestAutoDumper::test_rotate PASSED [ 59%]
+tests/instrumentation/test_background.py::TestAutoDumper::test_rotation_trigger_in_thread PASSED [ 59%]
+tests/instrumentation/test_background.py::TestAutoDumper::test_dump_exception_handling PASSED [ 59%]
+tests/instrumentation/test_collector.py::TestAdvancedCollector::test_thread_safety PASSED [ 59%]
+tests/instrumentation/test_collector.py::TestAdvancedCollector::test_ring_buffer PASSED [ 60%]
+tests/instrumentation/test_concurrency.py::TestConcurrencyMetrics::test_wait_time_detection PASSED [ 60%]
+tests/instrumentation/test_concurrency.py::TestConcurrencyMetrics::test_cpu_bound_metrics PASSED [ 60%]
+tests/instrumentation/test_distributed_collectors.py::TestRedisCollector::test_init_raises_if_no_redis PASSED [ 60%]
+tests/instrumentation/test_distributed_collectors.py::TestRedisCollector::test_add_trace_batches PASSED [ 61%]
+tests/instrumentation/test_distributed_collectors.py::TestRedisCollector::test_get_traces PASSED [ 61%]
+tests/instrumentation/test_distributed_collectors.py::TestRedisCollector::test_connection_error PASSED [ 61%]
+tests/instrumentation/test_distributed_collectors.py::TestFileFIFOCollector::test_file_io_batching PASSED [ 61%]
+tests/instrumentation/test_distributed_collectors.py::TestFileFIFOCollector::test_flush_on_interval PASSED [ 62%]
+tests/instrumentation/test_distributed_collectors.py::TestFileFIFOCollector::test_shutdown_flushes_queue PASSED [ 62%]
+tests/instrumentation/test_distributed_collectors.py::TestGRPCCollector::test_init_raises_if_no_grpc PASSED [ 62%]
+tests/instrumentation/test_distributed_collectors.py::TestGRPCCollector::test_add_trace PASSED [ 62%]
+tests/instrumentation/test_distributed_collectors.py::TestThreadedBatchCollectorGeneric::test_queue_full_handling PASSED [ 63%]
+tests/instrumentation/test_distributed_collectors.py::TestThreadedBatchCollectorGeneric::test_worker_resilience PASSED [ 63%]
+tests/instrumentation/test_distributed_collectors.py::TestThreadedBatchCollectorGeneric::test_drain_on_shutdown PASSED [ 63%]
+tests/instrumentation/test_distributed_collectors.py::TestCollectorMethods::test_redis_clear PASSED [ 64%]
+tests/instrumentation/test_distributed_collectors.py::TestCollectorMethods::test_redis_methods_exceptions PASSED [ 64%]
+tests/instrumentation/test_distributed_collectors.py::TestCollectorMethods::test_file_read_exceptions PASSED [ 64%]
+tests/instrumentation/test_distributed_collectors.py::TestCollectorMethods::test_grpc_methods PASSED [ 64%]
+tests/instrumentation/test_distributed_collectors.py::TestCollectorMethods::test_file_clear_exceptions PASSED [ 65%]
+tests/instrumentation/test_distributed_collectors.py::TestCollectorMethods::test_file_flush_exception PASSED [ 65%]
+tests/instrumentation/test_distributed_collectors.py::TestCollectorMethods::test_empty_batches PASSED [ 65%]
+tests/instrumentation/test_distributed_collectors.py::TestCollectorMethods::test_file_corrupt_json PASSED [ 65%]
+tests/instrumentation/test_distributed_collectors.py::TestMemoryCollectorSharding::test_small_buffer_no_sharding PASSED [ 66%]
+tests/instrumentation/test_distributed_collectors.py::TestMemoryCollectorSharding::test_large_buffer_sharding PASSED [ 66%]
+tests/instrumentation/test_distributed_collectors.py::TestMemoryCollectorSharding::test_memory_collector_clear PASSED [ 66%]
+tests/instrumentation/test_distributed_collectors.py::TestModuleImports::test_redis_import_error PASSED [ 66%]
+tests/instrumentation/test_distributed_collectors.py::TestModuleImports::test_grpc_import_error PASSED [ 67%]
+tests/instrumentation/test_distributed_collectors.py::TestModuleImports::test_z_restore_module PASSED [ 67%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_function_decorator PASSED [ 67%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_function_exception PASSED [ 67%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_block_context_manager PASSED [ 68%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_sampling_decorator PASSED [ 68%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_block_init_no_module_name_success PASSED [ 68%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_block_init_no_module_name_index_error PASSED [ 68%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_block_init_no_module_name_attribute_error PASSED [ 69%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_block_sampling_skipped PASSED [ 69%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_block_error_sampling_override_skip PASSED [ 69%]
+tests/instrumentation/test_instrumentation.py::TestInstrumentation::test_monitor_function_error_sampling_override_skip_sync PASSED [ 69%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_error_traces_always_get_error_sample_rate PASSED [ 70%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_context_rule_always_strategy PASSED [ 70%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_context_rule_never_strategy PASSED [ 70%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_context_rule_on_error_strategy_with_error PASSED [ 70%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_context_rule_on_error_strategy_no_error PASSED [ 71%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_context_rule_random_strategy_with_rule_sample_rate PASSED [ 71%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_context_rule_random_strategy_no_rule_sample_rate_fallback_to_global PASSED [ 71%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_no_matching_context_rules_fallback_to_global_sample_rate PASSED [ 71%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_multiple_context_rules_precedence PASSED [ 72%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_pattern_matching_trace_module PASSED [ 72%]
+tests/instrumentation/test_sampling_rules.py::TestGetEffectiveSampleRate::test_pattern_no_match PASSED [ 72%]
+tests/instrumentation/test_sys_monitoring.py::TestSetupSysMonitoring::test_setup_sys_monitoring_python_version_lt_3_12 PASSED [ 73%]
+tests/instrumentation/test_sys_monitoring.py::TestSetupSysMonitoring::test_setup_sys_monitoring_already_active PASSED [ 73%]
+tests/instrumentation/test_sys_monitoring.py::TestSetupSysMonitoring::test_setup_sys_monitoring_no_sys_monitoring PASSED [ 73%]
+tests/instrumentation/test_sys_monitoring.py::TestSetupSysMonitoring::test_setup_sys_monitoring_profiler_id_in_use_falls_back_to_debugger PASSED [ 73%]
+tests/instrumentation/test_sys_monitoring.py::TestSetupSysMonitoring::test_setup_sys_monitoring_exception_during_setup PASSED [ 74%]
+tests/instrumentation/test_sys_monitoring.py::TestSetupSysMonitoring::test_setup_sys_monitoring_callbacks_registered_and_called PASSED [ 74%]
+tests/instrumentation/test_sys_monitoring.py::TestSetupSysMonitoring::test_setup_sys_monitoring_yield_callback_no_context PASSED [ 74%]
+tests/instrumentation/test_sys_monitoring.py::TestSetupSysMonitoring::test_setup_sys_monitoring_start_callback_not_coroutine PASSED [ 74%]
+tests/integrations/test_integrations.py::TestIntegrations::test_fastapi_middleware_logic PASSED [ 75%]
+tests/integrations/test_integrations.py::TestIntegrations::test_flask_integration_logic PASSED [ 75%]
+tests/integrations/test_integrations.py::TestIntegrations::test_celery_integration_logic PASSED [ 75%]
+tests/integrations/test_integrations.py::TestIntegrations::test_rq_integration_logic PASSED [ 75%]
+tests/integrations/test_kafka.py::TestKafkaIntegration::test_report_kafka_lag PASSED [ 76%]
+tests/integrations/test_otel.py::TestOTel::test_enable_otel_integration PASSED [ 76%]
+tests/integrations/test_otel.py::TestOTel::test_otel_callbacks PASSED    [ 76%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_addoption PASSED [ 76%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_runtest_call PASSED [ 77%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_runtest_call_pss_disabled PASSED [ 77%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_runtest_call_test_fails PASSED [ 77%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_sessionfinish_no_traces PASSED [ 77%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_sessionfinish_fail_below_threshold PASSED [ 78%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_sessionfinish_insufficient_data PASSED [ 78%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_sessionstart PASSED [ 78%]
+tests/integrations/test_pytest_plugin.py::TestPytestPlugin::test_sessionfinish_calc_error PASSED [ 78%]
+tests/ml/test_detector.py::TestPatternDetector::test_initialization PASSED [ 79%]
+tests/ml/test_detector.py::TestPatternDetector::test_initialization_no_sklearn PASSED [ 79%]
+tests/ml/test_detector.py::TestPatternDetector::test_extract_features_empty_traces PASSED [ 79%]
+tests/ml/test_detector.py::TestPatternDetector::test_extract_features_valid_traces PASSED [ 79%]
+tests/ml/test_detector.py::TestPatternDetector::test_fit_no_traces PASSED [ 80%]
+tests/ml/test_detector.py::TestPatternDetector::test_fit_with_traces PASSED [ 80%]
+tests/ml/test_detector.py::TestPatternDetector::test_predict_anomalies_not_fitted PASSED [ 80%]
+tests/ml/test_detector.py::TestPatternDetector::test_predict_anomalies_empty_traces PASSED [ 80%]
+tests/ml/test_detector.py::TestPatternDetector::test_anomaly_score_not_fitted PASSED [ 81%]
+tests/ml/test_detector.py::TestPatternDetector::test_anomaly_score_empty_traces PASSED [ 81%]
+tests/ml/test_detector.py::TestPatternDetector::test_predict_and_score_with_anomalies PASSED [ 81%]
+tests/ml/test_detector.py::TestPatternDetector::test_dummy_sklearn_behavior PASSED [ 82%]
+tests/plugins/test_loader.py::test_load_plugins_success PASSED           [ 82%]
+tests/plugins/test_loader.py::test_load_plugins_import_error PASSED      [ 82%]
+tests/plugins/test_loader.py::test_load_plugins_generic_exception PASSED [ 82%]
+tests/plugins/test_loader.py::test_load_plugins_multiple_modules PASSED  [ 83%]
+tests/storage/test_base.py::test_base_storage_contract PASSED            [ 83%]
+tests/storage/test_init.py::test_get_storage_backend_sqlite PASSED       [ 83%]
+tests/storage/test_init.py::test_get_storage_backend_default PASSED      [ 83%]
+tests/storage/test_init.py::test_get_storage_backend_prometheus PASSED   [ 84%]
+tests/storage/test_init.py::test_get_storage_backend_invalid PASSED      [ 84%]
+tests/storage/test_init.py::test_check_regression_no_history PASSED      [ 84%]
+tests/storage/test_init.py::test_check_regression_stable PASSED          [ 84%]
+tests/storage/test_init.py::test_check_regression_detected PASSED        [ 85%]
+tests/storage/test_init.py::test_check_regression_exception PASSED       [ 85%]
+tests/storage/test_init.py::test_get_storage_backend_prometheus_pull_default_port PASSED [ 85%]
+tests/storage/test_init.py::test_get_storage_backend_prometheus_pull_invalid_uri PASSED [ 85%]
+tests/storage/test_prometheus.py::test_prometheus_init_success PASSED    [ 86%]
+tests/storage/test_prometheus.py::test_prometheus_missing_dependency PASSED [ 86%]
+tests/storage/test_prometheus.py::test_prometheus_save_logic PASSED      [ 86%]
+tests/storage/test_prometheus.py::test_prometheus_push_failure PASSED    [ 86%]
+tests/storage/test_prometheus.py::test_get_history_empty PASSED          [ 87%]
+tests/storage/test_prometheus.py::test_prometheus_pull_mode PASSED       [ 87%]
+tests/storage/test_sqlite.py::test_sqlite_storage_save_and_get PASSED    [ 87%]
+tests/test_exports.py::test_root_exports PASSED                          [ 87%]
+tests/test_exports.py::test_core_exports PASSED                          [ 88%]
+tests/test_exports.py::test_instrumentation_exports PASSED               [ 88%]
+tests/test_exports.py::test_integrations_exports PASSED                  [ 88%]
+tests/test_exports.py::test_utils_exports PASSED                         [ 88%]
+tests/test_exports.py::test_cli_exports PASSED                           [ 89%]
+tests/test_pypss_init_coverage.py::test_pypss_init_full_coverage PASSED  [ 89%]
+tests/test_pypss_init_coverage.py::test_pypss_getters_not_initialized PASSED [ 89%]
+tests/test_pypss_init_coverage.py::test_pypss_init_no_previous_tuner_state PASSED [ 89%]
+tests/test_pypss_init_coverage.py::test_root_exports PASSED              [ 90%]
+tests/tuning/test_runtime_tuner.py::test_runtime_tuner_initialization PASSED [ 90%]
+tests/tuning/test_runtime_tuner.py::test_runtime_tuner_updates_threshold PASSED [ 90%]
+tests/tuning/test_runtime_tuner.py::test_runtime_tuner_with_monitor_function PASSED [ 91%]
+tests/tuning/test_tuning.py::test_profiler PASSED                        [ 91%]
+tests/tuning/test_tuning.py::test_injector_latency PASSED                [ 91%]
+tests/tuning/test_tuning.py::test_injector_latency_no_jitter PASSED      [ 91%]
+tests/tuning/test_tuning.py::test_injector_latency_empty_traces PASSED   [ 92%]
+tests/tuning/test_tuning.py::test_injector_memory_leak PASSED            [ 92%]
+tests/tuning/test_tuning.py::test_injector_memory_leak_custom_growth_rate PASSED [ 92%]
+tests/tuning/test_tuning.py::test_injector_memory_leak_empty_traces PASSED [ 92%]
+tests/tuning/test_tuning.py::test_injector_error_burst PASSED            [ 93%]
+tests/tuning/test_tuning.py::test_injector_error_burst_multiple PASSED   [ 93%]
+tests/tuning/test_tuning.py::test_injector_error_burst_size_larger_than_traces PASSED [ 93%]
+tests/tuning/test_tuning.py::test_injector_error_burst_empty_traces PASSED [ 93%]
+tests/tuning/test_tuning.py::test_injector_thread_starvation PASSED      [ 94%]
+tests/tuning/test_tuning.py::test_injector_thread_starvation_no_starvation PASSED [ 94%]
+tests/tuning/test_tuning.py::test_injector_thread_starvation_empty_traces PASSED [ 94%]
+tests/tuning/test_tuning.py::test_optimizer PASSED                       [ 94%]
+tests/utils/test_config.py::TestConfig::test_load_defaults PASSED        [ 95%]
+tests/utils/test_config.py::TestConfig::test_load_from_pypss_toml PASSED [ 95%]
+tests/utils/test_config.py::TestConfig::test_load_from_pyproject_toml PASSED [ 95%]
+tests/utils/test_config.py::TestConfig::test_update_method PASSED        [ 95%]
+tests/utils/test_config.py::TestConfig::test_save_exception_handling PASSED [ 96%]
+tests/utils/test_source_code.py::TestSourceCode::test_extract_function_code PASSED [ 96%]
+tests/utils/test_source_code.py::TestSourceCode::test_extract_function_code_missing PASSED [ 96%]
+tests/utils/test_utils.py::TestUtils::test_calculate_cv_empty PASSED     [ 96%]
+tests/utils/test_utils.py::TestUtils::test_calculate_cv_zeros PASSED     [ 97%]
+tests/utils/test_utils.py::TestUtils::test_calculate_cv_constant PASSED  [ 97%]
+tests/utils/test_utils.py::TestUtils::test_calculate_cv_basic PASSED     [ 97%]
+tests/utils/test_utils.py::TestUtils::test_calculate_entropy_empty PASSED [ 97%]
+tests/utils/test_utils.py::TestUtils::test_calculate_entropy_zero_entropy PASSED [ 98%]
+tests/utils/test_utils.py::TestUtils::test_calculate_entropy_high PASSED [ 98%]
+tests/utils/test_utils.py::TestUtils::test_normalize_score PASSED        [ 98%]
+tests/utils/test_utils.py::TestUtils::test_exponential_decay PASSED      [ 98%]
+tests/utils/test_utils.py::TestUtils::test_parse_time_string_valid_formats PASSED [ 99%]
+tests/utils/test_utils.py::TestUtils::test_parse_time_string_case_insensitivity PASSED [ 99%]
+tests/utils/test_utils.py::TestUtils::test_parse_time_string_none_input PASSED [ 99%]
+tests/utils/test_utils.py::TestUtils::test_parse_time_string_invalid_formats PASSED [100%]
+
+=================================== FAILURES ===================================
+__________________ TestPluginSystem.test_gc_stability_metric ___________________
+
+self = <test_plugins.TestPluginSystem object at 0x7f7c6ee75d00>
+clean_registry = None
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7c66b7f110>
+
+    def test_gc_stability_metric(self, clean_registry, monkeypatch):
+        logger.debug("TestPluginSystem.test_gc_stability_metric START")
+        metric = GCStabilityMetric()
+    
+        # Case 1: Stable GC pauses (via system_metric traces)
+        traces_stable_gc = [
+            {"system_metric": True, "metadata": {"gc_pause_duration": 0.001}},
+            {"system_metric": True, "metadata": {"gc_pause_duration": 0.001}},
+            {"system_metric": True, "metadata": {"gc_pause_duration": 0.001}},
+        ]
+        score_stable = metric.compute(traces_stable_gc)
+        assert score_stable == pytest.approx(1.0)
+    
+        # Case 2: Unstable GC pauses
+        traces_unstable_gc = [
+            {"system_metric": True, "metadata": {"gc_pause_duration": 0.0001}},
+            {"system_metric": True, "metadata": {"gc_pause_duration": 0.01}},  # Spike
+            {"system_metric": True, "metadata": {"gc_pause_duration": 0.0001}},
+        ]
+        score_unstable = metric.compute(traces_unstable_gc)
+        assert score_unstable < 0.8  # Should be penalized
+    
+        # Case 3: No GC traces, fallback to memory_diff (stable)
+        traces_mem_diff_stable = [
+            {"duration": 1.0, "memory_diff": -2000},
+            {"duration": 1.0, "memory_diff": -2050},
+            {"duration": 1.0, "memory_diff": -1950},
+        ]
+        score_mem_diff_stable = metric.compute(traces_mem_diff_stable)
+        assert (
+            score_mem_diff_stable > 0.9
+        )  # Should be high, but not 1.0 due to some variance
+    
+        # Case 4: No GC traces, fallback to memory_diff (unstable)
+        traces_mem_diff_unstable = [
+            {"duration": 1.0, "memory_diff": -100},
+            {"duration": 1.0, "memory_diff": -5000},  # Spike
+            {"duration": 1.0, "memory_diff": -100},
+        ]
+        score_mem_diff_unstable = metric.compute(traces_mem_diff_unstable)
+        assert score_mem_diff_unstable < 0.8
+    
+        # Case 5: No relevant traces (should return 1.0)
+        traces_no_gc_data = [
+            {"name": "cpu_bound", "duration": 0.1},
+            {"name": "io_bound", "duration": 0.2, "wait_time": 0.1},
+        ]
+        score_no_gc_data = metric.compute(traces_no_gc_data)
+        assert score_no_gc_data == pytest.approx(1.0)
+    
+        # Case 6: Single gc_pause_duration
+        traces_single_gc_pause = [
+            {"system_metric": True, "metadata": {"gc_pause_duration": 0.001}},
+        ]
+        score_single_gc_pause = metric.compute(traces_single_gc_pause)
+        assert score_single_gc_pause == pytest.approx(1.0)
+    
+        # Case 7: Single negative_memory_diff
+        traces_single_mem_diff = [
+            {"duration": 1.0, "memory_diff": -2000},
+        ]
+        score_single_mem_diff = metric.compute(traces_single_mem_diff)
+        assert score_single_mem_diff == pytest.approx(1.0)
+    
+        # Test registration and integration
+        MetricRegistry.register(GCStabilityMetric)
+        logger.debug(
+            f"Test: Registry keys after register: {list(MetricRegistry.get_all().keys())}"
+        )
+    
+        # Temporarily mock get_all to only return GCStabilityMetric
+        monkeypatch.setattr(
+            pypss.core.core.MetricRegistry,
+            "get_all",
+            lambda: {"GC": GCStabilityMetric()},
+        )
+    
+        report = compute_pss_from_traces(traces_stable_gc)
+        logger.debug(
+            f"Test: Report breakdown after compute: {report['breakdown'].keys()}"
+        )
+>       assert "GC" in report["breakdown"]
+E       AssertionError: assert 'GC' in {'timing_stability': 0, 'memory_stability': 0, 'error_volatility': 0, 'branching_entropy': 0, 'concurrency_chaos': 0}
+
+tests/core/test_plugins.py:390: AssertionError
+_______________ TestPluginSystem.test_kafka_lag_stability_metric _______________
+
+self = <test_plugins.TestPluginSystem object at 0x7f7c6ee53b30>
+clean_registry = None
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7c66cf9700>
+
+    def test_kafka_lag_stability_metric(self, clean_registry, monkeypatch):
+        metric = KafkaLagStabilityMetric()
+    
+        # Case 1: Stable (low) kafka lag
+        traces_stable_kafka = [
+            {"system_metric": True, "metadata": {"kafka_lag": 10}},
+            {"system_metric": True, "metadata": {"kafka_lag": 12}},
+            {"system_metric": True, "metadata": {"kafka_lag": 11}},
+        ]
+        score_stable = metric.compute(traces_stable_kafka)
+        assert score_stable == pytest.approx(
+            0.8958, abs=1e-4
+        )  # Small variations, high score
+    
+        # Case 2: Unstable (high or fluctuating) kafka lag
+        traces_unstable_kafka = [
+            {"system_metric": True, "metadata": {"kafka_lag": 10}},
+            {"system_metric": True, "metadata": {"kafka_lag": 1000}},  # Spike
+            {"system_metric": True, "metadata": {"kafka_lag": 20}},
+        ]
+        score_unstable = metric.compute(traces_unstable_kafka)
+        assert score_unstable < 0.2  # Significant penalty for high lag
+    
+        # Case 3: No kafka lag data
+        traces_no_kafka = [
+            {"name": "cpu_bound", "duration": 0.1},
+            {"system_metric": True, "metadata": {"other_metric": 1.0}},
+        ]
+        score_no_kafka = metric.compute(traces_no_kafka)
+        assert score_no_kafka == pytest.approx(1.0)
+    
+        # Case 4: Single kafka lag value
+        traces_single_kafka = [
+            {"system_metric": True, "metadata": {"kafka_lag": 50}},
+        ]
+        score_single_kafka = metric.compute(traces_single_kafka)
+        assert score_single_kafka == pytest.approx(1.0)
+    
+        # Test registration and integration
+        MetricRegistry.register(KafkaLagStabilityMetric)
+        monkeypatch.setattr(
+            pypss.core.core.MetricRegistry,
+            "get_all",
+            lambda: {"KAFKA": KafkaLagStabilityMetric()},
+        )
+        report = compute_pss_from_traces(traces_stable_kafka)
+>       assert "KAFKA" in report["breakdown"]
+E       AssertionError: assert 'KAFKA' in {'timing_stability': 0, 'memory_stability': 0, 'error_volatility': 0, 'branching_entropy': 0, 'concurrency_chaos': 0}
+
+tests/core/test_plugins.py:582: AssertionError
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.3-final-0 ________________
+
+Name                                       Stmts   Miss Branch BrPart   Cover   Missing
+---------------------------------------------------------------------------------------
+pypss/__init__.py                             43      2     10      0  96.23%   89-91
+pypss/alerts/__init__.py                       2      0      0      0 100.00%
+pypss/alerts/base.py                          31      0      2      0 100.00%
+pypss/alerts/channels.py                      90      6     22      4  91.07%   39->33, 49, 53-54, 63, 185, 189
+pypss/alerts/engine.py                        45      2     24      7  86.96%   38->40, 40->42, 42->44, 44->exit, 49, 67, 71->75
+pypss/alerts/rules.py                         53      1     14      2  95.52%   29->35, 100
+pypss/alerts/state.py                         37      0      8      1  97.78%   32->34
+pypss/board/data_loader.py                    83      6     30      8  87.61%   27->exit, 55, 64, 74, 83, 155, 160, 183->190
+pypss/cli/__init__.py                          5      0      0      0 100.00%
+pypss/cli/cli.py                             279     20     82     14  90.03%   65-68, 154->172, 203, 211-212, 242->245, 284, 297, 324, 333-335, 345, 358->361, 367-368, 408, 442-443, 447-450, 514
+pypss/cli/discovery.py                        53      2     22      1  96.00%   40->28, 54-55
+pypss/cli/html_report.py                      19      1      6      2  88.00%   106, 107->110
+pypss/cli/reporting.py                        14      1      4      1  88.89%   25
+pypss/cli/runner.py                           66     10     16      4  82.93%   30, 36-39, 44, 54, 85->88, 106-109
+pypss/cli/tuning.py                           50      0      4      0 100.00%
+pypss/cli/utils.py                            32      4     10      2  85.71%   17, 30-31, 40
+pypss/core/__init__.py                         3      0      0      0 100.00%
+pypss/core/adaptive_sampler.py                77      6     46      8  88.62%   41->44, 82, 92, 99, 118, 152, 157, 167->173
+pypss/core/advisor.py                         69      0     28      0 100.00%
+pypss/core/core.py                           176     10     76     11  91.67%   90, 99-102, 154->160, 156->155, 171, 174->177, 205-206, 215, 224, 262, 264, 334->337
+pypss/core/error_rate_monitor.py              57      2      8      0  96.92%   67-68
+pypss/core/llm_advisor.py                     56      1      8      0  98.44%   66
+pypss/instrumentation/__init__.py              6      0      0      0 100.00%
+pypss/instrumentation/async_ops.py           204     14     54     18  86.82%   75->87, 88, 153, 156, 161, 163->187, 169, 175, 222-223, 237->244, 248, 254, 266-270, 320->exit, 334, 343->370, 391->394, 406->408
+pypss/instrumentation/background.py           88     13     26      5  82.46%   43->45, 59, 81-87, 119-122, 131, 151-152
+pypss/instrumentation/collectors.py          283     55     58      8  79.18%   26-27, 37-40, 66-84, 95-96, 109, 116, 123, 130, 137, 167->exit, 188-190, 246-250, 283-284, 298->exit, 304-305, 309-310, 315, 381-382, 406, 412->411, 444-445, 456-460, 496-497, 501-502
+pypss/instrumentation/instrumentation.py     115      5     28      6  92.31%   16-18, 37, 69->78, 72->75, 80->85, 167, 209->214
+pypss/integrations/__init__.py                 7      0      0      0 100.00%
+pypss/integrations/celery.py                  26      3      4      2  83.33%   17-18, 43, 68->exit
+pypss/integrations/fastapi.py                 35      3      4      2  87.18%   28-30, 54->61, 64->73
+pypss/integrations/flask.py                   34      2      2      1  91.67%   48->52, 63-64
+pypss/integrations/kafka.py                    8      0      2      1  90.00%   32->exit
+pypss/integrations/otel.py                    50     11      4      2  75.93%   11-21, 37-38, 92
+pypss/integrations/pytest_plugin.py          123     10     44     12  85.63%   39, 43->47, 47->exit, 48->50, 96->exit, 102, 106->120, 115-117, 133-134, 138-140, 168, 189->193, 200->203, 210->exit
+pypss/integrations/rq.py                      27      3      0      0  88.89%   29-31
+pypss/ml/__init__.py                           2      0      0      0 100.00%
+pypss/ml/detector.py                          69     14     18      1  82.76%   11-29, 99->exit
+pypss/plugins/__init__.py                      5      0      0      0 100.00%
+pypss/plugins/base.py                          9      1      0      0  88.89%   41
+pypss/plugins/loader.py                       12      0      2      0 100.00%
+pypss/plugins/metrics.py                     148      0     58      3  98.54%   104->92, 146->150, 310->299
+pypss/plugins/registry.py                     19      0      0      0 100.00%
+pypss/protos/__init__.py                       0      0      0      0 100.00%
+pypss/protos/trace_pb2.py                     19      0      2      0 100.00%
+pypss/protos/trace_pb2_grpc.py                29      0      2      0 100.00%
+pypss/storage/__init__.py                     32      0     10      0 100.00%
+pypss/storage/base.py                          9      0      0      0 100.00%
+pypss/storage/prometheus.py                   41      2      6      1  93.62%   13-14, 64->exit
+pypss/storage/sqlite.py                       73      8     14      3  85.06%   19-21, 63, 69, 75, 139-140
+pypss/tuning/__init__.py                       5      0      0      0 100.00%
+pypss/tuning/injector.py                      47      0     18      0 100.00%
+pypss/tuning/optimizer.py                     79      9     18      6  82.47%   50, 71, 94->97, 148-159, 223, 277
+pypss/tuning/profiler.py                      56      8      6      3  82.26%   31, 71, 83-84, 93, 98, 113-114
+pypss/tuning/runtime.py                       88      8     20      4  88.89%   32-34, 45->44, 47-48, 86, 106-107, 127, 136->exit
+pypss/utils/__init__.py                        3      0      0      0 100.00%
+pypss/utils/config.py                        174      9     36      4  90.95%   12, 202->207, 238, 241, 245-249, 282, 286->264
+pypss/utils/source_code.py                    24      1     10      2  91.18%   18, 30->47
+pypss/utils/trace_utils.py                    28      0      6      0 100.00%
+pypss/utils/utils.py                          47      1     22      1  97.10%   80
+---------------------------------------------------------------------------------------
+TOTAL                                       3364    254    894    150  89.90%
+=========================== short test summary info ============================
+FAILED tests/core/test_plugins.py::TestPluginSystem::test_gc_stability_metric - AssertionError: assert 'GC' in {'timing_stability': 0, 'memory_stability': 0, 'error_volatility': 0, 'branching_entropy': 0, 'concurrency_chaos': 0}
+FAILED tests/core/test_plugins.py::TestPluginSystem::test_kafka_lag_stability_metric - AssertionError: assert 'KAFKA' in {'timing_stability': 0, 'memory_stability': 0, 'error_volatility': 0, 'branching_entropy': 0, 'concurrency_chaos': 0}
+======================== 2 failed, 387 passed in 28.77s ========================

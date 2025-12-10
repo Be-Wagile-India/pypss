@@ -1,7 +1,9 @@
-import os
 import json
+import os
 import time
+
 import pytest
+
 from pypss.instrumentation.background import AutoDumper
 from pypss.instrumentation.collectors import Collector
 
@@ -69,9 +71,7 @@ class TestAutoDumper:
             data = json.load(f)
             assert len(data["traces"]) == 0
 
-    @pytest.mark.filterwarnings(
-        "ignore:coroutine 'AsyncMockMixin._execute_mock_call' was never awaited:RuntimeWarning"
-    )
+    @pytest.mark.filterwarnings("ignore:coroutine 'AsyncMockMixin._execute_mock_call' was never awaited:RuntimeWarning")
     def test_rotation_trigger_in_thread(self, collector, temp_file):
         # Create a dummy file first so rotation has something to rotate
         with open(temp_file, "w") as f:

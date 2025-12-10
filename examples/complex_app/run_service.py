@@ -1,14 +1,14 @@
 # examples/complex_app/run_service.py
-import os
 import argparse
+import os
+
 from complex_web_service import run_service_simulation
+
 from pypss.utils.utils import parse_time_string
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Run a complex web service simulation with PyPSS instrumentation."
-    )
+    parser = argparse.ArgumentParser(description="Run a complex web service simulation with PyPSS instrumentation.")
     parser.add_argument(
         "--num_requests",
         type=int,

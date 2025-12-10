@@ -1,5 +1,6 @@
 import json
-from pypss.cli.reporting import render_report_text, render_report_json
+
+from pypss.cli.reporting import render_report_json, render_report_text
 
 
 class TestReporting:

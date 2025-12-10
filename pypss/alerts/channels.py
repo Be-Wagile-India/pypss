@@ -1,57 +1,51 @@
+import atexit
 import json
-import urllib.request
-from typing import List, Dict, Any, Union, Optional
-import threading
 import queue
+import sys
+import threading
 import time
-import atexit  # For graceful shutdown
-import sys  # For sys.stderr in print
-from unittest.mock import MagicMock  # Import MagicMock
+import urllib.request
+from typing import Any, Dict, List, Optional, Union
+from unittest.mock import MagicMock
 
-from .base import AlertChannel, Alert, AlertSeverity
+from .base import Alert, AlertChannel, AlertSeverity
 
-# --- Global Alert Queue and Sender Thread ---
 _alert_queue: queue.Queue = queue.Queue()
 _sender_thread: Optional[threading.Thread] = None
 _shutdown_event = threading.Event()
-_mock_urlopen_for_tests: Optional[MagicMock] = None  # Global variable to hold the mock
+_mock_urlopen_for_tests: Optional[MagicMock] = None
 
 
 def _sender_loop():
     while not _shutdown_event.is_set():
         try:
-            # Get item with a timeout to allow checking shutdown event
             url, data, headers, max_retries = _alert_queue.get(timeout=1)
 
-            # Use the global mock urlopen_func if set, otherwise original
-            urlopen_func = (
-                _mock_urlopen_for_tests
-                if _mock_urlopen_for_tests is not None
-                else urllib.request.urlopen
-            )
+            urlopen_func = _mock_urlopen_for_tests if _mock_urlopen_for_tests is not None else urllib.request.urlopen
 
             for attempt in range(max_retries):
                 try:
                     req = urllib.request.Request(url, data=data, headers=headers)
                     with urlopen_func(req, timeout=10) as response:
-                        # For testing, response.status is a mock
                         status_code = getattr(response, "status", 200)
                         if 200 <= status_code < 300:
-                            break  # Success, break retry loop
-                except (
-                    Exception
-                ) as e:  # This is the line that had the error due to indentation
+                            break
+                except Exception as e:
                     if attempt == max_retries - 1:
                         print(
-                            f"⚠️ Failed to send alert to {url} after {max_retries} attempts: {e}"
+                            f"⚠️ Failed to send alert to {url} after {max_retries} attempts: {e}",
+                            file=sys.stderr,
                         )
                     else:
-                        time.sleep(1 * (attempt + 1))  # Linear backoff
+                        time.sleep(1 * (attempt + 1))
             _alert_queue.task_done()
         except queue.Empty:
-            continue  # No items, check shutdown event again
+            continue
         except Exception as e:
-            print(f"⚠️ An unexpected error occurred in alert sender loop: {e}")
+            print(
+                f"⚠️ An unexpected error occurred in alert sender loop: {e}",
+                file=sys.stderr,
+            )
 
 
 def _start_sender_thread_once():
@@ -59,29 +53,26 @@ def _start_sender_thread_once():
     if _sender_thread is None or not _sender_thread.is_alive():
         _sender_thread = threading.Thread(target=_sender_loop, daemon=True)
         _sender_thread.start()
-        if "pytest" not in sys.modules:  # Only register atexit if not in test
+        if "pytest" not in sys.modules:
             atexit.register(_shutdown_sender_thread)
 
 
 def _shutdown_sender_thread():
     global _mock_urlopen_for_tests
     _shutdown_event.set()
-    _alert_queue.join()  # Wait for all alerts to be sent
+    _alert_queue.join()
     if _sender_thread and _sender_thread.is_alive():
-        _sender_thread.join(timeout=5)  # Give a grace period for thread to finish
+        _sender_thread.join(timeout=5)
         if _sender_thread.is_alive():
-            print(
-                "⚠️ Alert sender thread did not shut down cleanly."
-            )  # pragma: no cover
-    _mock_urlopen_for_tests = None  # Clear the global mock variable after shutdown
+            print("⚠️ Alert sender thread did not shut down cleanly.", file=sys.stderr)
+    _mock_urlopen_for_tests = None
 
 
-# --- WebhookChannel now puts messages in queue ---
 class WebhookChannel(AlertChannel):
     def __init__(self, url: str, max_retries: int = 3):
         self.url = url
         self.max_retries = max_retries
-        _start_sender_thread_once()  # Ensure thread is running
+        _start_sender_thread_once()
 
     def send(self, alert: Alert) -> None:
         payload = {
@@ -103,9 +94,7 @@ class WebhookChannel(AlertChannel):
         if not self.url:
             return
         data = json.dumps(payload).encode("utf-8")
-        _alert_queue.put(
-            (self.url, data, {"Content-Type": "application/json"}, self.max_retries)
-        )
+        _alert_queue.put((self.url, data, {"Content-Type": "application/json"}, self.max_retries))
 
 
 class SlackChannel(WebhookChannel):
@@ -163,7 +152,7 @@ class TeamsChannel(WebhookChannel):
             "summary": f"{alert.severity.value.upper()}: {alert.rule_name}",
             "sections": [
                 {
-                    "activityTitle": f"{alert.severity.value.upper()}: {alert.rule_name}",
+                    "activityTitle": (f"{alert.severity.value.upper()}: {alert.rule_name}"),
                     "activitySubtitle": alert.message,
                     "facts": [
                         {"name": "Metric", "value": alert.metric_name},

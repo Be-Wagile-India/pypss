@@ -1,24 +1,22 @@
 import functools
-import time
-import random
 import inspect
-# Removed Optional, Any as they are unused
+import random
+import time
 
+from ..core.context import get_tags
 from ..utils import GLOBAL_CONFIG
-from ..utils.config import (
-    _get_effective_sample_rate,
-)  # Import _get_effective_sample_rate from config
+from ..utils.config import _get_effective_sample_rate
 from ..utils.trace_utils import finalize_trace, get_memory_usage
 
 # Import async context for integration
 try:
-    from .async_ops import _current_trace_context, AsyncTraceContext
-except ImportError:  # Removed debug print
+    from .async_ops import AsyncTraceContext, _current_trace_context
+except ImportError:
     _current_trace_context = None  # type: ignore
     AsyncTraceContext = None  # type: ignore
 
 
-def monitor_function(name=None, branch_tag=None, module_name=None):
+def monitor_function(name=None, branch_tag=None, module_name=None, profile_threshold_ms=0):
     def decorator(func):
         if inspect.iscoroutinefunction(func):
 
@@ -27,16 +25,11 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                 _trace_name = name or func.__name__
                 _module_name = module_name or getattr(func, "__module__", "unknown")
 
-                # Pre-calculate effective sample rate (assuming no error yet)
-                current_sample_rate = _get_effective_sample_rate(
-                    False, _trace_name, _module_name
-                )
+                current_sample_rate = _get_effective_sample_rate(False, _trace_name, _module_name)
 
-                # Sampling Check
                 if current_sample_rate < 1.0 and random.random() > current_sample_rate:
                     return await func(*args, **kwargs)
 
-                # Capture Start Metrics
                 start_wall = time.time()
                 start_cpu = time.process_time()
                 start_mem = get_memory_usage()
@@ -45,9 +38,14 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                 exception_message = None
                 yield_count = 0
 
-                # Setup Async Context for Yield Counting (if available)
+                profiler = None
+                if profile_threshold_ms > 0:
+                    import cProfile
+
+                    profiler = cProfile.Profile()
+                    profiler.enable()
+
                 token = None
-                # print(f"DEBUG: _current_trace_context in async wrapper: {_current_trace_context}", file=sys.stderr)
                 ctx = AsyncTraceContext(
                     name=name or func.__name__,
                     module=module_name or getattr(func, "__module__", "unknown"),
@@ -65,7 +63,9 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                     exception_message = str(e)
                     raise e
                 finally:
-                    # Retrieve yield count and reset context
+                    if profiler:
+                        profiler.disable()
+
                     if token is not None:
                         try:
                             final_ctx = _current_trace_context.get()
@@ -74,28 +74,44 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                         finally:
                             _current_trace_context.reset(token)
 
-                    # If an error occurred, ensure it's sampled (overriding previous sampling decision)
+                    should_record = True
                     if error_occurred:
                         current_sample_rate = GLOBAL_CONFIG.error_sample_rate
-                        if (
-                            random.random() > current_sample_rate
-                        ):  # Check if still sampled out after adjustment
-                            return
+                        # Check if still sampled out after adjustment
+                        if random.random() > current_sample_rate:
+                            should_record = False
 
-                    finalize_trace(
-                        func,
-                        name,
-                        branch_tag,
-                        module_name,
-                        start_wall,
-                        start_cpu,
-                        start_mem,
-                        error_occurred,
-                        exception_type,
-                        exception_message,
-                        is_async=True,
-                        yield_count=yield_count,
-                    )
+                    current_metadata = get_tags()
+
+                    if should_record and profiler:
+                        duration_ms = (time.time() - start_wall) * 1000
+                        if duration_ms > profile_threshold_ms:
+                            import io
+                            import pstats
+
+                            s = io.StringIO()
+                            # Sort by cumulative time to see bottlenecks
+                            ps = pstats.Stats(profiler, stream=s).sort_stats("cumulative")
+                            ps.print_stats(20)
+                            current_metadata = current_metadata.copy()
+                            current_metadata["profile_stats"] = s.getvalue()
+
+                    if should_record:
+                        finalize_trace(
+                            func,
+                            name,
+                            branch_tag,
+                            module_name,
+                            start_wall,
+                            start_cpu,
+                            start_mem,
+                            error_occurred,
+                            exception_type,
+                            exception_message,
+                            is_async=True,
+                            yield_count=yield_count,
+                            metadata=current_metadata,
+                        )
 
             return wrapper
 
@@ -106,22 +122,24 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                 _trace_name = name or func.__name__
                 _module_name = module_name or getattr(func, "__module__", "unknown")
 
-                # Pre-calculate effective sample rate (assuming no error yet)
-                current_sample_rate = _get_effective_sample_rate(
-                    False, _trace_name, _module_name
-                )
+                current_sample_rate = _get_effective_sample_rate(False, _trace_name, _module_name)
 
-                # Sampling Check
                 if current_sample_rate < 1.0 and random.random() > current_sample_rate:
                     return func(*args, **kwargs)
 
-                # Capture Start Metrics
                 start_wall = time.time()
                 start_cpu = time.process_time()
                 start_mem = get_memory_usage()
                 error_occurred = False
                 exception_type = None
                 exception_message = None
+
+                profiler = None
+                if profile_threshold_ms > 0:
+                    import cProfile
+
+                    profiler = cProfile.Profile()
+                    profiler.enable()
 
                 try:
                     result = func(*args, **kwargs)
@@ -132,27 +150,45 @@ def monitor_function(name=None, branch_tag=None, module_name=None):
                     exception_message = str(e)
                     raise e
                 finally:
-                    # If an error occurred, ensure it's sampled (overriding previous sampling decision)
+                    if profiler:
+                        profiler.disable()
+
+                    should_record = True
                     if error_occurred:
                         current_sample_rate = GLOBAL_CONFIG.error_sample_rate
-                        if (
-                            random.random() > current_sample_rate
-                        ):  # Check if still sampled out after adjustment
-                            return
+                        # Check if still sampled out after adjustment
+                        if random.random() > current_sample_rate:
+                            should_record = False
 
-                    finalize_trace(
-                        func,
-                        name,
-                        branch_tag,
-                        module_name,
-                        start_wall,
-                        start_cpu,
-                        start_mem,
-                        error_occurred,
-                        exception_type,
-                        exception_message,
-                        is_async=False,
-                    )
+                    current_metadata = get_tags()
+
+                    if should_record and profiler:
+                        duration_ms = (time.time() - start_wall) * 1000
+                        if duration_ms > profile_threshold_ms:
+                            import io
+                            import pstats
+
+                            s = io.StringIO()
+                            ps = pstats.Stats(profiler, stream=s).sort_stats("cumulative")
+                            ps.print_stats(20)
+                            current_metadata = current_metadata.copy()
+                            current_metadata["profile_stats"] = s.getvalue()
+
+                    if should_record:
+                        finalize_trace(
+                            func,
+                            name,
+                            branch_tag,
+                            module_name,
+                            start_wall,
+                            start_cpu,
+                            start_mem,
+                            error_occurred,
+                            exception_type,
+                            exception_message,
+                            is_async=False,
+                            metadata=current_metadata,
+                        )
 
             return wrapper
 
@@ -174,18 +210,14 @@ class monitor_block:
                 self.module_name = mod.__name__ if mod else "unknown"
             except (IndexError, AttributeError):
                 self.module_name = "unknown"
-        self._should_sample = True  # Initialize flag
+        self._should_sample = True
 
     def __enter__(self):
         _trace_name = self.name
         _module_name = self.module_name
 
-        # Determine effective sample rate (assuming no error yet)
-        current_sample_rate = _get_effective_sample_rate(
-            False, _trace_name, _module_name
-        )
+        current_sample_rate = _get_effective_sample_rate(False, _trace_name, _module_name)
 
-        # Sampling Check
         if current_sample_rate < 1.0 and random.random() > current_sample_rate:
             self._should_sample = False
             return self
@@ -203,12 +235,9 @@ class monitor_block:
         exception_type = exc_type.__name__ if exc_type else None
         exception_message = str(exc_val) if exc_val else None
 
-        # If an error occurred, ensure it's sampled (overriding previous sampling decision)
         if error_occurred:
             current_sample_rate = GLOBAL_CONFIG.error_sample_rate
-            if (
-                random.random() > current_sample_rate
-            ):  # Check if still sampled out after adjustment
+            if random.random() > current_sample_rate:
                 return
 
         finalize_trace(
@@ -223,4 +252,5 @@ class monitor_block:
             exception_type,
             exception_message,
             is_async=False,
+            metadata=get_tags(),
         )

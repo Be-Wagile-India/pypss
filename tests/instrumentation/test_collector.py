@@ -1,4 +1,5 @@
 import threading
+
 from pypss.instrumentation.collectors import Collector
 from pypss.utils import GLOBAL_CONFIG
 

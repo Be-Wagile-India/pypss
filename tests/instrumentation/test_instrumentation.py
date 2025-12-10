@@ -1,11 +1,12 @@
-import pytest
-import time
 import inspect
 import random
+import time
 from unittest.mock import MagicMock
 
+import pytest
+
 import pypss  # Import pypss
-from pypss.instrumentation import monitor_function, monitor_block
+from pypss.instrumentation import monitor_block, monitor_function
 from pypss.utils.config import GLOBAL_CONFIG
 
 
@@ -29,13 +30,9 @@ def setup_teardown_pypss_init():
 
 
 class TestInstrumentation:
-    def test_monitor_function_decorator(
-        self, monkeypatch
-    ):  # Add monkeypatch as argument
+    def test_monitor_function_decorator(self, monkeypatch):  # Add monkeypatch as argument
         monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)  # Ensure 100% sampling
-        monkeypatch.setattr(
-            GLOBAL_CONFIG, "error_sample_rate", 1.0
-        )  # Ensure errors are not sampled out
+        monkeypatch.setattr(GLOBAL_CONFIG, "error_sample_rate", 1.0)  # Ensure errors are not sampled out
 
         @monitor_function("test_func", branch_tag="A")
         def sample_func(x):
@@ -56,12 +53,8 @@ class TestInstrumentation:
         assert t["error"] is False
 
     def test_monitor_function_exception(self, monkeypatch):
-        monkeypatch.setattr(
-            GLOBAL_CONFIG, "sample_rate", 1.0
-        )  # Explicitly set sample rate
-        monkeypatch.setattr(
-            GLOBAL_CONFIG, "error_sample_rate", 1.0
-        )  # Explicitly set error sample rate
+        monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)  # Explicitly set sample rate
+        monkeypatch.setattr(GLOBAL_CONFIG, "error_sample_rate", 1.0)  # Explicitly set error sample rate
 
         @monitor_function("error_func")
         def fail_func():
@@ -75,13 +68,9 @@ class TestInstrumentation:
         assert traces[0]["error"] is True
         assert traces[0]["exception_type"] == "ValueError"
 
-    def test_monitor_block_context_manager(
-        self, monkeypatch
-    ):  # Add monkeypatch as argument
+    def test_monitor_block_context_manager(self, monkeypatch):  # Add monkeypatch as argument
         monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)  # Ensure 100% sampling
-        monkeypatch.setattr(
-            GLOBAL_CONFIG, "error_sample_rate", 1.0
-        )  # Ensure errors are not sampled out
+        monkeypatch.setattr(GLOBAL_CONFIG, "error_sample_rate", 1.0)  # Ensure errors are not sampled out
 
         with monitor_block("block_A", branch_tag="B"):
             time.sleep(0.001)
@@ -145,9 +134,7 @@ class TestInstrumentation:
         del mock_frame.f_globals  # Remove f_globals to cause AttributeError
         mock_stack = [None, (mock_frame, None, None, None, None, None)]
         monkeypatch.setattr(inspect, "stack", lambda: mock_stack)
-        monkeypatch.setattr(
-            inspect, "getmodule", MagicMock(return_value=None)
-        )  # getmodule might return None
+        monkeypatch.setattr(inspect, "getmodule", MagicMock(return_value=None))  # getmodule might return None
 
         block = monitor_block("test_name")
         assert block.module_name == "unknown"
@@ -190,20 +177,16 @@ class TestInstrumentation:
             pass
 
         monkeypatch.setattr(GLOBAL_CONFIG, "sample_rate", 1.0)  # Enter the function
-        monkeypatch.setattr(
-            GLOBAL_CONFIG, "error_sample_rate", 0.0
-        )  # Ensure error is sampled out
-        monkeypatch.setattr(
-            random, "random", lambda: 0.5
-        )  # random > error_sample_rate -> skip
+        monkeypatch.setattr(GLOBAL_CONFIG, "error_sample_rate", 0.0)  # Ensure error is sampled out
+        monkeypatch.setattr(random, "random", lambda: 0.5)  # random > error_sample_rate -> skip
 
         @monitor_function("error_skipped_func")
         def func_with_error():
             raise CustomError("Error in func")
 
-        # Call the function directly, the exception will be suppressed by the decorator's finally block
-        # as it's sampled out.
-        func_with_error()
+        # Call the function directly, the exception will NOT be suppressed (fixed bug)
+        with pytest.raises(CustomError, match="Error in func"):
+            func_with_error()
 
         traces = pypss.get_global_collector().get_traces()
         assert len(traces) == 0  # Verify that no trace was collected.

@@ -1,14 +1,15 @@
 # tests/examples/test_complex_app.py
 import os
 import sys
+
 import pytest
 
 # Add the project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from pypss.core import compute_pss_from_traces
-from examples.complex_app.complex_web_service import run_service_simulation
 import pypss
+from examples.complex_app.complex_web_service import run_service_simulation
+from pypss.core import compute_pss_from_traces
 
 
 @pytest.fixture(scope="module")

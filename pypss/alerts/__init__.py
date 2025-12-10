@@ -1,3 +1,3 @@
-from .base import Alert, AlertSeverity, AlertChannel, AlertRule
+from .base import Alert, AlertChannel, AlertRule, AlertSeverity
 
 __all__ = ["Alert", "AlertSeverity", "AlertChannel", "AlertRule"]

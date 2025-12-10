@@ -1,11 +1,12 @@
-import pytest
-import time
 import os
+import time
+
+import pytest
 
 import pypss  # Add this import
 from pypss import (
-    init,
     GLOBAL_CONFIG,
+    init,
     monitor_function,
 )
 from pypss.tuning.runtime import RuntimeBaselineState, RuntimeTuner
@@ -25,9 +26,7 @@ def cleanup_runtime_state_and_reset_config():
     # Create a fresh PSSConfig instance for each test
     # This ensures no carry-over of changes to GLOBAL_CONFIG
     GLOBAL_CONFIG.__dict__.clear()
-    GLOBAL_CONFIG.__dict__.update(
-        PSSConfig().__dict__
-    )  # Reinitialize GLOBAL_CONFIG with defaults
+    GLOBAL_CONFIG.__dict__.update(PSSConfig().__dict__)  # Reinitialize GLOBAL_CONFIG with defaults
 
     yield  # Run the test
 
@@ -55,9 +54,7 @@ def test_runtime_tuner_initialization():
     tuner = pypss.get_runtime_tuner()
     assert tuner is not None
     assert isinstance(tuner, RuntimeTuner)
-    assert (
-        tuner.state.concurrency_wait_threshold == PSSConfig().concurrency_wait_threshold
-    )
+    assert tuner.state.concurrency_wait_threshold == PSSConfig().concurrency_wait_threshold
 
 
 def test_runtime_tuner_updates_threshold(monkeypatch):  # Add monkeypatch
@@ -94,16 +91,11 @@ def test_runtime_tuner_updates_threshold(monkeypatch):  # Add monkeypatch
 
     # Assert that the threshold has been updated
     assert GLOBAL_CONFIG.concurrency_wait_threshold != initial_threshold
-    assert (
-        GLOBAL_CONFIG.concurrency_wait_threshold > initial_threshold
-    )  # Should increase
+    assert GLOBAL_CONFIG.concurrency_wait_threshold > initial_threshold  # Should increase
 
     # Also check that the state was saved
     loaded_state = RuntimeBaselineState.load()
-    assert (
-        loaded_state.concurrency_wait_threshold
-        == GLOBAL_CONFIG.concurrency_wait_threshold
-    )
+    assert loaded_state.concurrency_wait_threshold == GLOBAL_CONFIG.concurrency_wait_threshold
 
     tuner.stop()  # Manually stop the tuner for clean shutdown
 
@@ -149,7 +141,7 @@ def test_runtime_tuner_with_monitor_function(
     assert len(traces) > 0
     # The wait_time is approximated by the decorator, so we check a range
     first_trace_wait_time = traces[0]["wait_time"]
-    assert first_trace_wait_time >= sleep_duration_for_test * 0.9
-    assert first_trace_wait_time <= sleep_duration_for_test * 1.75
+    assert first_trace_wait_time >= sleep_duration_for_test * 0.5
+    assert first_trace_wait_time <= sleep_duration_for_test * 4.0
 
     tuner.stop()

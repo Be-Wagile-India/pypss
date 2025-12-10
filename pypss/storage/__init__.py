@@ -1,6 +1,6 @@
 from .base import StorageBackend
-from .sqlite import SQLiteStorage
 from .prometheus import PrometheusStorage
+from .sqlite import SQLiteStorage
 
 
 def get_storage_backend(config: dict) -> StorageBackend:
@@ -60,7 +60,6 @@ def check_regression(
                 f"significantly lower than the {limit}-run average ({avg_pss:.1f})."
             )
     except Exception:
-        # Don't fail if history fetch fails
         return None
 
     return None

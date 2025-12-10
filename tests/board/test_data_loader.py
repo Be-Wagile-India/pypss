@@ -1,6 +1,8 @@
-import pytest
-import pandas as pd
 from unittest.mock import patch
+
+import pandas as pd
+import pytest
+
 from pypss.board.data_loader import TraceProcessor, load_trace_data
 
 
@@ -161,9 +163,7 @@ class TestLoadTraceData:
     @patch("json.load")
     @patch("pypss.board.data_loader.compute_pss_from_traces")
     @patch("pypss.board.data_loader.get_module_score_breakdown")
-    def test_load_trace_data_success(
-        self, mock_get_mods, mock_compute, mock_json, mock_open
-    ):
+    def test_load_trace_data_success(self, mock_get_mods, mock_compute, mock_json, mock_open):
         mock_json.return_value = {"traces": [{"timestamp": 1, "name": "t1"}]}
         mock_compute.return_value = {"pss": 80}
         mock_get_mods.return_value = {
@@ -209,7 +209,11 @@ class TestLoadTraceData:
         # Test unknown dict format (not "traces" key)
         mock_json.return_value = {"other_key": "value"}
         res = load_trace_data("unknown_dict.json")
-        assert res == (None, None, None, None)
+        # Should return default empty structure now, not None tuple
+        assert res[0]["pss"] == 0
+        assert res[1].empty
+        assert res[2] == []
+        assert res[3] is not None
 
         # Test empty list (should also return None, None, None, None due to 'if not data' check)
         mock_json.return_value = []

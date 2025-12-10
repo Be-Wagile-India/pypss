@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Dict, Any, List, Optional
 from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional, Union
 
 
 class AlertSeverity(str, Enum):
@@ -28,9 +28,8 @@ class AlertChannel(ABC):
 
     @abstractmethod
     def send(self, alert: Alert) -> None:
-        pass  # pragma: no cover
+        pass
 
-    # This is NOT abstract, it has a default implementation.
     def send_batch(self, alerts: List[Alert]) -> None:
         """Send multiple alerts, potentially aggregated."""
         for alert in alerts:
@@ -46,10 +45,13 @@ class AlertRule(ABC):
 
     @abstractmethod
     def evaluate(
-        self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None
-    ) -> Optional[Alert]:
+        self,
+        report: Dict[str, Any],
+        history: Optional[List[Dict[str, Any]]] = None,
+        module_scores: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Union[Alert, List[Alert]]]:
         """
         Evaluate the rule against the current report (and optionally history).
-        Returns an Alert if triggered, or None.
+        Returns an Alert (or list of Alerts) if triggered, or None.
         """
-        pass  # pragma: no cover
+        pass

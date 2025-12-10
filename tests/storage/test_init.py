@@ -1,12 +1,14 @@
-import pytest
+from typing import Dict, Optional  # Add Dict, Optional
 from unittest.mock import MagicMock, patch
-from typing import Dict  # Add Dict
+
+import pytest
+
 from pypss.storage import (
-    get_storage_backend,
-    check_regression,
-    SQLiteStorage,
     PrometheusStorage,
+    SQLiteStorage,
     StorageBackend,
+    check_regression,
+    get_storage_backend,
 )
 
 
@@ -88,3 +90,37 @@ def test_check_regression_exception():
     report = {"pss": 80}
     result = check_regression(report, storage)
     assert result is None
+
+
+def test_get_storage_backend_prometheus_pull_default_port():
+    with (
+        patch("pypss.storage.prometheus.PROMETHEUS_AVAILABLE", True),
+        patch("pypss.storage.prometheus.Gauge", create=True),
+        patch("pypss.storage.prometheus.CollectorRegistry", create=True),
+    ):
+        config: Dict[str, Optional[str]] = {
+            "storage_backend": "prometheus",
+            "storage_uri": None,  # URI is None
+            "storage_mode": "pull",  # Explicitly set mode to pull
+        }
+        backend = get_storage_backend(config)
+        assert isinstance(backend, PrometheusStorage)
+        # Expected default port when uri is None for pull mode
+        assert backend.http_port == 8000
+
+
+def test_get_storage_backend_prometheus_pull_invalid_uri():
+    with (
+        patch("pypss.storage.prometheus.PROMETHEUS_AVAILABLE", True),
+        patch("pypss.storage.prometheus.Gauge", create=True),
+        patch("pypss.storage.prometheus.CollectorRegistry", create=True),
+    ):
+        config: Dict[str, str] = {
+            "storage_backend": "prometheus",
+            "storage_uri": "invalid_port_string",  # Invalid URI
+            "storage_mode": "pull",  # Explicitly set mode to pull
+        }
+        backend = get_storage_backend(config)
+        assert isinstance(backend, PrometheusStorage)
+        # Expected default port when uri is invalid for pull mode
+        assert backend.http_port == 8000

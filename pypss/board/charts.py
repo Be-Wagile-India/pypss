@@ -1,7 +1,8 @@
 from datetime import datetime
+
+import pandas as pd
 import plotly.express as px  # type: ignore
 import plotly.graph_objects as go  # type: ignore
-import pandas as pd
 
 
 def create_stability_sunburst(df):
@@ -79,13 +80,14 @@ def create_trend_chart(traces):
     last_update_str = ""
     if "timestamp" in df.columns:
         grouped_time = df.groupby("bin", observed=False)["timestamp"].min()
-        tick_text = [
-            datetime.fromtimestamp(ts).strftime("%H:%M:%S") for ts in grouped_time
-        ]
+        tick_text = [datetime.fromtimestamp(ts).strftime("%H:%M:%S") for ts in grouped_time]
 
         # Latest timestamp for title
         max_ts = df["timestamp"].max()
-        last_update_str = f"<br><span style='font-size:10px; color:gray'>Latest Data: {datetime.fromtimestamp(max_ts).strftime('%H:%M:%S')}</span>"
+        last_update_str = (
+            f"<br><span style='font-size:10px; color:gray'>Latest Data: "
+            f"{datetime.fromtimestamp(max_ts).strftime('%H:%M:%S')}</span>"
+        )
 
         # Reduce tick density if too many
         if len(tick_text) > 10:
@@ -158,9 +160,7 @@ def create_trend_chart(traces):
             tickvals=tick_vals,
             ticktext=tick_text,
         ),
-        yaxis=dict(
-            gridcolor=grid_color, tickfont_color=font_color, title_font_color=font_color
-        ),
+        yaxis=dict(gridcolor=grid_color, tickfont_color=font_color, title_font_color=font_color),
         hovermode="x unified",
     )
     return fig
@@ -243,9 +243,7 @@ def create_historical_chart(history_data):
     # Prepare custom data for tooltips (all sub-scores)
     custom_data = []
     for i in range(len(history_data)):
-        custom_data.append(
-            [ts_scores[i], ms_scores[i], ev_scores[i], be_scores[i], cc_scores[i]]
-        )
+        custom_data.append([ts_scores[i], ms_scores[i], ev_scores[i], be_scores[i], cc_scores[i]])
 
     fig = go.Figure()
 
@@ -383,9 +381,7 @@ def plot_stability_trends(df: pd.DataFrame):
                 y=y_vals,
                 mode="lines+markers",
                 name=style["name"],
-                line=dict(
-                    color=style["color"], width=style["width"], dash=style["dash"]
-                ),
+                line=dict(color=style["color"], width=style["width"], dash=style["dash"]),
                 hovertemplate=f"<b>{style['name']}: %{{y:.1f}}</b><extra></extra>",
             )
         )
@@ -525,9 +521,7 @@ def plot_concurrency_dist(traces: list):
         return go.Figure()
 
     # Melt for side-by-side violin
-    melted = df.melt(
-        value_vars=["cpu_time", "wait_time"], var_name="Metric", value_name="Seconds"
-    )
+    melted = df.melt(value_vars=["cpu_time", "wait_time"], var_name="Metric", value_name="Seconds")
 
     fig = px.violin(
         melted,
@@ -546,6 +540,60 @@ def plot_concurrency_dist(traces: list):
         plot_bgcolor="rgba(0,0,0,0)",
         font_color=font_color,
         showlegend=False,
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig
+
+
+def create_custom_chart(traces: list, config: dict):
+    """
+    Creates a custom chart based on user config.
+    Config keys: x_axis, y_axis, chart_type, aggregation (optional), title
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+
+    x_col = config.get("x_axis", "timestamp")
+    y_col = config.get("y_axis", "duration")
+    chart_type = config.get("chart_type", "line")
+    title = config.get("title", f"{y_col} vs {x_col}")
+
+    if x_col not in df.columns or y_col not in df.columns:
+        return go.Figure(layout=dict(title=f"Error: Columns {x_col}/{y_col} not found"))
+
+    if x_col == "timestamp":
+        df["datetime"] = pd.to_datetime(df["timestamp"], unit="s")
+        x_col = "datetime"
+
+    # Handle aggregation if needed (simple grouping by time if x is datetime)
+    if x_col == "datetime" and config.get("aggregation"):
+        df = df.set_index("datetime").sort_index()
+        agg_func = config.get("aggregation", "mean")
+        # Auto-detect window or use config
+        window = config.get("window", "1min")
+        try:
+            df = df.resample(window)[y_col].agg(agg_func).reset_index()
+        except Exception:
+            pass  # Fallback to raw
+
+    fig = go.Figure()
+
+    if chart_type == "line":
+        fig.add_trace(go.Scatter(x=df[x_col], y=df[y_col], mode="lines", name=y_col))
+    elif chart_type == "scatter":
+        fig.add_trace(go.Scatter(x=df[x_col], y=df[y_col], mode="markers", name=y_col))
+    elif chart_type == "bar":
+        fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], name=y_col))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title=x_col,
+        yaxis_title=y_col,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="#333333",
         margin=dict(l=40, r=20, t=40, b=40),
     )
     return fig

@@ -6,6 +6,7 @@ pytest-cov>=4.1.0
 pytest-asyncio>=0.21.0
 pytest-xdist>=3.3.0
 hypothesis>=6.80.0
+freezegun>=1.2.0
 
 # Type Checking & Linting
 mypy>=1.7.0

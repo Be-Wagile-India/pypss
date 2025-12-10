@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from pypss.storage import prometheus
 
 
@@ -36,8 +38,8 @@ def test_prometheus_save_logic():
 
         # Capture the specific mock instances attached to the storage
         # Cast to MagicMock to satisfy mypy
-        from unittest.mock import Mock
         from typing import cast
+        from unittest.mock import Mock
 
         mock_g_pss = cast(Mock, storage.g_pss)
         mock_g_ts = cast(Mock, storage.g_ts)

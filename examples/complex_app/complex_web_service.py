@@ -1,15 +1,16 @@
 # examples/complex_app/complex_web_service.py
+import os
 import random
 import time
-import os
-from typing import Optional, List, Any
+from typing import Any, List, Optional
+
 import pypss
-from pypss.instrumentation import (
-    monitor_function,
-    monitor_block,
-    AutoDumper,
-)
 from pypss.core import compute_pss_from_traces
+from pypss.instrumentation import (
+    AutoDumper,
+    monitor_block,
+    monitor_function,
+)
 
 # Simulate some memory usage
 _memory_hog: List[Any] = []
@@ -102,7 +103,8 @@ def run_background_job():
         wait_time = random.uniform(0.1, 0.5)
         # Update wait_time for the last trace in the collector (manual context)
         # if global_collector.get_traces():
-        #     global_collector.get_traces()[-1]["wait_time"] = wait_time # Simulating custom attribute
+        #     global_collector.get_traces()[-1]["wait_time"] = wait_time
+        #     # Simulating custom attribute
         time.sleep(wait_time)
 
     # Simulate a small chance of error in background

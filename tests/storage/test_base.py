@@ -1,19 +1,16 @@
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
+
 from pypss.storage.base import StorageBackend
 
 
 class ConcreteStorage(StorageBackend):
     """A concrete implementation that calls super() to test the base class."""
 
-    def save(
-        self, report: Dict[str, Any], meta: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def save(self, report: Dict[str, Any], meta: Optional[Dict[str, Any]] = None) -> None:
         # Explicitly call the abstract base method to ensure it is executable (coverage)
         super().save(report, meta)  # type: ignore[safe-super]
 
-    def get_history(
-        self, limit: int = 10, days: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+    def get_history(self, limit: int = 10, days: Optional[int] = None) -> List[Dict[str, Any]]:
         # Explicitly call the abstract base method
         super().get_history(limit, days)  # type: ignore[safe-super]
         return []
