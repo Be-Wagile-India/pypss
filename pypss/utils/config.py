@@ -151,11 +151,31 @@ class PSSConfig:
     alerts_alertmanager_url: str = ""
     alerts_cooldown_seconds: int = 3600
 
+    custom_alert_rules: List[Dict[str, Any]] = field(default_factory=list)
+
     alert_threshold_ts: float = 0.70
     alert_threshold_ms: float = 0.70
     alert_threshold_ev: float = 0.80
     alert_threshold_be: float = 0.70
     alert_threshold_cc: float = 0.70
+
+    dashboard_layout: List[Dict[str, Any]] = field(
+        default_factory=lambda: [
+            {"type": "pss_gauge", "col_span": 3, "tab": "overview"},
+            {"type": "total_traces_kpi", "col_span": 3, "tab": "overview"},
+            {"type": "error_rate_kpi", "col_span": 3, "tab": "overview"},
+            {"type": "avg_latency_kpi", "col_span": 3, "tab": "overview"},
+            {"type": "metric_breakdown", "col_span": 4, "tab": "overview"},
+            {"type": "ai_advisor", "col_span": 8, "tab": "overview"},
+            {"type": "historical_trend", "col_span": 6, "tab": "overview"},
+            {"type": "module_table", "col_span": 6, "tab": "overview"},
+            {"type": "metrics_stability_trends", "col_span": 12, "tab": "metrics"},
+            {"type": "error_heatmap", "col_span": 6, "tab": "diagnostics"},
+            {"type": "entropy_heatmap", "col_span": 6, "tab": "diagnostics"},
+            {"type": "latency_percentiles_chart", "col_span": 12, "tab": "performance"},
+            {"type": "concurrency_distribution", "col_span": 12, "tab": "performance"},
+        ]
+    )
 
     storage_backend: str = "sqlite"
     storage_uri: str = "pypss_history.db"

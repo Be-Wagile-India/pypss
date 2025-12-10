@@ -543,3 +543,57 @@ def plot_concurrency_dist(traces: list):
         margin=dict(l=40, r=20, t=40, b=40),
     )
     return fig
+
+
+def create_custom_chart(traces: list, config: dict):
+    """
+    Creates a custom chart based on user config.
+    Config keys: x_axis, y_axis, chart_type, aggregation (optional), title
+    """
+    if not traces:
+        return go.Figure()
+
+    df = pd.DataFrame(traces)
+
+    x_col = config.get("x_axis", "timestamp")
+    y_col = config.get("y_axis", "duration")
+    chart_type = config.get("chart_type", "line")
+    title = config.get("title", f"{y_col} vs {x_col}")
+
+    if x_col not in df.columns or y_col not in df.columns:
+        return go.Figure(layout=dict(title=f"Error: Columns {x_col}/{y_col} not found"))
+
+    if x_col == "timestamp":
+        df["datetime"] = pd.to_datetime(df["timestamp"], unit="s")
+        x_col = "datetime"
+
+    # Handle aggregation if needed (simple grouping by time if x is datetime)
+    if x_col == "datetime" and config.get("aggregation"):
+        df = df.set_index("datetime").sort_index()
+        agg_func = config.get("aggregation", "mean")
+        # Auto-detect window or use config
+        window = config.get("window", "1min")
+        try:
+            df = df.resample(window)[y_col].agg(agg_func).reset_index()
+        except Exception:
+            pass  # Fallback to raw
+
+    fig = go.Figure()
+
+    if chart_type == "line":
+        fig.add_trace(go.Scatter(x=df[x_col], y=df[y_col], mode="lines", name=y_col))
+    elif chart_type == "scatter":
+        fig.add_trace(go.Scatter(x=df[x_col], y=df[y_col], mode="markers", name=y_col))
+    elif chart_type == "bar":
+        fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], name=y_col))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title=x_col,
+        yaxis_title=y_col,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="#333333",
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig

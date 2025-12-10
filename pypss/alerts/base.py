@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 
 class AlertSeverity(str, Enum):
@@ -44,9 +44,14 @@ class AlertRule(ABC):
         self.enabled = enabled
 
     @abstractmethod
-    def evaluate(self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None) -> Optional[Alert]:
+    def evaluate(
+        self,
+        report: Dict[str, Any],
+        history: Optional[List[Dict[str, Any]]] = None,
+        module_scores: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Union[Alert, List[Alert]]]:
         """
         Evaluate the rule against the current report (and optionally history).
-        Returns an Alert if triggered, or None.
+        Returns an Alert (or list of Alerts) if triggered, or None.
         """
         pass

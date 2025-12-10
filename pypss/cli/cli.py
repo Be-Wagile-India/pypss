@@ -268,7 +268,7 @@ def run(script, output, html, store_history):
     from ..alerts.engine import AlertEngine
 
     engine = AlertEngine()
-    alerts = engine.run(overall_report, history=history_data)
+    alerts = engine.run(overall_report, history=history_data, module_scores=module_scores)
     if alerts:
         click.echo(f"\n🔔 {len(alerts)} Alerts triggered and sent.")
 

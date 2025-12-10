@@ -18,7 +18,12 @@ class MetricStabilityRule(AlertRule):
         self.threshold_key = threshold_key
         self.severity = severity
 
-    def evaluate(self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None) -> Optional[Alert]:
+    def evaluate(
+        self,
+        report: Dict[str, Any],
+        history: Optional[List[Dict[str, Any]]] = None,
+        module_scores: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Alert]:
         if not self.enabled:
             return None
 
@@ -78,7 +83,12 @@ class StabilityRegressionRule(AlertRule):
     def __init__(self, enabled: bool = True):
         super().__init__("Stability Regression", enabled=enabled)
 
-    def evaluate(self, report: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None) -> Optional[Alert]:
+    def evaluate(
+        self,
+        report: Dict[str, Any],
+        history: Optional[List[Dict[str, Any]]] = None,
+        module_scores: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Alert]:
         if not self.enabled or not history:
             return None
 
@@ -105,3 +115,99 @@ class StabilityRegressionRule(AlertRule):
                 threshold=avg_pss - threshold_drop,
             )
         return None
+
+
+class CustomRule(AlertRule):
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config.get("name", "Custom Rule"), enabled=config.get("enabled", True))
+        self.config = config
+        self.severity = AlertSeverity(config.get("severity", "warning"))
+
+    def evaluate(
+        self,
+        report: Dict[str, Any],
+        history: Optional[List[Dict[str, Any]]] = None,
+        module_scores: Optional[Dict[str, Any]] = None,
+    ) -> Optional[List[Alert]]:
+        from typing import Union  # noqa: F401
+
+        if not self.enabled:
+            return None
+
+        conditions = self.config.get("conditions", [])
+        if not conditions:
+            return None
+
+        alerts = []
+        module_pattern = self.config.get("module_pattern")
+
+        if module_pattern and module_scores:
+            import re
+
+            try:
+                pattern = re.compile(module_pattern)
+            except re.error:
+                return None
+
+            for module_name, scores_data in module_scores.items():
+                if pattern.match(module_name):
+                    # Combine PSS and breakdown into a flat dict for evaluation
+                    flat_metrics = {"pss": scores_data.get("pss", 0)}
+                    flat_metrics.update(scores_data.get("breakdown", {}))
+
+                    if self._check_conditions(flat_metrics, conditions):
+                        alerts.append(
+                            Alert(
+                                rule_name=self.name,
+                                severity=self.severity,
+                                message=f"{self.name}: Module '{module_name}' matched conditions.",
+                                metric_name="custom",
+                                current_value=0,  # Placeholder
+                                threshold=0,
+                                extra_data={"module": module_name},
+                            )
+                        )
+        elif not module_pattern:
+            # Global check
+            flat_metrics = {"pss": report.get("pss", 0)}
+            flat_metrics.update(report.get("breakdown", {}))
+
+            if self._check_conditions(flat_metrics, conditions):
+                alerts.append(
+                    Alert(
+                        rule_name=self.name,
+                        severity=self.severity,
+                        message=f"{self.name}: Global metrics matched conditions.",
+                        metric_name="custom",
+                        current_value=0,
+                        threshold=0,
+                    )
+                )
+
+        return alerts if alerts else None
+
+    def _check_conditions(self, metrics: Dict[str, float], conditions: List[Dict[str, Any]]) -> bool:
+        for cond in conditions:
+            metric_key = cond.get("metric")
+            if not isinstance(metric_key, str):
+                continue
+            operator = cond.get("operator")
+            try:
+                threshold = float(cond.get("value", 0))
+            except (ValueError, TypeError):
+                continue
+
+            val = float(metrics.get(metric_key, 0))
+
+            if operator == "<" and not (val < threshold):
+                return False
+            if operator == "<=" and not (val <= threshold):
+                return False
+            if operator == ">" and not (val > threshold):
+                return False
+            if operator == ">=" and not (val >= threshold):
+                return False
+            if operator == "==" and not (val == threshold):
+                return False
+
+        return True
