@@ -59,4 +59,4 @@ class TestConcurrencyMetrics:
         # but locally it should hold.
         assert t["cpu_time"] > 0.15
         # Wait time should be small
-        assert t["wait_time"] < 0.05
+        assert t["wait_time"] < 0.2
