@@ -159,7 +159,7 @@ class TestErrorRateMonitor:
         monitor.start()
 
         # Give the thread a moment to run at least once
-        time.sleep(0.15)  # Should run at least 3 times
+        time.sleep(0.3)  # Should run at least 3 times
 
         monitor.stop()
         if monitor._thread:  # Guard against NoneType
