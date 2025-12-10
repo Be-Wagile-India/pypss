@@ -2,6 +2,7 @@ import sqlite3
 import json
 import time
 from typing import Dict, List, Any, Optional
+from contextlib import contextmanager
 from .base import StorageBackend
 
 
@@ -14,16 +15,21 @@ class SQLiteStorage(StorageBackend):
         self._conn: Optional[sqlite3.Connection] = None  # Store connection for :memory:
         self._init_db()
 
-    def _get_conn(self):
+    @contextmanager
+    def _managed_conn(self):
         if self.db_path == ":memory:":
             if self._conn is None:
                 self._conn = sqlite3.connect(self.db_path)
-            return self._conn
+            yield self._conn
         else:
-            return sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path)
+            try:
+                yield conn
+            finally:
+                conn.close()
 
     def _init_db(self):
-        with self._get_conn() as conn:
+        with self._managed_conn() as conn:
             cursor = conn.cursor()
 
             # Meta table for versioning
@@ -75,7 +81,7 @@ class SQLiteStorage(StorageBackend):
             return
 
         cutoff = time.time() - (_days_to_prune * 86400)
-        with self._get_conn() as conn:
+        with self._managed_conn() as conn:
             conn.execute("DELETE FROM pss_history WHERE timestamp < ?", (cutoff,))
             conn.commit()
 
@@ -91,7 +97,7 @@ class SQLiteStorage(StorageBackend):
         # Extract sub-scores safely
         breakdown = report.get("breakdown", {})
 
-        with self._get_conn() as conn:
+        with self._managed_conn() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 """
@@ -125,7 +131,7 @@ class SQLiteStorage(StorageBackend):
         query += " ORDER BY timestamp DESC LIMIT ?"
         params.append(limit)
 
-        with self._get_conn() as conn:
+        with self._managed_conn() as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute(query, tuple(params))

@@ -80,16 +80,45 @@ class FaultInjector:
         if n == 0:
             return faulty_traces
 
+        used_indices = set()
+
         for _ in range(burst_count):
+            start_idx = 0
+            found_slot = False
+
             if n <= burst_size:
+                # Trace list too short, just start at 0 (will overlap if multiple bursts)
                 start_idx = 0
             else:
-                start_idx = random.randint(0, n - burst_size)
+                # Try to find a non-overlapping slot
+                for _attempt in range(50):
+                    candidate_start = random.randint(0, n - burst_size)
+                    candidate_range = range(
+                        candidate_start, min(candidate_start + burst_size, n)
+                    )
 
+                    # Check for overlap
+                    overlap = False
+                    for idx in candidate_range:
+                        if idx in used_indices:
+                            overlap = True
+                            break
+
+                    if not overlap:
+                        start_idx = candidate_start
+                        found_slot = True
+                        break
+
+                # If no slot found after retries, just pick a random one (accept overlap)
+                if not found_slot:
+                    start_idx = random.randint(0, n - burst_size)
+
+            # Apply the burst
             for i in range(start_idx, min(start_idx + burst_size, n)):
                 faulty_traces[i]["error"] = True
                 faulty_traces[i]["exception_type"] = "SyntheticFaultError"
                 faulty_traces[i]["exception_message"] = "Injected by FaultInjector"
+                used_indices.add(i)
 
         return faulty_traces
 
